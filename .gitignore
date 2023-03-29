@@ -1,0 +1,14 @@
+parcnet/pretrained_models/detection/balance/
+.DS_Store
+*.pyc
+*.png
+
+parcnet/pretrained_models/detection/unbalance/
+parcnet/pretrained_models/classification/
+
+images_test/
+pretrained/
+
+parcnet/pretrained_models/detection/checkpoint_ema_avg_modif.pt
+parcnet/pretrained_models/detection/checkpoint_ema_avg.pt
+parcnet/pretrained_models/detection/checkpoint_last_krsbi_run1_81.pt
