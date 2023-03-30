@@ -1,5 +1,5 @@
 common:
-  run_label: "run_17"
+  run_label: "run_20"
   accum_freq: 1
   accum_after_epoch: -1
   log_freq: 500
@@ -9,7 +9,6 @@ common:
 dataset:
   root_train: "imgs_dec"
   root_val: "imgs_dec"
-  root_test: "imgs_dec"
   name: "krsbi_ssd"
   category: "detection"
   train_batch_size0: 32
@@ -56,7 +55,7 @@ model:
       size_variance: 0.2
       iou_threshold: 0.5
       nms_iou_threshold: 0.5
-    pretrained: "/content/drive/MyDrive/skripsi/result/checkpoint/unbalance/checkpoint_last_run16.pt"
+    pretrained: "/content/drive/MyDrive/skripsi/result/checkpoint/unbalance/checkpoint_last_run19.pt"
     n_classes: 4
   classification:
     name: "edgeformer"

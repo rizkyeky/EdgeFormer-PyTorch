@@ -4,6 +4,12 @@ project(test_opencv VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
+option(LIBPNG_ROOTDIR "libpng root dir")
+option(ONNXRUNTIME_ROOTDIR "onnxruntime root dir")
+set(ONNXRUNTIME_ROOTDIR "/opt/homebrew/include/onnxruntime")
+
+include_directories("${ONNXRUNTIME_ROOTDIR}/core/session")
+
 # include_directories(/Users/eky/Dev/libtorch/include)
 
 # set(CMAKE_PREFIX_PATH "/Users/eky/Dev/libtorch")
@@ -17,7 +23,7 @@ find_package(OpenCV REQUIRED)
 # find_library(LIBTORCH_LIBRARY torch PATHS "/Users/eky/Dev/libtorch/lib")
 
 # add_executable(testmodel main.cpp)
-set(SOURCES main.cpp detector.cpp classifier.cpp)
+set(SOURCES main.cpp detector.cpp classifier.cpp onnx.cpp)
 add_executable(testmodel ${SOURCES})
 
 target_link_libraries(testmodel ${OpenCV_LIBS})

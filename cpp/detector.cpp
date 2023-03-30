@@ -11,7 +11,7 @@
 
 class ObjectDetector {
 
-    protected:
+protected:
     torch::jit::script::Module module;
     std::string modelPath;
     cv::VideoCapture cap;
@@ -44,7 +44,7 @@ class ObjectDetector {
         return mode;
     }
     
-    public:
+public:
     void initModel() {
         try {
             module = torch::jit::load(this->modelPath);
@@ -117,89 +117,8 @@ class ObjectDetector {
         }
     }
 
-    private:
-    int classifyImage(cv::Mat &image) {
-          
-        c10::InferenceMode guard;
-
-        cv::Mat reImage;
-        cv::Mat rgbImage;
-
-        cv::resize(image, reImage, cv::Size(ImgSize,ImgSize));
-        cv::cvtColor(reImage, rgbImage, cv::COLOR_BGR2RGB);
-
-        torch::Tensor inputTensor = torch::from_blob(
-            rgbImage.data, 
-            {rgbImage.rows, rgbImage.cols, 3},
-            torch::kByte
-        ).to(torch::kFloat);
-        inputTensor = inputTensor.div(255);
-        inputTensor = inputTensor.permute({2,0,1});
-        inputTensor.unsqueeze_(0);
-        
-        inputTensor.to(this->device);
-        module.to(this->device);
-        module.eval();
-
-        std::vector<torch::jit::IValue> inputs = {inputTensor};
-        
-        auto start_time = std::chrono::high_resolution_clock::now();
-        
-        torch::Tensor outputTensor = module.forward(inputs).toTensor();
-
-        auto end_time = std::chrono::high_resolution_clock::now();
-        float time_ms = (float) std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-        inference_times.push_back(time_ms);
-        
-        std::tuple result = outputTensor.max(1);
-
-        auto max_value = std::get<0>(result);
-        auto max_index = std::get<1>(result);
-
-        return max_index.item().toInt();
-    }
-
-    c10::List<c10::IValue> detectObject(cv::Mat &image) {
-          
-        c10::InferenceMode guard(true);
-
-        cv::Mat reImage;
-        cv::Mat rgbImage;
-
-        cv::resize(image, reImage, cv::Size(ImgSize,ImgSize));
-        cv::cvtColor(reImage, rgbImage, cv::COLOR_BGR2RGB);
-
-        torch::Tensor inputTensor = torch::from_blob(
-            rgbImage.data, 
-            {rgbImage.rows, rgbImage.cols, 3},
-            torch::kByte
-        ).to(torch::kFloat);
-        inputTensor = inputTensor.div(255);
-        inputTensor = inputTensor.permute({2,0,1});
-        inputTensor.unsqueeze_(0);
-        
-        inputTensor.to(this->device);
-        module.to(this->device);
-        module.eval();
-        
-        std::vector<torch::Tensor> images = { inputTensor };
-        auto start_time = std::chrono::high_resolution_clock::now();
-        
-        auto output = this->module.forward({images}).toTuple().get()[0];
-
-        auto end_time = std::chrono::high_resolution_clock::now();
-        float time_ms = (float) std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-        inference_times.push_back(time_ms);
-        
-        auto losses = output.elements()[0].toGenericDict();
-        auto results = output.elements()[1].toList();
-
-        return results;
-    }
-    public:    
+public:    
     virtual void run() = 0;
-
-    virtual void detectImageFromPath(std::string path) = 0;
 
     void close() {
         this->cap.release();
@@ -218,6 +137,14 @@ private:
         cv::Scalar(0, 0, 255),
         cv::Scalar(0, 255, 0),
         cv::Scalar(255, 0, 0),
+    };
+
+    std::vector<std::string> classes = {
+        "background",
+        "robot",
+        "ball",
+        "goal"
+
     };
 
 public:
@@ -329,7 +256,7 @@ public:
                         cv::Point(x2, y2), 
                         colors[label], 2
                     );
-                    cv::String format = cv::format("%.2f %d", score, label);
+                    cv::String format = cv::format("%.2f %s", score, classes[label].c_str());
                     cv::putText(frame, 
                         format,
                         cv::Point(x1, y1), 

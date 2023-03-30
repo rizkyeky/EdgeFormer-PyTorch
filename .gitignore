@@ -2,6 +2,8 @@ parcnet/pretrained_models/detection/balance/
 .DS_Store
 *.pyc
 *.png
+*.pt
+*.pth
 
 parcnet/pretrained_models/detection/unbalance/
 parcnet/pretrained_models/classification/

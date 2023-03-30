@@ -14,9 +14,9 @@ from data import create_train_val_loader
 from utils.checkpoint_utils import load_checkpoint, load_model_state
 from engine import Trainer
 import math
+import os
 from torch.cuda.amp import GradScaler
 from common import DEFAULT_EPOCHS, DEFAULT_ITERATIONS, DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_EPOCHS
-# import platform
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -175,13 +175,18 @@ def main_worker(**kwargs):
 
     if system_type == 'mac':
         setattr(opts, "eky.path", '/Users/eky/Documents/_SKRIPSI')
+        setattr(opts, "model.classification.pretrained", 'parcnet/pretrained_models/classification/checkpoint_last_93.pt')
+        setattr(opts, "model.detection.pretrained", 'parcnet/pretrained_models/detection/unbalance/checkpoint_last_run19.pt')
     elif system_type == 'colab':
         setattr(opts, "eky.path", '/content/drive/MyDrive/skripsi')
     elif system_type == 'kaggle':
         setattr(opts, "eky.path", '/kaggle/working')
-        setattr(opts, "classification.pretrained", 'parcnet/pretrained_models/classification/checkpoint_last_93.pt')
-        setattr(opts, "detection.pretrained", 'parcnet/pretrained_models/detection/unbalance/checkpoint_last_run17.pt')
-        
+    elif system_type == 'labai':
+        setattr(opts, "eky.path", '')
+        setattr(opts, "dataset.root_train", 'dataset')
+        setattr(opts, "dataset.root_val", 'dataset')
+        setattr(opts, "model.classification.pretrained", 'parcnet/pretrained_models/classification/checkpoint_last_93.pt')
+        setattr(opts, "model.detection.pretrained", 'parcnet/pretrained_models/detection/unbalance/checkpoint_last_run19.pt')
     else:
         setattr(opts, "eky.path", None)
 
@@ -195,7 +200,13 @@ def main_worker(**kwargs):
     is_master_node = is_master(opts)
 
     # create the directory for saving results
-    if (getattr(opts, "eky.system") != 'kaggle'): 
+    if (system_type == 'labai'):
+        root = os.getcwd()
+        run_label = getattr(opts, "common.run_label", "run_1")
+        exp_dir = '{}/{}'.format(root+'/results/', run_label)
+        setattr(opts, "common.exp_loc", exp_dir)
+        create_directories(dir_path=exp_dir, is_master_node=is_master_node)
+    elif (system_type != 'kaggle'): 
         save_dir = getattr(opts, "eky.path") + '/' + getattr(opts, "common.results_loc", "results")
         run_label = getattr(opts, "common.run_label", "run_1")
         is_imbalance = dataset_type == 'imbalance'
