@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch_tensorrt
 
 model = torchvision.models.mobilenet_v3_small(weights="IMAGENET1K_V1").cuda().half().eval()
-input_data = torch.randn((1,3,224,224))
+input_data = torch.randn((1,3,224,224)).cuda().half()
 
 result = model(input_data)
 print(result.shape)
