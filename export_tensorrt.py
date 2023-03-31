@@ -5,6 +5,12 @@ import torch.nn as nn
 import torch_tensorrt
 
 model = torchvision.models.mobilenet_v3_small(weights="IMAGENET1K_V1").cuda().half().eval()
+input_data = torch.randn((1,3,224,224))
+
+result = model(input_data)
+print(result.shape)
+
+model_traced = torch.jit.trace(model, input_data)
 
 inputs = [
     torch_tensorrt.Input(
@@ -19,7 +25,6 @@ enabled_precisions = {torch.float, torch.half}  # Run with fp16
 trt_ts_module = torch_tensorrt.compile(
     model, inputs=inputs, enabled_precisions=enabled_precisions
 )
-input_data = torch.randn((1,3,224,224))
 input_data = input_data.to(torch.device("cuda")).half()
 result = trt_ts_module(input_data)
 torch.jit.save(trt_ts_module, "mobilenet_v3_small.trt")
