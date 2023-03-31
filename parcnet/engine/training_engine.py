@@ -1,5 +1,6 @@
 
 import torch
+from torch import Tensor
 import gc
 from torch.cuda.amp import autocast
 from utils import logger
@@ -182,7 +183,7 @@ class Trainer(object):
                 if self.model_ema is not None:
                     self.model_ema.update_parameters(self.model)
 
-            metrics = metric_monitor(pred_label=pred_label, target_label=target_label, loss=loss,
+            metrics = metric_monitor(pred_label=pred_label[:2], target_label=target_label, loss=loss,
                                      use_distributed=self.use_distributed, metric_names=self.metric_names)
 
             train_stats.update(metric_vals=metrics, batch_time=batch_load_toc, n=batch_size)
@@ -234,14 +235,14 @@ class Trainer(object):
 
                 with autocast(enabled=self.mixed_precision_training):
                     # prediction
-                    pred_label = model(input_img, is_training=True)
+                    pred_label: tuple[Tensor, Tensor, Tensor] = model(input_img, is_training=True)
                     # compute loss
                     loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
                     
 
                 processed_samples += batch_size
 
-                metrics = metric_monitor(pred_label=pred_label, target_label=target_label, loss=loss,
+                metrics = metric_monitor(pred_label=pred_label[:2], target_label=target_label, loss=loss,
                                          use_distributed=self.use_distributed, metric_names=self.metric_names)
                 validation_stats.update(metric_vals=metrics, batch_time=0.0, n=batch_size)
 
@@ -407,14 +408,16 @@ class Trainer(object):
                 logger.log('Training took {}'.format(train_time_str))
 
                 plt.plot(self.history['train_avg_loss'], label='Training Loss')
-                plt.plot(self.history['train_avg_ckpt_metric'], label='Validation Loss')
-                plt.plot(self.history['val_avg_loss'], label='Training Loss')
+                plt.plot(self.history['train_avg_iou'], label='Training IOU')
+                plt.plot(self.history['train_avg_ckpt_metric'], label='Training Loss')
+                plt.plot(self.history['val_avg_loss'], label='Validation Loss')
+                plt.plot(self.history['val_avg_iou'], label='Validation IOU')
                 plt.plot(self.history['val_avg_ckpt_metric'], label='Validation Loss')
                 plt.xlabel('Epoch')
                 plt.ylabel('Loss')
                 plt.legend()
 
-                plt.savefig(save_dir+'/loss_plot_{}.jpg'.format(max_epochs))
+                plt.savefig(save_dir+'/loss_plot.jpg')
 
                 json_object = json.dumps(self.history, indent=4)
  
