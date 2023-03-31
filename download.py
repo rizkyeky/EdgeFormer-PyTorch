@@ -11,10 +11,10 @@ train_output = 'dataset/images/un_train.zip'
 val_output = 'dataset/images/un_val.zip'
 ann_output = 'dataset/annotations/annotations.zip'
 chdet_output = 'checkpoints/checkpoint_last.pt'
-chcls_output = 'checkpoints/checkpoint_last.pt'
+chcls_output = 'checkpoints/checkpoint_cls_last.pt'
 
 # gdown.download(train_url, train_output)
 # gdown.download(val_url, val_output)
 # gdown.download(ann_url, ann_output)
-# gdown.download(checkpoint_cls, chcls_output)
-gdown.download(checkpoint_det, chdet_output)
+gdown.download(checkpoint_cls, chcls_output)
+# gdown.download(checkpoint_det, chdet_output)
