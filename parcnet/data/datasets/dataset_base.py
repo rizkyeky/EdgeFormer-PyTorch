@@ -20,7 +20,7 @@ class BaseImageDataset(data.Dataset):
         root = getattr(opts, "eky.path") + '/' + root
         self.is_imbalance = getattr(opts, "eky.dataset", None) == 'imbalance'
         if (system == 'labai'):
-            self.root = root
+            self.root = root[1:]
         else:
             self.root = root + '/unbalance' if self.is_imbalance else root + '/balance'
         self.is_training = is_training
