@@ -195,7 +195,7 @@ def main_worker(**kwargs):
         setattr(opts, "dataset.root_train", 'dataset')
         setattr(opts, "dataset.root_val", 'dataset')
         setattr(opts, "model.classification.pretrained", 'checkpoints/checkpoint_last.pt')
-        setattr(opts, "model.detection.pretrained", 'checkpoints/checkpoint_last.pt')
+        setattr(opts, "model.detection.pretrained", 'checkpoints/checkpoint_cls_last.pt')
     else:
         setattr(opts, "eky.path", None)
 
