@@ -10,8 +10,8 @@ checkpoint_det = 'https://drive.google.com/uc?id=1-IIBlEIdhQmHuO-jlAoNNLWBqY8FTH
 train_output = 'dataset/images/un_train.zip'
 val_output = 'dataset/images/un_val.zip'
 ann_output = 'dataset/annotations/annotations.zip'
-chdet_output = 'checkpoints/checkpoint_last_run19.pt'
-chcls_output = 'checkpoints/checkpoint_last_93.pt'
+chdet_output = 'checkpoints/checkpoint_last.pt'
+chcls_output = 'checkpoints/checkpoint_last.pt'
 
 # gdown.download(train_url, train_output)
 # gdown.download(val_url, val_output)
