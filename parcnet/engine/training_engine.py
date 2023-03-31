@@ -199,9 +199,10 @@ class Trainer(object):
             self.train_iterations += 1
         
         avg_loss = train_stats.avg_statistics(metric_name='loss')
+        avg_iou = train_stats.avg_statistics(metric_name='iou')
         train_stats.epoch_summary(epoch=epoch, stage="training")
         avg_ckpt_metric = train_stats.avg_statistics(metric_name=self.ckpt_metric)
-        return avg_loss, avg_ckpt_metric
+        return avg_loss, avg_ckpt_metric, avg_iou
 
     def val_epoch(self, epoch, model, extra_str=""):
         time.sleep(2)  # To prevent possible deadlock during epoch transition
@@ -254,8 +255,9 @@ class Trainer(object):
 
         validation_stats.epoch_summary(epoch=epoch, stage="validation" + extra_str)
         avg_loss = validation_stats.avg_statistics(metric_name='loss')
+        avg_iou = validation_stats.avg_statistics(metric_name='iou')
         avg_ckpt_metric = validation_stats.avg_statistics(metric_name=self.ckpt_metric)
-        return avg_loss, avg_ckpt_metric
+        return avg_loss, avg_ckpt_metric, avg_iou
 
     def run(self, train_sampler=None):
         if train_sampler is None and self.is_master_node:
@@ -282,11 +284,15 @@ class Trainer(object):
                 train_sampler.set_epoch(epoch)
                 train_sampler.update_scales(epoch=epoch, is_master_node=self.is_master_node)
 
-                train_loss, train_ckpt_metric = self.train_epoch(epoch)
-                self.history['train_loss'].append(train_loss)
+                train_loss, train_ckpt_metric, train_iou = self.train_epoch(epoch)
+                self.history['train_avg_loss'].append(train_loss)
+                self.history['train_avg_iou'].append(train_iou)
+                self.history['train_avg_ckpt_metric'].append(train_ckpt_metric)
 
-                val_loss, val_ckpt_metric = self.val_epoch(epoch=epoch, model=self.model)
-                self.history['val_loss'].append(val_loss)
+                val_loss, val_ckpt_metric, val_iou = self.val_epoch(epoch=epoch, model=self.model)
+                self.history['val_avg_loss'].append(val_loss)
+                self.history['val_avg_iou'].append(val_iou)
+                self.history['val_avg_ckpt_metric'].append(val_ckpt_metric)
 
                 if epoch == copy_at_epoch and self.model_ema is not None:
                     if self.is_master_node:
@@ -400,8 +406,10 @@ class Trainer(object):
                 train_time_str = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
                 logger.log('Training took {}'.format(train_time_str))
 
-                plt.plot(self.history['train_loss'], label='Training Loss')
-                plt.plot(self.history['val_loss'], label='Validation Loss')
+                plt.plot(self.history['train_avg_loss'], label='Training Loss')
+                plt.plot(self.history['train_avg_ckpt_metric'], label='Validation Loss')
+                plt.plot(self.history['val_avg_loss'], label='Training Loss')
+                plt.plot(self.history['val_avg_ckpt_metric'], label='Validation Loss')
                 plt.xlabel('Epoch')
                 plt.ylabel('Loss')
                 plt.legend()

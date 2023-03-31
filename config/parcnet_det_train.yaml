@@ -90,7 +90,7 @@ ddp:
   world_size: -1
   dist_port: 30787
 stats:
-  name: [ "loss" ]
+  name: [ "loss", "iou" ]
   checkpoint_metric: "loss"
   checkpoint_metric_max: false
 image_augmentation:

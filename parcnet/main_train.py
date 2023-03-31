@@ -108,11 +108,13 @@ def main(opts, **kwargs):
 
     start_epoch = 0
     start_iteration = 0
-    history = {
-        'train_loss': [],
-        'train_acc': [],
-        'val_loss': [],
-        'val_acc': [],
+    history: dict[str, list] = {
+        'train_avg_loss': [],
+        'train_avg_iou': [],
+        'train_avg_ckpt_metric': [],
+        'val_avg_loss': [],
+        'val_avg_iou': [],
+        'val_avg_ckpt_metric': [],
     }
     resume_loc = getattr(opts, "common.resume", None)
     finetune_loc = getattr(opts, "common.finetune", None)
@@ -183,6 +185,9 @@ def main_worker(**kwargs):
         setattr(opts, "eky.path", '/kaggle/working')
     elif system_type == 'labai':
         setattr(opts, "eky.path", '')
+        setattr(opts, 'scheduler.max_epochs', 10000)
+        setattr(opts, 'dataset.train_batch_size0', 64)
+        setattr(opts, 'dataset.val_batch_size0', 64)
         setattr(opts, "dataset.root_train", 'dataset')
         setattr(opts, "dataset.root_val", 'dataset')
         setattr(opts, "model.classification.pretrained", 'checkpoints/checkpoint_last_93.pt')
@@ -203,7 +208,7 @@ def main_worker(**kwargs):
     if (system_type == 'labai'):
         root = os.getcwd()
         run_label = getattr(opts, "common.run_label", "run_1")
-        exp_dir = '{}/{}'.format(root+'/results/', run_label)
+        exp_dir = '{}/{}'.format(root+'/results', run_label)
         setattr(opts, "common.exp_loc", exp_dir)
         create_directories(dir_path=exp_dir, is_master_node=is_master_node)
     elif (system_type != 'kaggle'): 
