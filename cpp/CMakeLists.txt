@@ -4,39 +4,22 @@ project(test_opencv VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-option(LIBPNG_ROOTDIR "libpng root dir")
-option(ONNXRUNTIME_ROOTDIR "onnxruntime root dir")
-set(ONNXRUNTIME_ROOTDIR "/opt/homebrew/include/onnxruntime")
+set(ONNXRUNTIME_ROOTDIR "/opt/homebrew/Cellar/onnxruntime/1.14.1")
 
-include_directories("${ONNXRUNTIME_ROOTDIR}/core/session")
-
-# include_directories(/Users/eky/Dev/libtorch/include)
-
-# set(CMAKE_PREFIX_PATH "/Users/eky/Dev/libtorch")
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS} -arch arm64")
-
-# find_package(Torch REQUIRED)
 find_package(TorchVision REQUIRED)
 find_package(OpenCV REQUIRED)
-# find_package(NumCpp REQUIRED)
 
-# find_library(LIBTORCH_LIBRARY torch PATHS "/Users/eky/Dev/libtorch/lib")
+include_directories("${ONNXRUNTIME_ROOTDIR}/include/onnxruntime/core/session")
+link_libraries("${ONNXRUNTIME_ROOTDIR}/lib/libonnxruntime.dylib")
 
-# add_executable(testmodel main.cpp)
 set(SOURCES main.cpp detector.cpp classifier.cpp onnx.cpp)
-add_executable(testmodel ${SOURCES})
+add_executable(main ${SOURCES})
 
-target_link_libraries(testmodel ${OpenCV_LIBS})
-# target_link_libraries(testmodel PUBLIC ${TORCH_LIBRARIES})
-# target_link_libraries(testmodel PUBLIC ${TORCHVISION_LIBRARIES})
-target_link_libraries(testmodel TorchVision::TorchVision)
-# target_link_libraries(testob NumCpp::NumCpp)
+target_link_libraries(main ${OpenCV_LIBS})
+target_link_libraries(main TorchVision::TorchVision)
 
-# target_include_directories(testmodel PUBLIC ${TORCH_INCLUDE})
-# target_include_directories(testmodel PUBLIC ${TORCHVISION_INCLUDE})
-
-target_compile_options(testmodel PUBLIC -std=c++20)
-target_compile_features(testmodel PUBLIC cxx_range_for)
+target_compile_options(main PUBLIC -std=c++20)
+target_compile_features(main PUBLIC cxx_range_for)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

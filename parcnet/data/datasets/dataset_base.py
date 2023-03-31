@@ -13,17 +13,23 @@ class BaseImageDataset(data.Dataset):
     """
     def __init__(self, opts, is_training: Optional[bool] = True, is_evaluation: Optional[bool] = False, *args,
                  **kwargs):
+        
+        system = getattr(opts, 'eky.system')
+        dataset_name = getattr(opts, 'dataset.name')
         root = getattr(opts, "dataset.root_train", None) if is_training else getattr(opts, "dataset.root_val", None)
         root = getattr(opts, "eky.path") + '/' + root
         self.is_imbalance = getattr(opts, "eky.dataset", None) == 'imbalance'
-        self.root = root + '/unbalance' if self.is_imbalance else root + '/balance'
+        if (system == 'labai'):
+            self.root = root
+        else:
+            self.root = root + '/unbalance' if self.is_imbalance else root + '/balance'
         self.is_training = is_training
         self.is_evaluation = is_evaluation
         self.sampler_name = getattr(opts, "sampler.name", None)
         self.opts = opts
-        if (getattr(opts, 'eky.system') == 'kaggle' and getattr(opts, 'dataset.name') == 'imagenet'):
+        if (system == 'kaggle' and dataset_name == 'imagenet'):
             self.root = '/kaggle/input/imagenetmini-1000/imagenet-mini'
-        elif (getattr(opts, 'eky.system') == 'kaggle' and getattr(opts, 'dataset.name') == 'krsbi_ssd'):
+        elif (system == 'kaggle' and dataset_name == 'krsbi_ssd'):
             self.root = '/kaggle/working'
 
     @staticmethod
