@@ -102,6 +102,7 @@ def save_checkpoint(iterations: int,
                     is_best: bool,
                     save_dir: str,
                     history: dict,
+                    epoch_times: list,
                     gradient_scalar: torch.cuda.amp.GradScaler,
                     model_ema: Optional[torch.nn.Module] = None,
                     is_ema_best: Optional[bool] = False,
@@ -130,6 +131,8 @@ def save_checkpoint(iterations: int,
         }, indent=4)
         with open(save_dir+"/checkpoint_best_{}.json".format(close_epoch), "w") as outfile:
             outfile.write(json_object)
+    elif close_epoch % 100 == 0 and close_epoch > 0:
+        logger.info("No best checkpoints in epochs: {} - {}".format(close_epoch-100, close_epoch))
 
     # if model_ema is not None:
     #     checkpoint['ema_state_dict'] = get_model_state_dict(model_ema)
@@ -144,6 +147,13 @@ def save_checkpoint(iterations: int,
 
     ckpt_fname = '{}_last.{}'.format(ckpt_str, CHECKPOINT_EXTN)
     torch.save(model_state, ckpt_fname)
+
+    history.update({
+        'epoch_times': epoch_times
+    })
+    json_object = json.dumps(history, indent=4)
+    with open(save_dir+"/history.json", "w") as outfile:
+        outfile.write(json_object)
 
     if k_best_checkpoints > 1:
         avg_n_save_k_checkpoints(model_state, best_metric, k_best_checkpoints, max_ckpt_metric, ckpt_str)

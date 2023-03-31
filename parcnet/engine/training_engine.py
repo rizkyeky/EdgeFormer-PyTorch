@@ -335,6 +335,7 @@ class Trainer(object):
                         is_best=is_best,
                         save_dir=save_dir,
                         history=self.history,
+                        epoch_times=self.epoch_times,
                         model_ema=self.model_ema,
                         is_ema_best=is_ema_best,
                         ema_best_metric=ema_best_metric,
@@ -343,6 +344,13 @@ class Trainer(object):
                         k_best_checkpoints=keep_k_best_ckpts
                     )
                     logger.info('Checkpoints saved at: {}'.format(save_dir), print_line=True)
+
+                    epoch_end_time = time.time()
+                    self.epoch_times.append(epoch_end_time - epoch_start_time)
+                    hours, rem = divmod(epoch_end_time - epoch_start_time, 3600)
+                    minutes, seconds = divmod(rem, 60)
+                    epoch_time_str = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
+                    logger.log('Epoch {} took {}'.format(epoch, epoch_time_str))
 
                 if self.tb_log_writter is not None and self.is_master_node:
                     lr_list = self.scheduler.retrieve_lr(self.optimizer)
@@ -367,13 +375,6 @@ class Trainer(object):
                 if self.max_iterations_reached and self.is_master_node:
                     logger.info('Max. iterations for training reached')
                     break
-
-                epoch_end_time = time.time()
-                self.epoch_times.append(epoch_end_time - epoch_start_time)
-                hours, rem = divmod(epoch_end_time - epoch_start_time, 3600)
-                minutes, seconds = divmod(rem, 60)
-                epoch_time_str = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
-                logger.log('Epoch {} took {}'.format(epoch, epoch_time_str))
 
         except KeyboardInterrupt:
             if self.is_master_node:
@@ -422,12 +423,12 @@ class Trainer(object):
                 plt.legend()
 
                 plt.savefig(save_dir+'/loss_plot.jpg')
-                self.history.update({
-                    'epoch_times': self.epoch_times
-                })
-                json_object = json.dumps(self.history, indent=4)
-                with open(save_dir+"/history.json", "w") as outfile:
-                    outfile.write(json_object)
+                # self.history.update({
+                #     'epoch_times': self.epoch_times
+                # })
+                # json_object = json.dumps(self.history, indent=4)
+                # with open(save_dir+"/history.json", "w") as outfile:
+                #     outfile.write(json_object)
 
             try:
                 exit(0)
