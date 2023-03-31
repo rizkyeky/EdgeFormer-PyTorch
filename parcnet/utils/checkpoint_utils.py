@@ -183,10 +183,10 @@ def load_checkpoint(opts,
         start_iteration = checkpoint['iterations'] + 1
         best_metric = checkpoint['best_metric']
         
-        history['train_loss'] = history['train_loss'] + checkpoint['history']['train_loss']
-        history['train_acc'] = history['train_acc'] + checkpoint['history']['train_acc']
-        history['val_loss'] = history['val_loss'] + checkpoint['history']['val_loss']
-        history['val_acc'] = history['val_acc'] + checkpoint['history']['val_acc']
+        history['train_avg_loss'] = history['train_avg_loss'] + checkpoint['history']['train_avg_loss']
+        history['train_avg_ckpt_metric'] = history['train_avg_ckpt_metric'] + checkpoint['history']['train_avg_ckpt_metric']
+        history['val_avg_loss'] = history['val_avg_loss'] + checkpoint['history']['val_avg_loss']
+        history['val_avg_ckpt_metric'] = history['val_avg_ckpt_metric'] + checkpoint['history']['val_avg_ckpt_metric']
 
         model = load_state_dict(model, checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optim_state_dict'])
