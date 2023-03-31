@@ -1,4 +1,4 @@
-
+import numpy as np
 import torch
 from torch import Tensor
 import gc
@@ -63,6 +63,7 @@ class Trainer(object):
         self.train_iterations = start_iteration
 
         self.history = history
+        self.epoch_times = []
 
         self.is_master_node = is_master(opts)
         self.max_iterations_reached = False
@@ -277,6 +278,7 @@ class Trainer(object):
             for epoch in range(self.start_epoch, max_epochs):
                 # Note that we are using our owm implementations of data samplers
                 # and we have defined this function for both distributed and non-distributed cases
+                epoch_start_time = time.time()
                 train_sampler.set_epoch(epoch)
                 train_sampler.update_scales(epoch=epoch, is_master_node=self.is_master_node)
 
@@ -308,20 +310,20 @@ class Trainer(object):
                     is_best = val_ckpt_metric <= self.best_metric
                     self.best_metric = min(val_ckpt_metric, self.best_metric)
 
-                val_ema_loss = None
-                val_ema_ckpt_metric = None
-                if self.model_ema is not None:
-                    val_ema_loss, val_ema_ckpt_metric = self.val_epoch(
-                        epoch=epoch,
-                        model=self.model_ema.ema_model,
-                        extra_str=" (EMA)"
-                    )
-                    if max_checkpoint_metric:
-                        is_ema_best = val_ema_ckpt_metric >= ema_best_metric
-                        ema_best_metric = max(val_ema_ckpt_metric, ema_best_metric)
-                    else:
-                        is_ema_best = val_ema_ckpt_metric <= ema_best_metric
-                        ema_best_metric = min(val_ema_ckpt_metric, ema_best_metric)
+                # val_ema_loss = None
+                # val_ema_ckpt_metric = None
+                # if self.model_ema is not None:
+                #     val_ema_loss, val_ema_ckpt_metric = self.val_epoch(
+                #         epoch=epoch,
+                #         model=self.model_ema.ema_model,
+                #         extra_str=" (EMA)"
+                #     )
+                #     if max_checkpoint_metric:
+                #         is_ema_best = val_ema_ckpt_metric >= ema_best_metric
+                #         ema_best_metric = max(val_ema_ckpt_metric, ema_best_metric)
+                #     else:
+                #         is_ema_best = val_ema_ckpt_metric <= ema_best_metric
+                #         ema_best_metric = min(val_ema_ckpt_metric, ema_best_metric)
 
                 if self.is_master_node:
                     save_checkpoint(
@@ -349,8 +351,8 @@ class Trainer(object):
                     self.tb_log_writter.add_scalar('Train/Loss', round(train_loss, 2), epoch)
                     self.tb_log_writter.add_scalar('Val/Loss', round(val_loss, 2), epoch)
                     self.tb_log_writter.add_scalar('Common/Best Metric', round(self.best_metric, 2), epoch)
-                    if val_ema_loss is not None:
-                        self.tb_log_writter.add_scalar('Val_EMA/Loss', round(val_ema_loss, 2), epoch)
+                    # if val_ema_loss is not None:
+                    #     self.tb_log_writter.add_scalar('Val_EMA/Loss', round(val_ema_loss, 2), epoch)
 
                     # If val checkpoint metric is different from loss, add that too
                     if self.ckpt_metric != 'loss':
@@ -358,13 +360,20 @@ class Trainer(object):
                                                         round(train_ckpt_metric, 2), epoch)
                         self.tb_log_writter.add_scalar('Val/{}'.format(self.ckpt_metric.title()),
                                                         round(val_ckpt_metric, 2), epoch)
-                        if val_ema_ckpt_metric is not None:
-                            self.tb_log_writter.add_scalar('Val_EMA/{}'.format(self.ckpt_metric.title()),
-                                                            round(val_ema_ckpt_metric, 2), epoch)
+                        # if val_ema_ckpt_metric is not None:
+                        #     self.tb_log_writter.add_scalar('Val_EMA/{}'.format(self.ckpt_metric.title()),
+                        #                                     round(val_ema_ckpt_metric, 2), epoch)
 
                 if self.max_iterations_reached and self.is_master_node:
                     logger.info('Max. iterations for training reached')
                     break
+
+                epoch_end_time = time.time()
+                self.epoch_times.append(epoch_end_time - epoch_start_time)
+                hours, rem = divmod(epoch_end_time - epoch_start_time, 3600)
+                minutes, seconds = divmod(rem, 60)
+                epoch_time_str = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
+                logger.log('Epoch {} took {}'.format(epoch, epoch_time_str))
 
         except KeyboardInterrupt:
             if self.is_master_node:
@@ -400,19 +409,24 @@ class Trainer(object):
                 train_time_str = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
                 logger.log('Training took {}'.format(train_time_str))
 
+                avg_epoch_time = np.average(self.epoch_times)
+                hours, rem = divmod(avg_epoch_time, 3600)
+                minutes, seconds = divmod(rem, 60)
+                epoch_time_str = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
+                logger.log('Avg Epoch time took {}'.format(epoch_time_str))
+
                 plt.plot(self.history['train_avg_loss'], label='Training Loss')
-                # plt.plot(self.history['train_avg_ckpt_metric'], label='Training Loss')
                 plt.plot(self.history['val_avg_loss'], label='Validation Loss')
-                # plt.plot(self.history['val_avg_ckpt_metric'], label='Validation Loss')
                 plt.xlabel('Epoch')
                 plt.ylabel('Loss')
                 plt.legend()
 
                 plt.savefig(save_dir+'/loss_plot.jpg')
-
+                self.history.update({
+                    'epoch_times': self.epoch_times
+                })
                 json_object = json.dumps(self.history, indent=4)
- 
-                with open(save_dir+"/history_loss.json", "w") as outfile:
+                with open(save_dir+"/history.json", "w") as outfile:
                     outfile.write(json_object)
 
             try:
