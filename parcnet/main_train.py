@@ -185,8 +185,8 @@ def main_worker(**kwargs):
         setattr(opts, "eky.path", '')
         setattr(opts, "dataset.root_train", 'dataset')
         setattr(opts, "dataset.root_val", 'dataset')
-        setattr(opts, "model.classification.pretrained", 'parcnet/pretrained_models/classification/checkpoint_last_93.pt')
-        setattr(opts, "model.detection.pretrained", 'parcnet/pretrained_models/detection/unbalance/checkpoint_last_run19.pt')
+        setattr(opts, "model.classification.pretrained", 'parcnet/checkpoints/checkpoint_last_93.pt')
+        setattr(opts, "model.detection.pretrained", 'parcnet/checkpoints/checkpoint_last_run19.pt')
     else:
         setattr(opts, "eky.path", None)
 
