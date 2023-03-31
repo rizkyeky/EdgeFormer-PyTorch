@@ -64,9 +64,7 @@ if __name__ == '__main__':
     random.shuffle(image_list)
 
     model = main_dec.init_model()
-    # model_script = torch.jit.script(model)
-    # model_script.save('edgeformer.pt')
-    # torch.onnx.export(model, torch.randn(1, 3, 224, 224), 'edgeformer.onnx')
+    
     metric = MeanAveragePrecision()
 
     infertimes = []
@@ -85,9 +83,9 @@ if __name__ == '__main__':
             target_labels = np.array(target_labels)
             
             targets.append({
-                'boxes': torch.tensor(target_boxes).to(torch.int16),
-                'scores': torch.tensor(target_scores).to(torch.float16),
-                'labels': torch.tensor(target_labels).to(torch.int16),
+                'boxes': torch.from_numpy(target_boxes).to(torch.int16),
+                'scores': torch.from_numpy(target_scores).to(torch.float16),
+                'labels': torch.from_numpy(target_labels).to(torch.int16),
             })
 
             now = time.time()
@@ -103,9 +101,9 @@ if __name__ == '__main__':
             pred_labels = np.array(pred_labels)
 
             preds.append({
-                'boxes': torch.tensor(pred_boxes).to(torch.int16),
-                'scores': torch.tensor(pred_scores).to(torch.float16),
-                'labels': torch.tensor(pred_labels).to(torch.int16),
+                'boxes': torch.from_numpy(pred_boxes).to(torch.int16),
+                'scores': torch.from_numpy(pred_scores).to(torch.float16),
+                'labels': torch.from_numpy(pred_labels).to(torch.int16),
             })
 
             # pprint(targets[i])

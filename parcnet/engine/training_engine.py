@@ -3,6 +3,7 @@ import torch
 from torch import Tensor
 import gc
 from torch.cuda.amp import autocast
+from parcnet.cvnets.models.detection.base_detection import DetectionPredTuple
 from utils import logger
 from utils.common_utils import create_directories
 import time
@@ -124,9 +125,7 @@ class Trainer(object):
 
         epoch_start_time = time.time()
         batch_load_start = time.time()
-        
-        avg_map = 0.0
-
+    
         for batch_id, batch in enumerate(self.train_loader):
             if self.train_iterations > self.max_iterations:
                 self.max_iterations_reached = True
@@ -135,13 +134,14 @@ class Trainer(object):
             batch_load_toc = time.time() - batch_load_start
             input_img, target_label = batch['image'], batch['label']
             # move data to device
+            
             input_img = input_img.to(self.device)
             if isinstance(target_label, Dict):
                 for k, v in target_label.items():
                     target_label[k] = v.to(self.device)
             else:
                 target_label = target_label.to(self.device)
-
+                
             batch_size = input_img.shape[0]
 
             # update the learning rate
@@ -154,16 +154,14 @@ class Trainer(object):
                                                      epoch=epoch,
                                                      iteration=self.train_iterations)
 
+            # results_det: list[DetectionPredTuple] = []
             with autocast(enabled=self.mixed_precision_training):
                 # prediction
-                pred_label = self.model(input_img, is_training=True)
+                pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
                 
                 # compute loss
                 loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
-                # if isinstance(loss, torch.Tensor) and torch.isnan(loss):
-                #     import pdb
-                #     pdb.set_trace()
-
+            
             # perform the backward pass with gradient accumulation [Optional]
             self.gradient_scalar.scale(loss).backward()
 
@@ -183,7 +181,7 @@ class Trainer(object):
                 if self.model_ema is not None:
                     self.model_ema.update_parameters(self.model)
 
-            metrics = metric_monitor(pred_label=pred_label[:2], target_label=target_label, loss=loss,
+            metrics = metric_monitor(pred_label=pred_label, target_label=target_label, loss=loss,
                                      use_distributed=self.use_distributed, metric_names=self.metric_names)
 
             train_stats.update(metric_vals=metrics, batch_time=batch_load_toc, n=batch_size)
@@ -200,10 +198,9 @@ class Trainer(object):
             self.train_iterations += 1
         
         avg_loss = train_stats.avg_statistics(metric_name='loss')
-        avg_iou = train_stats.avg_statistics(metric_name='iou')
         train_stats.epoch_summary(epoch=epoch, stage="training")
         avg_ckpt_metric = train_stats.avg_statistics(metric_name=self.ckpt_metric)
-        return avg_loss, avg_ckpt_metric, avg_iou
+        return avg_loss, avg_ckpt_metric
 
     def val_epoch(self, epoch, model, extra_str=""):
         time.sleep(2)  # To prevent possible deadlock during epoch transition
@@ -235,14 +232,13 @@ class Trainer(object):
 
                 with autocast(enabled=self.mixed_precision_training):
                     # prediction
-                    pred_label: tuple[Tensor, Tensor, Tensor] = model(input_img, is_training=True)
+                    pred_label: tuple[Tensor, Tensor, Tensor] = model(input_img)
                     # compute loss
                     loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
                     
-
                 processed_samples += batch_size
 
-                metrics = metric_monitor(pred_label=pred_label[:2], target_label=target_label, loss=loss,
+                metrics = metric_monitor(pred_label=pred_label, target_label=target_label, loss=loss,
                                          use_distributed=self.use_distributed, metric_names=self.metric_names)
                 validation_stats.update(metric_vals=metrics, batch_time=0.0, n=batch_size)
 
@@ -256,9 +252,8 @@ class Trainer(object):
 
         validation_stats.epoch_summary(epoch=epoch, stage="validation" + extra_str)
         avg_loss = validation_stats.avg_statistics(metric_name='loss')
-        avg_iou = validation_stats.avg_statistics(metric_name='iou')
         avg_ckpt_metric = validation_stats.avg_statistics(metric_name=self.ckpt_metric)
-        return avg_loss, avg_ckpt_metric, avg_iou
+        return avg_loss, avg_ckpt_metric
 
     def run(self, train_sampler=None):
         if train_sampler is None and self.is_master_node:
@@ -285,14 +280,12 @@ class Trainer(object):
                 train_sampler.set_epoch(epoch)
                 train_sampler.update_scales(epoch=epoch, is_master_node=self.is_master_node)
 
-                train_loss, train_ckpt_metric, train_iou = self.train_epoch(epoch)
+                train_loss, train_ckpt_metric = self.train_epoch(epoch)
                 self.history['train_avg_loss'].append(train_loss)
-                self.history['train_avg_iou'].append(train_iou)
                 self.history['train_avg_ckpt_metric'].append(train_ckpt_metric)
 
-                val_loss, val_ckpt_metric, val_iou = self.val_epoch(epoch=epoch, model=self.model)
+                val_loss, val_ckpt_metric = self.val_epoch(epoch=epoch, model=self.model)
                 self.history['val_avg_loss'].append(val_loss)
-                self.history['val_avg_iou'].append(val_iou)
                 self.history['val_avg_ckpt_metric'].append(val_ckpt_metric)
 
                 if epoch == copy_at_epoch and self.model_ema is not None:
@@ -408,11 +401,9 @@ class Trainer(object):
                 logger.log('Training took {}'.format(train_time_str))
 
                 plt.plot(self.history['train_avg_loss'], label='Training Loss')
-                plt.plot(self.history['train_avg_iou'], label='Training IOU')
-                plt.plot(self.history['train_avg_ckpt_metric'], label='Training Loss')
+                # plt.plot(self.history['train_avg_ckpt_metric'], label='Training Loss')
                 plt.plot(self.history['val_avg_loss'], label='Validation Loss')
-                plt.plot(self.history['val_avg_iou'], label='Validation IOU')
-                plt.plot(self.history['val_avg_ckpt_metric'], label='Validation Loss')
+                # plt.plot(self.history['val_avg_ckpt_metric'], label='Validation Loss')
                 plt.xlabel('Epoch')
                 plt.ylabel('Loss')
                 plt.legend()

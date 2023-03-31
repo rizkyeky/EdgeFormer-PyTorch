@@ -110,10 +110,10 @@ def main(opts, **kwargs):
     start_iteration = 0
     history: dict[str, list] = {
         'train_avg_loss': [],
-        'train_avg_iou': [],
+        # 'train_avg_map': [],
         'train_avg_ckpt_metric': [],
         'val_avg_loss': [],
-        'val_avg_iou': [],
+        # 'val_avg_map': [],
         'val_avg_ckpt_metric': [],
     }
     resume_loc = getattr(opts, "common.resume", None)
@@ -177,7 +177,11 @@ def main_worker(**kwargs):
 
     if system_type == 'mac':
         setattr(opts, "eky.path", '/Users/eky/Documents/_SKRIPSI')
+        setattr(opts, 'scheduler.max_epochs', 1)
+        setattr(opts, 'dataset.train_batch_size0', 2)
+        setattr(opts, 'dataset.val_batch_size0', 2)
         setattr(opts, "model.classification.pretrained", 'parcnet/pretrained_models/classification/checkpoint_last_93.pt')
+        setattr(opts, 'stats.name', [ "loss" ])
         setattr(opts, "model.detection.pretrained", 'parcnet/pretrained_models/detection/unbalance/checkpoint_last_run19.pt')
     elif system_type == 'colab':
         setattr(opts, "eky.path", '/content/drive/MyDrive/skripsi')

@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     model_optimized = optimize_for_mobile(model_scripted)
     # model_optimized.save('pretrained/edgeformer-det.pt'
-    torch.onnx.export(model, dummy_input, "pretrained/edgeformer-det.onnx", verbose=True)
+    # torch.onnx.export(model, dummy_input, "pretrained/edgeformer-det.onnx", verbose=True)
 
     # model = torch.load('pretrained/edgeformer-det.pt')
     # model.to(torch.device('cpu'))

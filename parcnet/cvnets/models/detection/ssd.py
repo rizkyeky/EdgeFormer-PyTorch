@@ -180,15 +180,12 @@ class SingleShotDetector(BaseDetection):
         # print("****************************************************************************************ssd_forward ****")
         enc_end_points: Dict[str, Tensor] = self.encoder.extract_end_points_all(x)
 
-        # is_prediction = kwargs.get("is_prediction", False)
-
         locations = []
         confidences = []
         anchors = []
 
         x = enc_end_points["out_l5"]
         
-        # assert len(self.output_strides) == len(self.ssd_heads)
         for i, ssd_head in enumerate(self.ssd_heads):
             os = self.output_strides[i]
             if os == 8:
@@ -239,41 +236,35 @@ class SingleShotDetector(BaseDetection):
         anchors = anchors.unsqueeze(dim=0).to(device=x.device)
         return confidences, locations, anchors
 
-    def forward(self, x: Tensor, is_training=False) -> Union[DetectionPredTuple, Tuple[Tensor, Tensor, Tensor]]:
-        if is_training:
-            return self.forward_train(x=x)
+    def forward(self, x: Tensor, is_predict=False) -> Union[DetectionPredTuple, Tuple[Tensor, Tensor, Tensor]]:
+        bsz, _, __, ___ = x.shape
+        if is_predict:
+            with torch.no_grad():
+                confidences, locations, anchors = self.ssd_forward(x)
+                return self.forward2prediction((confidences, locations, anchors))
         else:
-            return self.forward_predict(x=x)
-    
-    def forward_train(self, x: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
-        bsz, channels, width, height = x.shape
-        assert bsz != 1
-        return self.ssd_forward(x)
+            assert bsz != 1
+            return self.ssd_forward(x)  
 
-    def forward_predict(self, x: Tensor) -> DetectionPredTuple:
-        bsz, channels, width, height = x.shape
-        assert bsz == 1
-
-        with torch.no_grad():
-            confidences, locations, anchors = self.ssd_forward(x)
-            scores = nn.functional.softmax(confidences, dim=-1)
-            # convert boxes in center form [c_x, c_y]
-            boxes = box_utils.convert_locations_to_boxes(
-                pred_locations=locations,
-                anchor_boxes=anchors,
-                center_variance= 0.1,
-                size_variance= 0.2
-            )
-            # convert boxes from center form [c_x, c_y] to corner form [x, y]
-            boxes = box_utils.center_form_to_corner_form(boxes)
+    def forward2prediction(self, inputs: Tuple[Tensor, Tensor, Tensor]) -> DetectionPredTuple:
+        confidences, locations, anchors = inputs
+        scores = nn.functional.softmax(confidences, dim=-1)
+        # convert boxes in center form [c_x, c_y]
+        boxes = box_utils.convert_locations_to_boxes(
+            pred_locations=locations,
+            anchor_boxes=anchors,
+            center_variance= 0.1,
+            size_variance= 0.2
+        )
+        # convert boxes from center form [c_x, c_y] to corner form [x, y]
+        boxes = box_utils.center_form_to_corner_form(boxes)
 
         # post-process the boxes and scores
         boxes = boxes[0] # remove the batch dimension
         scores = scores[0]
 
-        # object_labels_tens = torch.empty(0, dtype=torch.int8)
-        object_labels: list[list] = []
         object_boxes: list[Tensor] = []
+        object_labels: list[list] = []
         object_scores: list[Tensor] = []
         for class_index in range(1, self.n_classes):
             score = scores[:, class_index]
@@ -291,14 +282,6 @@ class SingleShotDetector(BaseDetection):
             object_boxes.append(filtered_boxes)
             object_scores.append(filtered_scores)
             object_labels.append(torch.full_like(filtered_scores, fill_value=class_index, dtype=torch.int8,))
-
-        # # no object detected
-        # if not object_scores:
-        #     return DetectionPredTuple(
-        #         labels=torch.empty(0),
-        #         scores=torch.empty(0),
-        #         boxes=torch.empty(0, 4)
-        #     )
 
         # concatenate all results
         object_scores_tens = torch.cat(object_scores, dim=0)

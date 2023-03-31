@@ -395,10 +395,10 @@ public:
 
                 if (score > 0.5) {
                     int x1, y1, x2, y2;
-                    x1 = boxes[i][0].item().toInt() * width / 224;
-                    y1 = boxes[i][1].item().toInt() * height / 224;
-                    x2 = boxes[i][2].item().toInt() * width / 224;
-                    y2 = boxes[i][3].item().toInt() * height / 224;                   
+                    x1 = boxes[i][0].item().toInt();
+                    y1 = boxes[i][1].item().toInt();
+                    x2 = boxes[i][2].item().toInt();
+                    y2 = boxes[i][3].item().toInt();                   
                     
                     cv::rectangle(frame, 
                         cv::Point(x1, y1), 
