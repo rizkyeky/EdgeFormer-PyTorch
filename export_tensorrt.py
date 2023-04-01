@@ -27,4 +27,4 @@ trt_ts_module = torch_tensorrt.compile(
 )
 input_data = input_data.to(torch.device("cuda")).half()
 result = trt_ts_module(input_data)
-torch.jit.save(trt_ts_module, "ssdlite320_mobilenet_v3_large.trt")
+torch.jit.save(trt_ts_module, "pretrained/ssdlite320_mobilenet_v3_large.trt")
