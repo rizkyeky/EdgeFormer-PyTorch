@@ -3,7 +3,7 @@ import torchvision
 import torch.nn as nn
 # import torch_tensorrt
 import cv2
-import main_dec
+# import main_dec
 import numpy as np
 import json
 import time
@@ -67,7 +67,7 @@ def start():
                     endX = int(box[2] * orig.shape[1] / 224)
                     endY = int(box[3] * orig.shape[0] / 224)
                     color = COLORS[idx]
-                    color = ( int (color [ 0 ]), int (color [ 1 ]), int (color [ 2 ]))
+                    color = (int(color[0]), int(color[1]), int(color[2]))
                     cv2.rectangle(orig,
                         (startX, startY), (endX, endY),
                         color, 3
