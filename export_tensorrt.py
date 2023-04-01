@@ -8,7 +8,7 @@ model = models.detection.ssdlite320_mobilenet_v3_large(weights='DEFAULT').cuda()
 input_data = torch.randn((1,3,224,224)).cuda().half()
 
 result = model(input_data)
-print(result.shape)
+# print(result.shape)
 
 model_traced = torch.jit.trace(model, input_data)
 
