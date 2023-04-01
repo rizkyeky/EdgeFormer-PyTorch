@@ -1,10 +1,10 @@
 import torch
-import torchvision
 import torch.nn as nn
-# import torch_tensorrt as torchtrt
 import torch_tensorrt
+from torchvision import models
 
-model = torchvision.models.mobilenet_v3_small(weights="IMAGENET1K_V1").cuda().half().eval()
+# model = models.mobilenet_v3_small(weights="IMAGENET1K_V1").cuda().half().eval()
+model = models.detection.ssdlite320_mobilenet_v3_large(weights='DEFAULT').cuda().half().eval()
 input_data = torch.randn((1,3,224,224)).cuda().half()
 
 result = model(input_data)
@@ -27,4 +27,4 @@ trt_ts_module = torch_tensorrt.compile(
 )
 input_data = input_data.to(torch.device("cuda")).half()
 result = trt_ts_module(input_data)
-torch.jit.save(trt_ts_module, "mobilenet_v3_small.trt")
+torch.jit.save(trt_ts_module, "ssdlite320_mobilenet_v3_large.trt")

@@ -26,7 +26,7 @@ class OnnxModel {
         auto output_tensor = output_tensors.front().GetTensorMutableData<float>();
         std::vector<float> output_data(output_tensor, output_tensor + 1000);
 
-        auto output_data = output_tensors[0].GetTensorMutableData<float>();
-        std::vector<int64_t> output_shape = output_tensors[0].GetTensorTypeAndShapeInfo().GetShape();
+        // auto output_data = output_tensors[0].GetTensorMutableData<float>();
+        // std::vector<int64_t> output_shape = output_tensors[0].GetTensorTypeAndShapeInfo().GetShape();
     }
 };
