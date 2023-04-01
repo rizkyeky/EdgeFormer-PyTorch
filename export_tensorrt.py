@@ -10,7 +10,7 @@ input_data = torch.randn((1,3,224,224)).cuda().half()
 result = model(input_data)
 # print(result.shape)
 
-model_traced = torch.jit.trace(model, input_data)
+# model_traced = torch.jit.trace(model, input_data)
 
 inputs = [
     torch_tensorrt.Input(
