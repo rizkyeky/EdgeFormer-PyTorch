@@ -27,7 +27,7 @@ def start():
     COLORS = np.random.randint(0, 255+1, size=(len(CLASSES), 3))
     COLORS = tuple(map(tuple, COLORS))
 
-    model = torch.jit.load('pretrained/ssdlite320_mobilenet_v3_large.trt')
+    model = torch.jit.load('pretrained/ssdlite320_mobilenet_v3_large.pt')
     model.to(device)
     model.eval()
 
@@ -61,10 +61,10 @@ def start():
                 if score > 0.5:
                     label = "{}: {:.2f}%".format(CLASSES[idx], score * 100)
                     box = box.cpu().numpy().astype("int")
-                    startX = int(box[0] * orig.shape[1] / 224)
-                    startY = int(box[1] * orig.shape[0] / 224)
-                    endX = int(box[2] * orig.shape[1] / 224)
-                    endY = int(box[3] * orig.shape[0] / 224)
+                    startX = int(box[0] * orig.shape[1] / 255)
+                    startY = int(box[1] * orig.shape[0] / 255)
+                    endX = int(box[2] * orig.shape[1] / 255)
+                    endY = int(box[3] * orig.shape[0] / 255)
                     color = COLORS[idx]
                     color = ( int (color [ 0 ]), int (color [ 1 ]), int (color [ 2 ]))
                     cv2.rectangle(orig,
