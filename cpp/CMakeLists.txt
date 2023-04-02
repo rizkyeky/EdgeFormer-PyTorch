@@ -12,7 +12,7 @@ if(LINUX)
     set(TORCH_DIR "${ROOTDIR}/libtorch")
     set(TorchVision_DIR "${ROOTDIR}/torchvision")
 
-    include_directories("${TORCH_DIR}/include/torch")
+    include_directories("${TORCH_DIR}/include")
 
     include_directories("${TorchVision_DIR}/include")
     link_libraries("${TorchVision_DIR}/libtorchvision.so")
