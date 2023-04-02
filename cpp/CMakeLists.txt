@@ -12,7 +12,7 @@ if(LINUX)
     set(TorchVision_DIR "${ROOTDIR}/torchvision")
 
     include_directories("${TorchVision_DIR}/include")
-    link_libraries("${TorchVision_DIR}/lib/libtorchvision.so")
+    link_libraries("${TorchVision_DIR}/libtorchvision.so")
 
     link_libraries("${ONNXRUNTIME_DIR}/lib/libonnxruntime.so")
 else()
@@ -21,8 +21,6 @@ else()
     set(ONNXRUNTIME_DIR "/opt/homebrew/Cellar/onnxruntime/1.14.1")
     
     find_package(TorchVision REQUIRED)
-    
-    # link_libraries("${TorchVision_DIR}/lib/libtorchvision.dylib")
 
     link_libraries("${ONNXRUNTIME_DIR}/lib/libonnxruntime.dylib")
 endif()
@@ -42,7 +40,7 @@ set(SOURCES main.cpp detector.cpp classifier.cpp onnx.cpp)
 add_executable(main ${SOURCES})
 
 if(LINUX) 
-    target_link_libraries(main ${TorchVision_DIR})
+    target_link_libraries(main ${TorchVision_LIBS})
 else()
     target_link_libraries(main TorchVision::TorchVision)
 endif()
