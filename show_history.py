@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import json
-
-with open('results/run10000/history.json', 'r') as f:
+import sys
+ 
+with open('results/run10000/{}'.format(sys.argv[1]), 'r') as f:
     history = json.load(f)
 
 plt.plot(history['train_avg_loss'], label='Training Loss')
