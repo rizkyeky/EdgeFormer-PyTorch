@@ -22,14 +22,15 @@ else()
     
     find_package(TorchVision REQUIRED)
     
-    link_libraries("${TorchVision_DIR}/lib/libtorchvision.dylib")
+    # link_libraries("${TorchVision_DIR}/lib/libtorchvision.dylib")
+
     link_libraries("${ONNXRUNTIME_DIR}/lib/libonnxruntime.dylib")
 endif()
 
     include_directories("${ONNXRUNTIME_DIR}/include/onnxruntime/core/session")
 
     find_package(OpenCV REQUIRED)
-    
+
     include_directories("${OpenCV_INCLUDE_DIRS}")
     find_library(OpenCV_LIBS opencv_core HINTS "${ROOTDIR}/lib")
     
@@ -40,7 +41,12 @@ endif()
 set(SOURCES main.cpp detector.cpp classifier.cpp onnx.cpp)
 add_executable(main ${SOURCES})
 
-target_link_libraries(main TorchVision::TorchVision)
+if(LINUX) 
+    target_link_libraries(main ${TorchVision_DIR})
+else()
+    target_link_libraries(main TorchVision::TorchVision)
+endif()
+
 target_link_libraries(main ${OpenCV_LIBS})
 
 target_compile_options(main PUBLIC -std=c++20)
