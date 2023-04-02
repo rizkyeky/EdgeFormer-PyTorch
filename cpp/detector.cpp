@@ -5,7 +5,6 @@
 #include <map>
 #include <opencv2/opencv.hpp>
 #include <torch/script.h>
-#include <torch/torch.h>
 #include <torchvision/vision.h>
 #include <torchvision/ops/nms.h>
 
