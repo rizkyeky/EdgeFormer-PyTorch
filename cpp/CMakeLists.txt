@@ -9,18 +9,27 @@ if(LINUX)
     set(OpenCV_DIR "${ROOTDIR}/opencv")
     set(ONNXRUNTIME_DIR "${ROOTDIR}/onnxruntime")
     set(Torch_DIR "${ROOTDIR}/libtorch/share/cmake/Torch")
+    set(TorchVision_DIR "${ROOTDIR}/torchvision")
+
+    include_directories("${TorchVision_DIR}/include")
+    link_libraries("${TorchVision_DIR}/lib/libtorchvision.so")
+
+    link_libraries("${ONNXRUNTIME_DIR}/lib/libonnxruntime.so")
 else()
     set(ROOTDIR "/opt/homebrew/Caskroom/miniforge/base/envs/cv")
     set(OpenCV_DIR "${ROOTDIR}/lib/cmake/opencv4")
     set(ONNXRUNTIME_DIR "/opt/homebrew/Cellar/onnxruntime/1.14.1")
-endif()
-
+    
     find_package(TorchVision REQUIRED)
     
-    include_directories("${ONNXRUNTIME_DIR}/include/onnxruntime/core/session")
+    link_libraries("${TorchVision_DIR}/lib/libtorchvision.dylib")
     link_libraries("${ONNXRUNTIME_DIR}/lib/libonnxruntime.dylib")
+endif()
+
+    include_directories("${ONNXRUNTIME_DIR}/include/onnxruntime/core/session")
 
     find_package(OpenCV REQUIRED)
+    
     include_directories("${OpenCV_INCLUDE_DIRS}")
     find_library(OpenCV_LIBS opencv_core HINTS "${ROOTDIR}/lib")
     
