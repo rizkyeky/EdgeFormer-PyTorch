@@ -423,6 +423,7 @@ class Trainer(object):
                 plt.legend()
 
                 plt.savefig(save_dir+'/loss_plot.jpg')
+            
                 # self.history.update({
                 #     'epoch_times': self.epoch_times
                 # })

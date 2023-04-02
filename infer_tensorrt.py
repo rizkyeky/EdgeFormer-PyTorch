@@ -10,8 +10,8 @@ import time
 
 def start():
 
-    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    device = torch.device("cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cpu")
 
     cap = cv2.VideoCapture('images_test/video_test2.mp4')
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
