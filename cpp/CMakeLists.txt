@@ -17,6 +17,7 @@ if(LINUX)
     include_directories("${TorchVision_DIR}/include")
     link_libraries("${TorchVision_DIR}/libtorchvision.so")
 
+    include_directories("${ONNXRUNTIME_DIR}/include")
     link_libraries("${ONNXRUNTIME_DIR}/lib/libonnxruntime.so")
 else()
     set(ROOTDIR "/opt/homebrew/Caskroom/miniforge/base/envs/cv")
@@ -25,10 +26,10 @@ else()
     
     find_package(TorchVision REQUIRED)
 
+    include_directories("${ONNXRUNTIME_DIR}/include/onnxruntime/core/session")
     link_libraries("${ONNXRUNTIME_DIR}/lib/libonnxruntime.dylib")
 endif()
 
-include_directories("${ONNXRUNTIME_DIR}/include/onnxruntime/core/session")
 
 find_package(OpenCV REQUIRED)
 
