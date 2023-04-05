@@ -1,10 +1,12 @@
 import torch
-import torch.nn as nn
+# import torch.nn as nn
 import torch_tensorrt
 from torchvision import models
+import main_dec
 
 # model = models.mobilenet_v3_small(weights="IMAGENET1K_V1").cuda().half().eval()
-model = models.detection.ssdlite320_mobilenet_v3_large(weights='DEFAULT').cuda().half().eval()
+# model = models.detection.ssdlite320_mobilenet_v3_large(weights='DEFAULT').cuda().half().eval()
+model = main_dec.init_model('pretrained/edgeformer-det.pt')
 input_data = torch.randn((1,3,224,224)).cuda().half()
 
 result = model(input_data)
@@ -27,4 +29,4 @@ trt_ts_module = torch_tensorrt.compile(
 )
 input_data = input_data.to(torch.device("cuda")).half()
 result = trt_ts_module(input_data)
-torch.jit.save(trt_ts_module, "pretrained/ssdlite320_mobilenet_v3_large.trt")
+torch.jit.save(trt_ts_module, "pretrained/edgeformer-det.trt")
