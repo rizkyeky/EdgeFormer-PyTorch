@@ -10,6 +10,7 @@ parcnet/pretrained_models/classification/
 
 images_test/
 pretrained/
+results/
 
 parcnet/pretrained_models/detection/checkpoint_ema_avg_modif.pt
 parcnet/pretrained_models/detection/checkpoint_ema_avg.pt
