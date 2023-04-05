@@ -16,7 +16,7 @@ plt.plot(train_loss, label='Training Loss')
 plt.plot(val_loss, label='Validation Loss')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
-plt.xticks(np.arange(0,len(history['train_avg_loss'])+1,500))
+# plt.xticks(np.arange(0,len(history['train_avg_loss'])+1,500))
 plt.legend()
 
 plt.show()
