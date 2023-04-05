@@ -20,8 +20,8 @@ def start():
 
     COLORS = [(0,0,0), (0, 0, 255), (0, 255, 0), (255, 0, 0)]
 
-    model = main_dec.init_model()
-    # model = main_dec.init_model('pretrained/edgeformer-det.pt')
+    # model = main_dec.init_model()
+    model = main_dec.init_model('pretrained/edgeformer-det.pt')
 
     fps_list = []
 
@@ -36,7 +36,6 @@ def start():
 
             orig = frame
             labels, scores, boxes = main_dec.predict_image(model, frame)
-            print(len(labels), len(scores), len(boxes))
             for idx, score, coords in zip(labels, scores, boxes):
                 if score > 0.0:
                     label = "{}: {:.2f}%".format(CLASSES[idx], score * 100)

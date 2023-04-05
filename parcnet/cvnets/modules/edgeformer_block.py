@@ -300,7 +300,7 @@ class gcc_mf_block(BaseModule):
             Dropout(p=dropout)
         )
 
-    def get_instance_kernel(self, instance_kernel_size):
+    def get_instance_kernel(self, instance_kernel_size: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
         if self.instance_kernel_method == 'crop':
             return self.meta_kernel_1_H[:, :, : instance_kernel_size,:], \
                    self.meta_kernel_1_W[:, :, :, :instance_kernel_size], \
@@ -317,6 +317,7 @@ class gcc_mf_block(BaseModule):
 
         else:
             print('{} is not supported!'.format(self.instance_kernel_method))
+            return (torch.zeros(1), torch.zeros(1), torch.zeros(1), torch.zeros(1))
 
     def get_instance_pe(self, instance_kernel_size: Tensor) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
         assert isinstance(instance_kernel_size, Tensor)
@@ -345,7 +346,7 @@ class gcc_mf_block(BaseModule):
                        .expand(1, self.dim, instance_kernel_size, instance_kernel_size)
         else:
             print('{} is not supported!'.format(self.instance_kernel_method))
-            return (torch.tensor(0), torch.tensor(0), torch.tensor(0), torch.tensor(0))
+            return (torch.zeros(1), torch.zeros(1), torch.zeros(1), torch.zeros(1))
 
     def forward(self, x: Tensor) -> Tensor:
 
@@ -462,8 +463,7 @@ class gcc_ca_mf_block(BaseModule):
 
         self.ca = CA_layer(channel=2*dim)
 
-    def get_instance_kernel(self, instance_kernel_size: Tensor) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
-        assert isinstance(instance_kernel_size, Tensor)
+    def get_instance_kernel(self, instance_kernel_size: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
         if self.instance_kernel_method == 'crop':
             return self.meta_kernel_1_H[:, :, : instance_kernel_size,:], \
                    self.meta_kernel_1_W[:, :, :, :instance_kernel_size], \
@@ -471,8 +471,8 @@ class gcc_ca_mf_block(BaseModule):
                    self.meta_kernel_2_W[:, :, :, :instance_kernel_size]
 
         elif self.instance_kernel_method == 'interpolation_bilinear':
-            H_shape = [int(instance_kernel_size), 1]
-            W_shape = [1, int(instance_kernel_size)]
+            H_shape = [instance_kernel_size, 1]
+            W_shape = [1, instance_kernel_size]
             return F.interpolate(self.meta_kernel_1_H, H_shape, mode='bilinear', align_corners=True), \
                    F.interpolate(self.meta_kernel_1_W, W_shape, mode='bilinear', align_corners=True), \
                    F.interpolate(self.meta_kernel_2_H, H_shape, mode='bilinear', align_corners=True), \
@@ -480,10 +480,10 @@ class gcc_ca_mf_block(BaseModule):
 
         else:
             print('{} is not supported!'.format(self.instance_kernel_method))
-            return (torch.tensor(0), torch.tensor(0), torch.tensor(0), torch.tensor(0))
+            return (torch.zeros(1), torch.zeros(1), torch.zeros(1), torch.zeros(1))
 
-    def get_instance_pe(self, instance_kernel_size: Tensor) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
-        assert isinstance(instance_kernel_size, Tensor)
+    def get_instance_pe(self, instance_kernel_size: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
+        assert isinstance(instance_kernel_size, int)
         assert isinstance(self.meta_pe_1_H, nn.Parameter)
         assert isinstance(self.meta_pe_1_W, nn.Parameter)
         assert isinstance(self.meta_pe_2_H, nn.Parameter)
@@ -499,17 +499,17 @@ class gcc_ca_mf_block(BaseModule):
                        .expand(1, self.dim, instance_kernel_size, instance_kernel_size)
 
         elif self.instance_kernel_method == 'interpolation_bilinear':
-            return F.interpolate(self.meta_pe_1_H, [int(instance_kernel_size), 1], mode='bilinear', align_corners=True)\
+            return F.interpolate(self.meta_pe_1_H, [instance_kernel_size, 1], mode='bilinear', align_corners=True)\
                        .expand(1, self.dim, instance_kernel_size, instance_kernel_size), \
-                   F.interpolate(self.meta_pe_1_W, [1, int(instance_kernel_size)], mode='bilinear', align_corners=True)\
+                   F.interpolate(self.meta_pe_1_W, [1, instance_kernel_size], mode='bilinear', align_corners=True)\
                        .expand(1, self.dim, instance_kernel_size, instance_kernel_size), \
-                   F.interpolate(self.meta_pe_2_H, [int(instance_kernel_size), 1], mode='bilinear', align_corners=True)\
+                   F.interpolate(self.meta_pe_2_H, [instance_kernel_size, 1], mode='bilinear', align_corners=True)\
                        .expand(1, self.dim, instance_kernel_size, instance_kernel_size), \
-                   F.interpolate(self.meta_pe_2_W, [1, int(instance_kernel_size)], mode='bilinear', align_corners=True)\
+                   F.interpolate(self.meta_pe_2_W, [1, instance_kernel_size], mode='bilinear', align_corners=True)\
                        .expand(1, self.dim, instance_kernel_size, instance_kernel_size)
         else:
             print('{} is not supported!'.format(self.instance_kernel_method))
-            return (torch.tensor(0), torch.tensor(0), torch.tensor(0), torch.tensor(0))
+            return (torch.zeros(1), torch.zeros(1), torch.zeros(1), torch.zeros(1))
 
     def forward(self, x: Tensor) -> Tensor:
 
@@ -517,14 +517,16 @@ class gcc_ca_mf_block(BaseModule):
         x_1_res, x_2_res = x_1, x_2
         _, _, f_s, _ = x_1.shape
 
-        K_1_H, K_1_W, K_2_H, K_2_W = self.get_instance_kernel(torch.tensor(f_s))
+        K_1_H, K_1_W, K_2_H, K_2_W = self.get_instance_kernel(f_s)
 
-        pe_1_H = torch.tensor(0)
-        pe_1_W = torch.tensor(0)
-        pe_2_H = torch.tensor(0)
-        pe_2_W = torch.tensor(0)
+        pe_1_H: Tensor
+        pe_1_W: Tensor
+        pe_2_H: Tensor
+        pe_2_W: Tensor
         if self.use_pe:
-            pe_1_H, pe_1_W, pe_2_H, pe_2_W = self.get_instance_pe(torch.tensor(f_s))
+            if (isinstance(f_s, Tensor)):
+                f_s = f_s.int().item()
+            pe_1_H, pe_1_W, pe_2_H, pe_2_W = self.get_instance_pe(f_s)
 
         # **************************************************************************************************sptial part
         # pre norm

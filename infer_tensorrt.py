@@ -28,7 +28,7 @@ def start():
     COLORS = np.random.randint(0, 255+1, size=(len(CLASSES), 3))
     COLORS = tuple(map(tuple, COLORS))
 
-    model = torch.jit.load('pretrained/ssdlite320_mobilenet_v3_large.pt')
+    model = torch.jit.load('pretrained/ssdlite320_mobilenet_v3_large.pt', map_location=device)
     model.to(device)
     model.eval()
 
@@ -56,6 +56,8 @@ def start():
 
             start_infer = time.time()
             outputs = model([image])[1][0]
+            if torch.cuda.is_available():
+                torch.cuda.synchronize()
             times_list.append(time.time() - start_infer)
             
             for box, idx, score in zip(outputs["boxes"], outputs["labels"], outputs["scores"]):
