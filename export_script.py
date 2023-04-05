@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # pred: DetectionPredTuple = model(dummy_input)
     
     # print(pred[0].keys())
-    model_traced = torch.jit.trace(model, dummy_input)
+    model_traced = torch.jit.trace(model, example_inputs=[dummy_input, True])
     model_scripted = torch.jit.script(model_traced)
 
     model_optimized = optimize_for_mobile(model_scripted)
