@@ -243,7 +243,7 @@ class SingleShotDetector(BaseDetection):
                 confidences, locations, anchors = self.ssd_forward(x)
                 return self.forward2prediction((confidences, locations, anchors))
         else:
-            assert bsz != 1
+            # assert bsz != 1
             return self.ssd_forward(x)  
 
     def forward2prediction(self, inputs: Tuple[Tensor, Tensor, Tensor]) -> DetectionPredTuple:
