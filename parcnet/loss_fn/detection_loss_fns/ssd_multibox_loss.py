@@ -58,7 +58,7 @@ class SSDLoss(BaseCriteria):
         )
 
     def forward(self, input_sample: Tensor, prediction: Tuple[Tensor, Tensor, Tensor], target: Tensor) -> Tensor:
-        # assert len(prediction) == 2
+        
         # confidence: (batch_size, num_priors, num_classes)
         # predicted_locations :(batch_size, num_priors, 4)
         confidence, predicted_locations, _ = prediction

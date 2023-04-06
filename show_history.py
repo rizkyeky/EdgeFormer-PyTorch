@@ -3,17 +3,24 @@ import json
 import sys
 import numpy as np
 
-with open('results/run10000/{}'.format(sys.argv[1]), 'r') as f:
-    history = json.load(f)
+file = 'history.json'
+if len(sys.argv) > 1:
+    file = sys.argv[1]
 
+with open('results/run10000/{}'.format(file), 'r') as f:
+    history = json.load(f)
 
 train_loss = history['train_avg_loss']
 val_loss = history['val_avg_loss']
 
-print(train_loss[0:10], train_loss[-10:])
+chunk_size = 1000
+train_means = np.convolve(train_loss, np.ones(chunk_size)/chunk_size, mode='same')
+val_means = np.convolve(val_loss, np.ones(chunk_size)/chunk_size, mode='same')
 
 plt.plot(train_loss, label='Training Loss')
+plt.plot(train_means, label='Training Loss Mean')
 plt.plot(val_loss, label='Validation Loss')
+plt.plot(val_means, label='Training Loss Mean')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
 # plt.xticks(np.arange(0,len(history['train_avg_loss'])+1,500))

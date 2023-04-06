@@ -63,6 +63,8 @@ if __name__ == '__main__':
     image_list = [file for file in file_list if file.endswith('.jpg')]
     random.shuffle(image_list)
 
+    print(len(image_list))
+
     model = main_dec.init_model()
     
     metric = MeanAveragePrecision()

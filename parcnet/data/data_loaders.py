@@ -77,12 +77,9 @@ def create_train_val_loader(opts):
                             # shuffle=True
                             )
 
-    # if is_master_node:
-    #     logger.log('Training sampler details: ')
-    #     print("{}".format(train_sampler))
-    #     logger.log('Validation sampler details: ')
-    #     print("{}".format(valid_sampler))
-    #     logger.log("Number of data workers: {}".format(data_workers))
+    if is_master_node:
+        logger.info('Train dataset len: {}'.format(n_train_samples))
+        logger.info('Validation dataset len: {}'.format(n_valid_samples))
 
     return train_loader, val_loader, train_sampler
 

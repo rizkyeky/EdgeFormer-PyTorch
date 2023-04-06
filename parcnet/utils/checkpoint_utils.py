@@ -121,18 +121,19 @@ def save_checkpoint(iterations: int,
         'gradient_scalar_state_dict': gradient_scalar.state_dict()
     }
     ckpt_str = '{}/checkpoint'.format(save_dir)
-    close_epoch = ((epoch // 100) + 1) * 100
+    close_epoch_100 = ((epoch // 100) + 1) * 100
+    close_epoch_1000 = ((epoch // 1000) + 1) * 1000
     if is_best:
-        best_model_fname = '{}_best_{}.{}'.format(ckpt_str, close_epoch, CHECKPOINT_EXTN)
+        best_model_fname = '{}_best_{}.{}'.format(ckpt_str, close_epoch_100, CHECKPOINT_EXTN)
         torch.save(model_state, best_model_fname)
         json_object = json.dumps({
             'epoch': epoch,
             'best_metric': best_metric,
         }, indent=4)
-        with open(save_dir+"/checkpoint_best_{}.json".format(close_epoch), "w") as outfile:
+        with open(save_dir+"/checkpoint_best_{}.json".format(close_epoch_100), "w") as outfile:
             outfile.write(json_object)
-    elif close_epoch % 100 == 0 and close_epoch > 0:
-        logger.info("No best checkpoints in epochs: {} - {}".format(close_epoch-100, close_epoch))
+    elif close_epoch_100 % 100 == 0 and close_epoch_100 > 0:
+        logger.info("No best checkpoints in epochs: {} - {}".format(close_epoch_100-100, close_epoch_100))
 
     # if model_ema is not None:
     #     checkpoint['ema_state_dict'] = get_model_state_dict(model_ema)
@@ -146,6 +147,9 @@ def save_checkpoint(iterations: int,
     torch.save(checkpoint, ckpt_fname)
 
     ckpt_fname = '{}_last.{}'.format(ckpt_str, CHECKPOINT_EXTN)
+    torch.save(model_state, ckpt_fname)
+
+    ckpt_fname = '{}_last_{}.{}'.format(ckpt_str, close_epoch_1000, CHECKPOINT_EXTN)
     torch.save(model_state, ckpt_fname)
 
     history.update({
