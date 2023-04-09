@@ -69,12 +69,7 @@ def start():
             start_infer = time.time()
             
             if is_torchscript:
-                if torch.cuda.is_available():
-                    with torch.cuda.amp.autocast(dtype=torch.float16):
-                        outputs = model([frame])[1][0]
-                        # torch.cuda.synchronize()
-                else:
-                    outputs = model([frame])[1][0]
+                outputs = model([frame])[1][0]
             else:
                 if torch.cuda.is_available():
                     with torch.cuda.amp.autocast(dtype=torch.float16):
@@ -90,7 +85,7 @@ def start():
             scores = outputs['scores']    
         
             for box, idx, score in zip(boxes, labels, scores):
-                if score > 0.0:
+                if score > 0.25:
                     label = "{}: {:.2f}%".format(CLASSES[idx], score * 100)
                     box = box.detach().cpu().numpy().astype(np.int16)
                     startX = int(box[0] * orig.shape[1] / 224)
