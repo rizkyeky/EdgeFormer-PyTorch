@@ -13,7 +13,7 @@ def start():
     is_torchscript = False
     if len(sys.argv) > 1 and sys.argv[1] == 'torchscript':
         is_torchscript = True
-        file = 'pretrained/ssdlite320_mobilenet_v3_large.pt'
+        file = 'pretrained/fasterrcnn_mobilenet_v3_large_320_fpn.pt'
 
     device = torch.device("cuda" if use_cuda else "cpu")
     if use_cuda:
@@ -38,11 +38,7 @@ def start():
         model.to(device)
         model.eval()
     else:
-        model = torchvision.models.detection.ssdlite320_mobilenet_v3_large(
-            weights='DEFAULT',
-            progress=True,
-            weights_backbone='IMAGENET1K_V1',
-        )
+        model = torch.hub.load('facebookresearch/detr:main', 'detr_resnet50', pretrained=True)
         model.to(device)
         model.eval()
 

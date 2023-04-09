@@ -93,7 +93,7 @@ def start():
                 result_boxes = cv2.dnn.NMSBoxes(boxes, scores, 0.25, 0.45, 0.5)
                 
             else:
-                if torch.cuda.is_available():
+                if use_cuda:
                     with torch.cuda.amp.autocast(dtype=torch.float16):
                         outputs = model.predict([frame], iou=0.5, imgsz=IMG_SIZE, half=True)[0]
                         torch.cuda.synchronize()
