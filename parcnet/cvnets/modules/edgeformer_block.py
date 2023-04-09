@@ -519,10 +519,10 @@ class gcc_ca_mf_block(BaseModule):
 
         K_1_H, K_1_W, K_2_H, K_2_W = self.get_instance_kernel(f_s)
 
-        pe_1_H: Tensor
-        pe_1_W: Tensor
-        pe_2_H: Tensor
-        pe_2_W: Tensor
+        pe_1_H: Tensor = torch.zeros(1)
+        pe_1_W: Tensor = torch.zeros(1)
+        pe_2_H: Tensor = torch.zeros(1)
+        pe_2_W: Tensor = torch.zeros(1)
         if self.use_pe:
             if (isinstance(f_s, Tensor)):
                 f_s = f_s.int().item()
