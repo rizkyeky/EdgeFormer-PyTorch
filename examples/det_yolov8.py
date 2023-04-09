@@ -9,8 +9,10 @@ from ultralytics import YOLO
 def start():
 
     file = 'pretrained/yolov8m.pt'
+    is_torchscript = False
     if len(sys.argv) > 1 and sys.argv[1] == 'torchscript':
-        file = 'pretrained/yolov8m.torchscript'
+        is_torchscript = True
+        file = 'pretrained/yolov8n.torchscript'
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -28,9 +30,14 @@ def start():
     COLORS = tuple(map(tuple, COLORS))
     IMG_SIZE = 224
 
-    model = YOLO(file)
-    model.to(device)
-    model.fuse()
+    if is_torchscript:
+        model = torch.jit.load(file)
+        model.to(device)
+        model.eval()
+    else:
+        model = YOLO(file)
+        model.to(device)
+        model.fuse()
 
     fps_list = []
     times_list = []
@@ -47,14 +54,26 @@ def start():
             orig = frame
             frame = cv2.resize(frame, (IMG_SIZE,IMG_SIZE))
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            if is_torchscript:
+                frame = torch.from_numpy(frame).permute(2, 0, 1).float()
+                frame /= 225
+                frame = frame.half().unsqueeze(0)
+                frame.to(device)
+
 
             start_infer = time.time()
             if torch.cuda.is_available():
                 with torch.cuda.amp.autocast(dtype=torch.float16):
-                    outputs = model.predict([frame], iou=0.5, imgsz=IMG_SIZE, half=True)[0]
+                    if is_torchscript:
+                        outputs = model(frame)[0]
+                    else:
+                        outputs = model.predict([frame], iou=0.5, imgsz=IMG_SIZE, half=True)[0]
                     torch.cuda.synchronize()
             else:
-                outputs = model([frame], iou=0.5, imgsz=IMG_SIZE, half=True)[0]
+                if is_torchscript:
+                    outputs = model(frame)[0]
+                else:
+                    outputs = model([frame], iou=0.5, imgsz=IMG_SIZE, half=True)[0]
             times_list.append(time.time() - start_infer)
             
             for box in outputs.boxes:
