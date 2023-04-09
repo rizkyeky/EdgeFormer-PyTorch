@@ -1,6 +1,4 @@
 import torch
-import torchvision
-import torch.nn as nn
 import cv2
 import numpy as np
 import json
@@ -17,12 +15,13 @@ def start():
     if (cap.isOpened()== False): 
         print("Error opening video stream or file")
 
-    with open('labels/ms_coco_81_classes.json') as f:
+    with open('labels/ms_coco_91_classes.json') as f:
         CLASSES = json.load(f)
         CLASSES = [CLASSES[str(i)] for i in range(len(CLASSES))]
 
     COLORS = np.random.randint(0, 255+1, size=(len(CLASSES), 3))
     COLORS = tuple(map(tuple, COLORS))
+    IMG_SIZE = 224
 
     model = YOLO('yolov8m.pt')
     model.to(device)
@@ -41,27 +40,28 @@ def start():
         if ret == True:
 
             orig = frame
-            frame = cv2.resize(frame, (224,224))
+            frame = cv2.resize(frame, (IMG_SIZE,IMG_SIZE))
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             start_infer = time.time()
             if torch.cuda.is_available():
                 with torch.cuda.amp.autocast(dtype=torch.float16):
-                    outputs = model([frame])[0]
+                    outputs = model.predict([frame], iou=0.5, imgsz=IMG_SIZE, half=True)[0]
                     torch.cuda.synchronize()
             else:
-                outputs = model([frame])[0]
-            print(outputs)
+                outputs = model([frame], iou=0.5, imgsz=IMG_SIZE, half=True)[0]
             times_list.append(time.time() - start_infer)
             
-            for box, idx, score in zip(outputs["boxes"], outputs["labels"], outputs["scores"]):
-                if score > 0.5:
+            for box in outputs.boxes:
+                score = box.conf.item()
+                idx = int(box.cls.item())
+                if score > 0.25:
                     label = "{}: {:.2f}%".format(CLASSES[idx], score * 100)
-                    box = box.detach().cpu().numpy().astype("int")
-                    startX = int(box[0] * orig.shape[1] / 224)
-                    startY = int(box[1] * orig.shape[0] / 224)
-                    endX = int(box[2] * orig.shape[1] / 224)
-                    endY = int(box[3] * orig.shape[0] / 224)
+                    xyxy = box.xyxy.detach().cpu().numpy().astype(np.int16)[0]
+                    startX = int(xyxy[0] * orig.shape[1] / IMG_SIZE)
+                    startY = int(xyxy[1] * orig.shape[0] / IMG_SIZE)
+                    endX = int(xyxy[2] * orig.shape[1] / IMG_SIZE)
+                    endY = int(xyxy[3] * orig.shape[0] / IMG_SIZE)
                     color = COLORS[idx]
                     color = (int(color[0]), int(color[1]), int(color[2]))
                     cv2.rectangle(orig,
@@ -94,7 +94,4 @@ def start():
     print('Averange infer time: {:.3f}'.format(np.average(times_list)))
 
 if __name__ == '__main__':
-    if torch.cuda.is_available():
-        start()
-    else:
-        print('No CUDA device found')
+    start()
