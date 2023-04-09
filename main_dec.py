@@ -72,7 +72,7 @@ def predict_image(model: SingleShotDetector, image):
         if (torch.cuda.is_available() and opts.common.mixed_precision):
             with torch.cuda.amp.autocast(enabled=True):
                 img = image.cuda()
-                prediction: DetectionPredTuple = model(img, is_predict=True)
+                prediction: DetectionPredTuple = model(img)
         else:
             prediction: DetectionPredTuple = model(image)
         

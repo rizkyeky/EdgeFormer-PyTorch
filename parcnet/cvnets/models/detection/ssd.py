@@ -236,15 +236,15 @@ class SingleShotDetector(BaseDetection):
         anchors = anchors.unsqueeze(dim=0).to(device=x.device)
         return confidences, locations, anchors
 
-    def forward(self, x: Tensor, is_predict=False) -> Union[DetectionPredTuple, Tuple[Tensor, Tensor, Tensor]]:
-        bsz, _, __, ___ = x.shape
-        if is_predict:
+    def forward(self, x: Tensor, is_training=False) -> Union[DetectionPredTuple, Tuple[Tensor, Tensor, Tensor]]:
+        # bsz, _, __, ___ = x.shape
+        if is_training:
+            # assert bsz != 1
+            return self.ssd_forward(x)  
+        else:
             with torch.no_grad():
                 confidences, locations, anchors = self.ssd_forward(x)
                 return self.forward2prediction((confidences, locations, anchors))
-        else:
-            assert bsz != 1
-            return self.ssd_forward(x)  
 
     def forward2prediction(self, inputs: Tuple[Tensor, Tensor, Tensor]) -> DetectionPredTuple:
         confidences, locations, anchors = inputs
