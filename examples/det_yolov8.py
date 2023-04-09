@@ -57,7 +57,7 @@ def start():
             if is_torchscript:
                 frame = torch.from_numpy(frame).permute(2, 0, 1).float()
                 frame /= 225
-                frame = frame.half().unsqueeze(0)
+                frame = frame.unsqueeze(0)
                 frame.to('cpu')
 
 
