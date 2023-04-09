@@ -32,7 +32,7 @@ def start():
 
     if is_torchscript:
         model = torch.jit.load(file)
-        model.to(device)
+        model.to('cpu')
         model.eval()
     else:
         model = YOLO(file)
@@ -58,13 +58,11 @@ def start():
                 frame = torch.from_numpy(frame).permute(2, 0, 1).float()
                 frame /= 225
                 frame = frame.half().unsqueeze(0)
-                if torch.cuda.is_available():
-                    frame = frame.cuda()
-                frame.to(device)
+                frame.to('cpu')
 
 
             start_infer = time.time()
-            if torch.cuda.is_available():
+            if torch.cuda.is_available() and not is_torchscript:
                 with torch.cuda.amp.autocast(dtype=torch.float16):
                     if is_torchscript:
                         outputs = model(frame)[0]
