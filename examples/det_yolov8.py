@@ -3,9 +3,14 @@ import cv2
 import numpy as np
 import json
 import time
+import sys
 from ultralytics import YOLO
 
 def start():
+
+    file = 'pretrained/yolov8m.pt'
+    if len(sys.argv) > 1 and sys.argv[1] == 'torchscript':
+        file = 'pretrained/yolov8m.torchscript'
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -23,7 +28,7 @@ def start():
     COLORS = tuple(map(tuple, COLORS))
     IMG_SIZE = 224
 
-    model = YOLO('yolov8m.pt')
+    model = YOLO(file)
     model.to(device)
     model.fuse()
 
