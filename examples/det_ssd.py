@@ -15,11 +15,13 @@ def start():
         file = 'pretrained/ssdlite320_mobilenet_v3_large.pt'
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if torch.cuda.is_available():
+        print('Using CUDA')
 
     cap = cv2.VideoCapture('images_test/video_test2.mp4')
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
 
-    if (cap.isOpened()== False): 
+    if (cap.isOpened() == False): 
         print("Error opening video stream or file")
 
     with open('labels/ms_coco_81_classes.json') as f:
