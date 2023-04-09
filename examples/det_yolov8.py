@@ -12,7 +12,7 @@ def start():
     is_torchscript = False
     if len(sys.argv) > 1 and sys.argv[1] == 'torchscript':
         is_torchscript = True
-        file = 'pretrained/yolov8n.torchscript'
+        file = 'pretrained/yolov8m.torchscript'
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
