@@ -52,7 +52,7 @@ def start():
 
         ret, frame = cap.read()
 
-        if ret == True:
+        if ret:
 
             orig = frame
             frame = cv2.resize(frame, (IMG_SIZE,IMG_SIZE))
