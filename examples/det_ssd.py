@@ -7,15 +7,16 @@ import time
 import sys
 
 def start():
-
+    use_cuda = torch.cuda.is_available()
+    
     file = ''
     is_torchscript = False
     if len(sys.argv) > 1 and sys.argv[1] == 'torchscript':
         is_torchscript = True
         file = 'pretrained/ssdlite320_mobilenet_v3_large.pt'
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if torch.cuda.is_available():
+    device = torch.device("cuda" if use_cuda else "cpu")
+    if use_cuda:
         print('Using CUDA')
 
     cap = cv2.VideoCapture('images_test/video_test2.mp4')

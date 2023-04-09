@@ -7,15 +7,16 @@ import sys
 from ultralytics import YOLO
 
 def start():
-
+    use_cuda = torch.cuda.is_available()
     file = 'pretrained/yolov8m.pt'
     is_torchscript = False
     if len(sys.argv) > 1 and sys.argv[1] == 'torchscript':
         is_torchscript = True
+        use_cuda = False
         file = 'pretrained/yolov8m.torchscript'
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if torch.cuda.is_available():
+    device = torch.device("cuda" if use_cuda else "cpu")
+    if use_cuda:
         print('Using CUDA')
 
     cap = cv2.VideoCapture('images_test/video_test2.mp4')
@@ -34,7 +35,7 @@ def start():
 
     if is_torchscript:
         model = torch.jit.load(file)
-        model.to('cpu')
+        model.to(device)
         model.eval()
     else:
         model = YOLO(file)
@@ -60,7 +61,9 @@ def start():
                 frame = torch.from_numpy(frame).permute(2, 0, 1).float()
                 frame /= 225
                 frame = frame.unsqueeze(0)
-                frame.to('cpu')
+                if use_cuda:
+                    frame = frame.cuda()
+                frame.to(device)
 
             if is_torchscript:
                 result_boxes = []
