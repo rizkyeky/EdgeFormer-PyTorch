@@ -158,7 +158,7 @@ class Trainer(object):
             # results_det: list[DetectionPredTuple] = []
             with autocast(enabled=self.mixed_precision_training):
                 # prediction
-                pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+                pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img, is_training=True)
                 
                 # compute loss
                 loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
@@ -233,7 +233,7 @@ class Trainer(object):
 
                 with autocast(enabled=self.mixed_precision_training):
                     # prediction
-                    pred_label: tuple[Tensor, Tensor, Tensor] = model(input_img)
+                    pred_label: tuple[Tensor, Tensor, Tensor] = model(input_img, is_training=True)
                     # compute loss
                     loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
                     
