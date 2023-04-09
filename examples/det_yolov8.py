@@ -26,7 +26,7 @@ def start():
 
     model = YOLO('yolov8m.pt')
     model.to(device)
-    model.eval()
+    model.fuse()
 
     fps_list = []
     times_list = []
@@ -43,19 +43,14 @@ def start():
             orig = frame
             frame = cv2.resize(frame, (224,224))
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            image = torch.from_numpy(frame).permute(2, 0, 1).float()
-            image /= 255
-            if torch.cuda.is_available():
-                image = image.cuda()
-            image.to(device)
 
             start_infer = time.time()
             if torch.cuda.is_available():
                 with torch.cuda.amp.autocast(dtype=torch.float16):
-                    outputs = model([image])[0]
+                    outputs = model([frame])[0]
                     torch.cuda.synchronize()
             else:
-                outputs = model([image])[0]
+                outputs = model([frame])[0]
             print(outputs)
             times_list.append(time.time() - start_infer)
             
