@@ -76,7 +76,12 @@ def start():
                     outputs = model([frame], iou=0.5, imgsz=IMG_SIZE, half=True)[0]
             times_list.append(time.time() - start_infer)
             
-            for box in outputs.boxes:
+            if is_torchscript:
+                boxes = outputs['boxes']
+            else:
+                boxes = outputs.boxes
+
+            for box in boxes:
                 score = box.conf.item()
                 idx = int(box.cls.item())
                 if score > 0.25:
