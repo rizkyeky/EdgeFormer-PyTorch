@@ -70,8 +70,8 @@ def start():
             
             if is_torchscript:
                 if torch.cuda.is_available():
-                    # with torch.cuda.amp.autocast(dtype=torch.float16):
-                    outputs = model([frame])[1][0]
+                    with torch.cuda.amp.autocast(dtype=torch.float16):
+                        outputs = model([frame])[1][0]
                         # torch.cuda.synchronize()
                 else:
                     outputs = model([frame])[1][0]
