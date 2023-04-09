@@ -12,6 +12,7 @@ def start():
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # device = torch.device("cpu")
+    # print(device)
 
     cap = cv2.VideoCapture('images_test/video_test2.mp4')
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
@@ -28,12 +29,11 @@ def start():
     COLORS = np.random.randint(0, 255+1, size=(len(CLASSES), 3))
     COLORS = tuple(map(tuple, COLORS))
 
-    model = torch.jit.load('pretrained/ssdlite320_mobilenet_v3_large.pt', map_location=device)
+    #model = torch.jit.load('pretrained/ssdlite320_mobilenet_v3_large.pt', map_location=device)
+    model = torchvision.models.detection.ssdlite320_mobilenet_v3_large(weights='DEFAULT')
+    #model = model.cuda()
     model.to(device)
     model.eval()
-
-    if model.training:
-        model.eval()
 
     fps_list = []
     times_list = []
@@ -52,18 +52,19 @@ def start():
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = torch.from_numpy(frame).permute(2, 0, 1).float()
             image /= 255
+            image = image.cuda()
             image.to(device)
 
             start_infer = time.time()
-            outputs = model([image])[1][0]
-            if torch.cuda.is_available():
+            with torch.cuda.amp.autocast(enabled=True):
+                outputs = model([image])[0]
                 torch.cuda.synchronize()
             times_list.append(time.time() - start_infer)
             
             for box, idx, score in zip(outputs["boxes"], outputs["labels"], outputs["scores"]):
                 if score > 0.5:
                     label = "{}: {:.2f}%".format(CLASSES[idx], score * 100)
-                    box = box.cpu().numpy().astype("int")
+                    box = box.detach().cpu().numpy().astype("int")
                     startX = int(box[0] * orig.shape[1] / 224)
                     startY = int(box[1] * orig.shape[0] / 224)
                     endX = int(box[2] * orig.shape[1] / 224)
@@ -97,7 +98,10 @@ def start():
     cv2.destroyAllWindows()
 
     print('Averange fps: {:.2f}'.format(np.average(fps_list)))
-    print('Averange infer time: {:.2f}'.format(np.average(times_list)))
+    print('Averange infer time: {:.3f}'.format(np.average(times_list)))
 
 if __name__ == '__main__':
-    start()
+    if torch.cuda.is_available():
+        start()
+    else:
+        print('No CUDA device found')

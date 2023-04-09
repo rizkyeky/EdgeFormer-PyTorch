@@ -21,6 +21,7 @@ import numpy as np
 opts = get_eval_arguments()
 opts = device_setup(opts)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = torch.device("mps")
 
 res_h, res_w = tensor_size_from_opts(opts)
 img_transforms = transforms.Compose([
@@ -73,7 +74,7 @@ def predict_image(model: SingleShotDetector, image):
                 img = image.cuda()
                 prediction: DetectionPredTuple = model(img, is_predict=True)
         else:
-            prediction: DetectionPredTuple = model(image, is_predict=True)
+            prediction: DetectionPredTuple = model(image)
         
         labels = prediction[0]
         scores = prediction[1].cpu().numpy()

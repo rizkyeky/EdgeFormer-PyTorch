@@ -62,8 +62,7 @@ if __name__ == '__main__':
     file_list = sorted(os.listdir(_dir))
     image_list = [file for file in file_list if file.endswith('.jpg')]
     random.shuffle(image_list)
-
-    print(len(image_list))
+    random.shuffle(image_list)
 
     model = main_dec.init_model()
     
@@ -73,7 +72,7 @@ if __name__ == '__main__':
 
     with torch.no_grad():
         
-        for i, file in enumerate(image_list):
+        for i, file in enumerate(image_list[:10]):
             print(i, file)
             target_boxes, target_scores, target_labels = extract_xml(file, _dir)
             target_robot += target_labels.count(1) 
@@ -111,28 +110,29 @@ if __name__ == '__main__':
             # pprint(targets[i])
             # pprint(preds[i])
 
-            # for i, (idx, score, coords) in enumerate(zip(target_labels, target_scores, target_boxes)):
-            #     if score > 0.2:
-            #         label = "{}: {:.2f}% {}".format(CLASSES[idx], score * 100, i)
-            #         startX, startY, endX, endY = coords
-            #         cv2.rectangle(img,
-            #             (startX, startY), (endX, endY),
-            #             COLORS[1], 3
-            #         )
-            #         y = startY - 15
-            #         cv2.putText(img, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, tuple(COLORS[1]), 1)
+            for i, (idx, score, coords) in enumerate(zip(target_labels, target_scores, target_boxes)):
+                if score > 0.2:
+                    label = "{} target".format(CLASSES[idx])
+                    startX, startY, endX, endY = coords
+                    cv2.rectangle(img,
+                        (startX, startY), (endX, endY),
+                        (0,0,255), 2
+                    )
+                    y = startY - 15
+                    cv2.putText(img, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 1)
 
-            # for i, (idx, score, coords) in enumerate(zip(pred_labels, pred_scores, pred_boxes)):
-            #     if score > 0.2:
-            #         label = "{}: {:.2f}% {}".format(CLASSES[idx], score * 100, i)
-            #         startX, startY, endX, endY = coords
-            #         cv2.rectangle(img,
-            #             (startX, startY), (endX, endY),
-            #             COLORS[2], 3
-            #         )
-            #         y = startY - 15
-            #         cv2.putText(img, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, tuple(COLORS[2]), 1)
-
+            for i, (idx, score, coords) in enumerate(zip(pred_labels, pred_scores, pred_boxes)):
+                if score > 0.2:
+                    label = "{} pred".format(CLASSES[idx])
+                    startX, startY, endX, endY = coords
+                    cv2.rectangle(img,
+                        (startX, startY), (endX, endY),
+                        (255,0,0), 2
+                    )
+                    y = startY - 15
+                    cv2.putText(img, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,0,0), 1)
+            
+            cv2.imwrite('test_results/' + file, img)
             # cv2.imshow('Frame', img)
             # cv2.waitKey(0)
 

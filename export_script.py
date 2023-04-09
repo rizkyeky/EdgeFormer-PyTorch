@@ -11,10 +11,10 @@ if __name__ == '__main__':
 
     model = main_dec.init_model()
     # model = models.detection.ssdlite320_mobilenet_v3_large(weights='DEFAULT')
-    img = cv2.imread('images_test/krsbi5.jpg')
-    pred_labels, pred_scores, pred_boxes = main_dec.predict_image(model, img)
-    model.to(torch.device('cpu'))
-    model.eval()
+    # img = cv2.imread('images_test/krsbi5.jpg')
+    # pred_labels, pred_scores, pred_boxes = main_dec.predict_image(model, img)
+    # model.to(torch.device('cpu'))
+    # model.eval()
 
     # print(pred_labels)
     # print(pred_scores)
@@ -29,8 +29,8 @@ if __name__ == '__main__':
     model_traced = torch.jit.trace(model)
     model_scripted = torch.jit.script(model_traced)
 
-    model_optimized = optimize_for_mobile(model_scripted)
-    model_optimized.save('pretrained/edgeformer-det.pt')
+    # model_optimized = optimize_for_mobile(model_scripted)
+    model_scripted.save('pretrained/edgeformer-det.pt')
     # torch.onnx.export(model, dummy_input, "pretrained/edgeformer-det.onnx", verbose=True)
 
     # model = torch.load('pretrained/edgeformer-det.pt')
