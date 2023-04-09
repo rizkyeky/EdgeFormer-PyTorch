@@ -15,6 +15,8 @@ def start():
         file = 'pretrained/yolov8m.torchscript'
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if torch.cuda.is_available():
+        print('Using CUDA')
 
     cap = cv2.VideoCapture('images_test/video_test2.mp4')
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
