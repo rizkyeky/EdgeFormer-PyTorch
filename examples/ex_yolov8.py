@@ -7,4 +7,4 @@ if __name__ == '__main__':
 
     model = YOLO('pretrained/yolov8m.pt')
     model.to(device)
-    model.export(format='torchscript', imgsz=IMG_SIZE)
+    model.export(format='torchscript', imgsz=IMG_SIZE, nms=True)
