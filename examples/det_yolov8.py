@@ -58,6 +58,8 @@ def start():
                 frame = torch.from_numpy(frame).permute(2, 0, 1).float()
                 frame /= 225
                 frame = frame.half().unsqueeze(0)
+                if torch.cuda.is_available():
+                    frame = frame.cuda()
                 frame.to(device)
 
 
