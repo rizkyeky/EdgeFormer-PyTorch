@@ -1,27 +1,26 @@
+import sys
 import cv2
 import main_dec
 import numpy as np
-# import multiprocessing as mp
 import json
 import time
 
 def start():
 
+    file = ''
+    if len(sys.argv) > 1:
+        file = 'pretrained/edgeformer-det.pt'
+
     cap = cv2.VideoCapture('images_test/video_test.mp4')
-    cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
+    # cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
 
     if (cap.isOpened()== False): 
         print("Error opening video stream or file")
 
     CLASSES = ['_', 'robot', 'ball', 'goal']
-    # with open('labels/ms_coco_81_classes.json') as f:
-    #     CLASSES = json.load(f)
-    #     CLASSES = [CLASSES[str(i)] for i in range(len(CLASSES))]
-
     COLORS = [(0,0,0), (0, 0, 255), (0, 255, 0), (255, 0, 0)]
 
-    # model = main_dec.init_model()
-    model = main_dec.init_model('pretrained/edgeformer-det.pt')
+    model = main_dec.init_model(file)
 
     fps_list = []
 

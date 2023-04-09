@@ -56,7 +56,7 @@ def start():
             image.to(device)
 
             start_infer = time.time()
-            with torch.cuda.amp.autocast(enabled=True):
+            with torch.cuda.amp.autocast(dtype=torch.float16):
                 outputs = model([image])[0]
                 torch.cuda.synchronize()
             times_list.append(time.time() - start_infer)
