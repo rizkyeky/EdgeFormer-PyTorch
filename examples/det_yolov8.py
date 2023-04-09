@@ -45,13 +45,18 @@ def start():
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = torch.from_numpy(frame).permute(2, 0, 1).float()
             image /= 255
-            image = image.cuda()
+            if torch.cuda.is_available():
+                image = image.cuda()
             image.to(device)
 
             start_infer = time.time()
-            with torch.cuda.amp.autocast(dtype=torch.float16):
+            if torch.cuda.is_available():
+                with torch.cuda.amp.autocast(dtype=torch.float16):
+                    outputs = model([image])[0]
+                    torch.cuda.synchronize()
+            else:
                 outputs = model([image])[0]
-                torch.cuda.synchronize()
+            print(outputs)
             times_list.append(time.time() - start_infer)
             
             for box, idx, score in zip(outputs["boxes"], outputs["labels"], outputs["scores"]):
