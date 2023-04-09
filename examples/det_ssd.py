@@ -90,7 +90,7 @@ def start():
             scores = outputs['scores']    
         
             for box, idx, score in zip(boxes, labels, scores):
-                if score > 0.25:
+                if score > 0.0:
                     label = "{}: {:.2f}%".format(CLASSES[idx], score * 100)
                     box = box.detach().cpu().numpy().astype(np.int16)
                     startX = int(box[0] * orig.shape[1] / 224)
