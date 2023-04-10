@@ -4,10 +4,7 @@
 #
 
 from typing import Optional, Tuple
-import torch
 from torch import Tensor
-from torchmetrics.detection.mean_ap import MeanAveragePrecision
-from parcnet.cvnets.models.detection.base_detection import DetectionPredTuple
 
 from utils.tensor_utils import tensor_to_python_float
 
