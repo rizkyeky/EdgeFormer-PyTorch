@@ -1,11 +1,11 @@
 import torch
 import torch_tensorrt
 from torchvision import models
-import main_dec
+import main_det
 
 # model = models.mobilenet_v3_small(weights="IMAGENET1K_V1").cuda().half().eval()
 # model = models.detection.ssdlite320_mobilenet_v3_large(weights='DEFAULT').cuda().half().eval()
-model = main_dec.init_model()
+model = main_det.init_model()
 input_data = torch.randn((1,3,224,224)).cuda().half()
 
 inputs = [

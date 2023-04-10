@@ -2,7 +2,7 @@ import os
 from torchmetrics.detection.mean_ap import MeanAveragePrecision
 from pprint import pprint
 import torch
-import main_dec
+import main_det
 import random
 import xml.etree.ElementTree as ET
 import cv2
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     random.shuffle(image_list)
     random.shuffle(image_list)
 
-    model = main_dec.init_model()
+    model = main_det.init_model()
     
     metric = MeanAveragePrecision()
 
@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
             now = time.time()
             img = cv2.imread(_dir + '/' + file)
-            pred_labels, pred_scores, pred_boxes = main_dec.predict_image(model, img)
+            pred_labels, pred_scores, pred_boxes = main_det.predict_image(model, img)
             infertimes.append(time.time() - now)
             pred_robot += list(pred_labels).count(1) 
             pred_ball += list(pred_labels).count(2) 

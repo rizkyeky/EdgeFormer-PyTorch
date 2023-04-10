@@ -1,10 +1,10 @@
 import torch
 from torch.utils.mobile_optimizer import optimize_for_mobile
-import main_dec
+import main_det
 
 if __name__ == '__main__':
 
-    model = main_dec.init_model()
+    model = main_det.init_model()
     
     dummy_input = torch.rand(1, 3, 224, 224)
     model_traced = torch.jit.trace(model)

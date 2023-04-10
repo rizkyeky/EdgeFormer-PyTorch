@@ -1,6 +1,6 @@
 import sys
 import cv2
-import main_dec
+import main_det
 import numpy as np
 import json
 import time
@@ -20,7 +20,7 @@ def start():
     CLASSES = ['_', 'robot', 'ball', 'goal']
     COLORS = [(0,0,0), (0, 0, 255), (0, 255, 0), (255, 0, 0)]
 
-    model = main_dec.init_model(file)
+    model = main_det.init_model(file)
 
     fps_list = []
 
@@ -34,7 +34,7 @@ def start():
         if ret == True:
 
             orig = frame
-            labels, scores, boxes = main_dec.predict_image(model, frame)
+            labels, scores, boxes = main_det.predict_image(model, frame)
             for idx, score, coords in zip(labels, scores, boxes):
                 if score > 0.0:
                     label = "{}: {:.2f}%".format(CLASSES[idx], score * 100)
