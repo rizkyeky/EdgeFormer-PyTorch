@@ -44,10 +44,6 @@ def _onnx_nested_tensor_from_tensor_list(tensor_list):
         max_size.append(max_size_i)
     max_size = tuple(max_size)
 
-    # work around for
-    # pad_img[: img.shape[0], : img.shape[1], : img.shape[2]].copy_(img)
-    # m[: img.shape[1], :img.shape[2]] = False
-    # which is not yet supported in onnx
     padded_imgs = []
     padded_masks = []
     for img in tensor_list:
@@ -156,16 +152,15 @@ def start():
             else:
                 if use_cuda:
                     with torch.cuda.amp.autocast(dtype=torch.float16):
-                        outputs = model(frame)
+                        outputs = model([frame])
                         torch.cuda.synchronize()
                 else:
-                    outputs = model(frame)
+                    outputs = model([frame])
                 
             probas = outputs['pred_logits'].softmax(-1)[0, :, :-1]
             keep = probas.max(-1).values > 0.7
 
             bboxes_scaled = box_cxcywh_to_xyxy(outputs['pred_boxes'][0, keep])
-
             times_list.append(time.time() - start_infer)
 
             scores = probas[keep]
