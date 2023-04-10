@@ -1,5 +1,5 @@
 common:
-  run_label: "run10000"
+  run_label: "run10000_bal"
   accum_freq: 1
   accum_after_epoch: -1
   log_freq: 500
@@ -11,9 +11,9 @@ dataset:
   root_val: "imgs_dec"
   name: "krsbi_ssd"
   category: "detection"
-  train_batch_size0: 32
-  val_batch_size0: 32
-  eval_batch_size0: 32
+  train_batch_size0: 128
+  val_batch_size0: 128
+  eval_batch_size0: 128
   workers: -1
   persistent_workers: false
   pin_memory: true
@@ -55,12 +55,12 @@ model:
       size_variance: 0.2
       iou_threshold: 0.5
       nms_iou_threshold: 0.5
-    pretrained: "/content/drive/MyDrive/skripsi/result/checkpoint/unbalance/checkpoint_last_run19.pt"
+    # pretrained: "/content/drive/MyDrive/skripsi/result/checkpoint/unbalance/checkpoint_last_run19.pt"
     n_classes: 4
   classification:
     name: "edgeformer"
     classifier_dropout: 0.2
-    pretrained: "/content/drive/MyDrive/skripsi/result/checkpoint/cls/checkpoint_last_93.pt"
+    # pretrained: "/content/drive/MyDrive/skripsi/result/checkpoint/cls/checkpoint_last_93.pt"
     edge:
       scale: "scale_s"
       mode: "outer_frame_v1"
