@@ -107,7 +107,10 @@ class Statistics(object):
                      learning_rate: float or list) -> None:
         if self.is_master_node:
             metric_stats = self.avg_statistics_all()
-            el_time_str = "Elapsed time: {:5.2f}".format(time.time() - elapsed_time)
+            hours, rem = divmod(time.time() - elapsed_time, 3600)
+            minutes, seconds = divmod(rem, 60)
+            epoch_time_str = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
+            el_time_str = "Elapsed time: {}".format(epoch_time_str)
             if isinstance(learning_rate, float):
                 lr_str = "LR: {:1.6f}".format(learning_rate)
             else:

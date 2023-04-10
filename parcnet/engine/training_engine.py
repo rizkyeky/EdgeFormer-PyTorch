@@ -199,7 +199,7 @@ class Trainer(object):
             self.train_iterations += 1
         
         avg_loss = train_stats.avg_statistics(metric_name='loss')
-        train_stats.epoch_summary(epoch=epoch, stage="training")
+        # train_stats.epoch_summary(epoch=epoch, stage="training")
         avg_ckpt_metric = train_stats.avg_statistics(metric_name=self.ckpt_metric)
         return avg_loss, avg_ckpt_metric
 
@@ -251,7 +251,7 @@ class Trainer(object):
                                                   learning_rate=lr
                                                   )
 
-        validation_stats.epoch_summary(epoch=epoch, stage="validation" + extra_str)
+        # validation_stats.epoch_summary(epoch=epoch, stage="validation" + extra_str)
         avg_loss = validation_stats.avg_statistics(metric_name='loss')
         avg_ckpt_metric = validation_stats.avg_statistics(metric_name=self.ckpt_metric)
         return avg_loss, avg_ckpt_metric
@@ -343,7 +343,7 @@ class Trainer(object):
                         max_ckpt_metric=max_checkpoint_metric,
                         k_best_checkpoints=keep_k_best_ckpts
                     )
-                    logger.info('Checkpoints saved at: {}'.format(save_dir))
+                    # logger.info('Checkpoints saved at: {}'.format(save_dir))
 
                     epoch_end_time = time.time()
                     self.epoch_times.append(epoch_end_time - epoch_start_time)

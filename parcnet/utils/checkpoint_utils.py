@@ -78,17 +78,17 @@ def avg_n_save_k_checkpoints(model_state, best_metric, k_best_checkpoints, max_c
                     continue
                 rm_ckpt = '{}_score_{:.4f}.{}'.format(ckpt_str, k, CHECKPOINT_EXTN)
                 os.remove(rm_ckpt)
-                logger.log("Deleting checkpoint: {}".format(rm_ckpt))
+                # logger.log("Deleting checkpoint: {}".format(rm_ckpt))
         #
         if len(best_scores_keep) > 1:
             avg_fnames = ['{}_score_{:.4f}.{}'.format(ckpt_str, k, CHECKPOINT_EXTN) for k in best_scores_keep]
-            logger.log("Averaging checkpoints: {}".format([f.split('/')[-1] for f in avg_fnames]))
+            # logger.log("Averaging checkpoints: {}".format([f.split('/')[-1] for f in avg_fnames]))
             # save the average model
             avg_model_state = average_ckpts(ckpt_loc_list=avg_fnames)
             ckpt_fname = '{}_avg.{}'.format(ckpt_str, CHECKPOINT_EXTN)
             if avg_model_state:
                 torch.save(avg_model_state, ckpt_fname)
-                logger.log('Averaged checkpoint saved at: {}'.format(ckpt_fname))
+                # logger.log('Averaged checkpoint saved at: {}'.format(ckpt_fname))
     except Exception as e:
         logger.log("Error in k-best-checkpoint")
         print(e)
@@ -132,8 +132,8 @@ def save_checkpoint(iterations: int,
         }, indent=4)
         with open(save_dir+"/checkpoint_best_{}.json".format(close_epoch_100), "w") as outfile:
             outfile.write(json_object)
-    elif close_epoch_100 % 100 == 0 and close_epoch_100 > 0:
-        logger.info("No best checkpoints in epochs: {} - {}".format(close_epoch_100-100, close_epoch_100))
+    # elif close_epoch_100 % 100 == 0 and close_epoch_100 > 0:
+    #     logger.info("No best checkpoints in epochs: {} - {}".format(close_epoch_100-100, close_epoch_100))
 
     # if model_ema is not None:
     #     checkpoint['ema_state_dict'] = get_model_state_dict(model_ema)
