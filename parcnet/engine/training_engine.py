@@ -345,12 +345,17 @@ class Trainer(object):
                     )
                     # logger.info('Checkpoints saved at: {}'.format(save_dir))
 
-                    epoch_end_time = time.time()
-                    self.epoch_times.append(epoch_end_time - epoch_start_time)
-                    hours, rem = divmod(epoch_end_time - epoch_start_time, 3600)
+                    self.epoch_times.append(time.time() - epoch_start_time)
+                    hours, rem = divmod(time.time() - epoch_start_time, 3600)
                     minutes, seconds = divmod(rem, 60)
                     epoch_time_str = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
-                    logger.info('Epoch {} took {}'.format(epoch, epoch_time_str), print_line=True)
+
+                    hours, rem = divmod(time.time() - train_start_time, 3600)
+                    minutes, seconds = divmod(rem, 60)
+                    train_time_str = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
+                    
+                    logger.info('This epoch took {}'.format(epoch_time_str))
+                    logger.info('Epoch {} took {}'.format(epoch, train_time_str), print_line=True)
 
                 if self.tb_log_writter is not None and self.is_master_node:
                     lr_list = self.scheduler.retrieve_lr(self.optimizer)

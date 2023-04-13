@@ -117,7 +117,10 @@ class Statistics(object):
                 learning_rate = [round(lr, 6) for lr in learning_rate]
                 lr_str = "LR: {}".format(learning_rate)
             epoch_str = "Epoch: {:3d} [{:8d}/{:8d}]".format(epoch, n_processed_samples, total_samples)
-            batch_str = "Avg. batch load time: {:1.3f}".format(self.batch_time / self.batch_counter)
+            hours, rem = divmod(self.batch_time / self.batch_counter, 3600)
+            minutes, seconds = divmod(rem, 60)
+            epoch_time_str = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
+            batch_str = "Avg. batch load time: {}".format(epoch_time_str)
 
             stats_summary = [epoch_str]
             stats_summary.extend(metric_stats)
