@@ -33,6 +33,7 @@ img_transforms = transforms.Compose([
 
 def init_model(path = "") -> SingleShotDetector:
     if path == "":    
+        print('From Repo')
         model: SingleShotDetector = get_model(opts)
         model.to(device)
         model.eval()
@@ -42,6 +43,7 @@ def init_model(path = "") -> SingleShotDetector:
         
         return model
     else:
+        print('From TorchScript File')
         model = torch.jit.load(path)
         model.to(device)
         model.eval()

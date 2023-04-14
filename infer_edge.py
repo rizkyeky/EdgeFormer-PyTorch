@@ -12,7 +12,7 @@ def start():
         file = 'pretrained/edgeformer-det.pt'
 
     cap = cv2.VideoCapture('images_test/video_test.mp4')
-    # cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
+    cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
 
     if (cap.isOpened()== False): 
         print("Error opening video stream or file")
