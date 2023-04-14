@@ -8,7 +8,7 @@ import time
 def start():
 
     file = ''
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 3:
         file = 'pretrained/edgeformer-det.pt'
 
     cap = cv2.VideoCapture('images_test/video_test.mp4')
