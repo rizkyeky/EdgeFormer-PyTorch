@@ -421,13 +421,13 @@ class Trainer(object):
                 epoch_time_str = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
                 logger.log('Avg Epoch time took {}'.format(epoch_time_str))
 
-                plt.plot(self.history['train_avg_loss'], label='Training Loss')
-                plt.plot(self.history['val_avg_loss'], label='Validation Loss')
-                plt.xlabel('Epoch')
-                plt.ylabel('Loss')
-                plt.legend()
+                # plt.plot(self.history['train_avg_loss'], label='Training Loss')
+                # plt.plot(self.history['val_avg_loss'], label='Validation Loss')
+                # plt.xlabel('Epoch')
+                # plt.ylabel('Loss')
+                # plt.legend()
 
-                plt.savefig(save_dir+'/loss_plot.jpg')
+                # plt.savefig(save_dir+'/loss_plot.jpg')
             
                 # self.history.update({
                 #     'epoch_times': self.epoch_times

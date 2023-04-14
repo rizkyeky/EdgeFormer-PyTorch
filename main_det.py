@@ -22,6 +22,7 @@ opts = get_eval_arguments()
 opts = device_setup(opts)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device("mps")
+mixed_precision_training = getattr(opts, "common.mixed_precision", False)
 
 res_h, res_w = tensor_size_from_opts(opts)
 img_transforms = transforms.Compose([
@@ -69,7 +70,7 @@ def predict_image(model: SingleShotDetector, image):
 
         image.to(device)
 
-        if (torch.cuda.is_available() and opts.common.mixed_precision):
+        if (torch.cuda.is_available() and mixed_precision_training):
             with torch.cuda.amp.autocast(enabled=True):
                 img = image.cuda()
                 prediction: DetectionPredTuple = model(img)
