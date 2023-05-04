@@ -355,7 +355,7 @@ class Trainer(object):
                     train_time_str = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
                     
                     logger.info('This epoch took {}'.format(epoch_time_str))
-                    logger.info('Epoch {} took {}'.format(epoch, train_time_str), print_line=True)
+                    logger.info('{} epoch took {}'.format(epoch, train_time_str), print_line=True)
 
                 if self.tb_log_writter is not None and self.is_master_node:
                     lr_list = self.scheduler.retrieve_lr(self.optimizer)
