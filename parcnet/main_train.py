@@ -189,12 +189,12 @@ def main_worker(**kwargs):
         setattr(opts, "eky.path", '/kaggle/working')
     elif system_type == 'labai':
         setattr(opts, "eky.path", '')
-        setattr(opts, 'scheduler.max_epochs', 10000)
-        setattr(opts, 'dataset.train_batch_size0', 128)
-        setattr(opts, 'dataset.val_batch_size0', 128)
+        # setattr(opts, 'scheduler.max_epochs', 10000)
+        # setattr(opts, 'dataset.train_batch_size0', 128)
+        # setattr(opts, 'dataset.val_batch_size0', 128)
         setattr(opts, "dataset.root_train", 'dataset')
         setattr(opts, "dataset.root_val", 'dataset')
-        setattr(opts, "model.classification.pretrained", 'checkpoints/checkpoint_cls_last.pt')
+        # setattr(opts, "model.classification.pretrained", 'checkpoints/checkpoint_cls_last.pt')
         setattr(opts, "model.detection.pretrained", 'checkpoints/checkpoint_coco_modif.pt')
     else:
         setattr(opts, "eky.path", None)
