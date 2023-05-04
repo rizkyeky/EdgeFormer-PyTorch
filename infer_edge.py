@@ -2,14 +2,13 @@ import sys
 import cv2
 import main_det
 import numpy as np
-import json
+# import json
 import time
 
 def start():
 
-    file = ''
-    if len(sys.argv) > 3:
-        file = 'pretrained/edgeformer-det.pt'
+    file = 'pretrained/edgeformer-det.pt'
+    # file = ''
 
     cap = cv2.VideoCapture('images_test/video_test.mp4')
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)

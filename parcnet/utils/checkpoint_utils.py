@@ -121,27 +121,27 @@ def save_checkpoint(iterations: int,
         'gradient_scalar_state_dict': gradient_scalar.state_dict()
     }
     ckpt_str = '{}/checkpoint'.format(save_dir)
-    close_epoch_100 = ((epoch // 100) + 1) * 100
+    # close_epoch_100 = ((epoch // 100) + 1) * 100
     close_epoch_1000 = ((epoch // 1000) + 1) * 1000
     if is_best:
-        best_model_fname = '{}_best_{}.{}'.format(ckpt_str, close_epoch_100, CHECKPOINT_EXTN)
+        best_model_fname = '{}_best_{}.{}'.format(ckpt_str, close_epoch_1000, CHECKPOINT_EXTN)
         torch.save(model_state, best_model_fname)
         json_object = json.dumps({
             'epoch': epoch,
             'best_metric': best_metric,
         }, indent=4)
-        with open(save_dir+"/checkpoint_best_{}.json".format(close_epoch_100), "w") as outfile:
+        with open(save_dir+"/checkpoint_best_{}.json".format(close_epoch_1000), "w") as outfile:
             outfile.write(json_object)
     # elif close_epoch_100 % 100 == 0 and close_epoch_100 > 0:
     #     logger.info("No best checkpoints in epochs: {} - {}".format(close_epoch_100-100, close_epoch_100))
 
-    # if model_ema is not None:
-    #     checkpoint['ema_state_dict'] = get_model_state_dict(model_ema)
-    #     ema_fname = '{}_ema.{}'.format(ckpt_str, CHECKPOINT_EXTN)
-    #     torch.save(checkpoint['ema_state_dict'], ema_fname)
-    #     if is_ema_best:
-    #         ema_best_fname = '{}_ema_best.{}'.format(ckpt_str, CHECKPOINT_EXTN)
-    #         torch.save(checkpoint['ema_state_dict'], ema_best_fname)
+    if model_ema is not None:
+        checkpoint['ema_state_dict'] = get_model_state_dict(model_ema)
+        ema_fname = '{}_ema.{}'.format(ckpt_str, CHECKPOINT_EXTN)
+        torch.save(checkpoint['ema_state_dict'], ema_fname)
+        if is_ema_best:
+            ema_best_fname = '{}_ema_best.{}'.format(ckpt_str, CHECKPOINT_EXTN)
+            torch.save(checkpoint['ema_state_dict'], ema_best_fname)
 
     ckpt_fname = '{}.{}'.format(ckpt_str, CHECKPOINT_EXTN)
     torch.save(checkpoint, ckpt_fname)
@@ -161,13 +161,13 @@ def save_checkpoint(iterations: int,
 
     if k_best_checkpoints > 1:
         avg_n_save_k_checkpoints(model_state, best_metric, k_best_checkpoints, max_ckpt_metric, ckpt_str)
-        # if model_ema is not None and ema_best_metric is not None:
-        #     avg_n_save_k_checkpoints(model_state=checkpoint['ema_state_dict'],
-        #                              best_metric=ema_best_metric,
-        #                              k_best_checkpoints=k_best_checkpoints,
-        #                              max_ckpt_metric=max_ckpt_metric,
-        #                              ckpt_str="{}_ema".format(ckpt_str)
-        #                              )
+        if model_ema is not None and ema_best_metric is not None:
+            avg_n_save_k_checkpoints(model_state=checkpoint['ema_state_dict'],
+                                     best_metric=ema_best_metric,
+                                     k_best_checkpoints=k_best_checkpoints,
+                                     max_ckpt_metric=max_ckpt_metric,
+                                     ckpt_str="{}_ema".format(ckpt_str)
+                                     )
 
 def load_checkpoint(opts,
                     model: torch.nn.Module,

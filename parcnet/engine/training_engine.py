@@ -310,20 +310,20 @@ class Trainer(object):
                     is_best = train_ckpt_metric <= self.best_metric
                     self.best_metric = min(train_ckpt_metric, self.best_metric)
 
-                # val_ema_loss = None
-                # val_ema_ckpt_metric = None
-                # if self.model_ema is not None:
-                #     val_ema_loss, val_ema_ckpt_metric = self.val_epoch(
-                #         epoch=epoch,
-                #         model=self.model_ema.ema_model,
-                #         extra_str=" (EMA)"
-                #     )
-                #     if max_checkpoint_metric:
-                #         is_ema_best = val_ema_ckpt_metric >= ema_best_metric
-                #         ema_best_metric = max(val_ema_ckpt_metric, ema_best_metric)
-                #     else:
-                #         is_ema_best = val_ema_ckpt_metric <= ema_best_metric
-                #         ema_best_metric = min(val_ema_ckpt_metric, ema_best_metric)
+                val_ema_loss = None
+                val_ema_ckpt_metric = None
+                if self.model_ema is not None:
+                    val_ema_loss, val_ema_ckpt_metric = self.val_epoch(
+                        epoch=epoch,
+                        model=self.model_ema.ema_model,
+                        extra_str=" (EMA)"
+                    )
+                    if max_checkpoint_metric:
+                        is_ema_best = val_ema_ckpt_metric >= ema_best_metric
+                        ema_best_metric = max(val_ema_ckpt_metric, ema_best_metric)
+                    else:
+                        is_ema_best = val_ema_ckpt_metric <= ema_best_metric
+                        ema_best_metric = min(val_ema_ckpt_metric, ema_best_metric)
 
                 if self.is_master_node:
                     save_checkpoint(
@@ -364,8 +364,8 @@ class Trainer(object):
                     self.tb_log_writter.add_scalar('Train/Loss', round(train_loss, 2), epoch)
                     self.tb_log_writter.add_scalar('Val/Loss', round(val_loss, 2), epoch)
                     self.tb_log_writter.add_scalar('Common/Best Metric', round(self.best_metric, 2), epoch)
-                    # if val_ema_loss is not None:
-                    #     self.tb_log_writter.add_scalar('Val_EMA/Loss', round(val_ema_loss, 2), epoch)
+                    if val_ema_loss is not None:
+                        self.tb_log_writter.add_scalar('Val_EMA/Loss', round(val_ema_loss, 2), epoch)
 
                     # If val checkpoint metric is different from loss, add that too
                     if self.ckpt_metric != 'loss':
@@ -373,9 +373,9 @@ class Trainer(object):
                                                         round(train_ckpt_metric, 2), epoch)
                         self.tb_log_writter.add_scalar('Val/{}'.format(self.ckpt_metric.title()),
                                                         round(val_ckpt_metric, 2), epoch)
-                        # if val_ema_ckpt_metric is not None:
-                        #     self.tb_log_writter.add_scalar('Val_EMA/{}'.format(self.ckpt_metric.title()),
-                        #                                     round(val_ema_ckpt_metric, 2), epoch)
+                        if val_ema_ckpt_metric is not None:
+                            self.tb_log_writter.add_scalar('Val_EMA/{}'.format(self.ckpt_metric.title()),
+                                                            round(val_ema_ckpt_metric, 2), epoch)
 
                 if self.max_iterations_reached and self.is_master_node:
                     logger.info('Max. iterations for training reached')
