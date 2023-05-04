@@ -466,17 +466,16 @@ class KRSBIDetectionSSD(KRSBIDetection):
             iou_threshold=getattr(opts, "model.detection.ssd.iou_threshold", 0.5) # we use nms_iou_threshold during inference
         )
 
-    def training_transforms(self, size: tuple, ignore_idx: Optional[int] = 255):
+    def training_transforms(self, size: tuple):
         aug_list = [
             #tf.RandomZoomOut(opts=self.opts),
-            tf.SSDCroping(opts=self.opts),
+            # tf.SSDCroping(opts=self.opts),
             # tf.PhotometricDistort(opts=self.opts),
             # tf.RandomHorizontalFlip(opts=self.opts),
             tf.BoxPercentCoords(opts=self.opts),
             tf.Resize(opts=self.opts, size=size),
             tf.NumpyToTensor(opts=self.opts)
         ]
-
         return tf.Compose(opts=self.opts, img_transforms=aug_list)
 
     def validation_transforms(self, size: tuple, *args, **kwargs):

@@ -7,14 +7,14 @@ common:
   mixed_precision: true
   results_loc: "result"
 dataset:
-  root_train: "imgs_dec"
-  root_val: "imgs_dec"
+  # root_train: "imgs_dec"
+  # root_val: "imgs_dec"
   name: "krsbi_ssd"
   category: "detection"
   train_batch_size0: 64
   val_batch_size0: 64
   workers: -1
-  persistent_workers: false
+  persistent_workers: true
   pin_memory: true
 sampler:
   name: "batch_sampler"
