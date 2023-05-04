@@ -307,8 +307,8 @@ class Trainer(object):
                     is_best = val_ckpt_metric >= self.best_metric
                     self.best_metric = max(val_ckpt_metric, self.best_metric)
                 else:
-                    is_best = train_ckpt_metric <= self.best_metric
-                    self.best_metric = min(train_ckpt_metric, self.best_metric)
+                    is_best = val_ckpt_metric <= self.best_metric
+                    self.best_metric = min(val_ckpt_metric, self.best_metric)
 
                 val_ema_loss = None
                 val_ema_ckpt_metric = None
