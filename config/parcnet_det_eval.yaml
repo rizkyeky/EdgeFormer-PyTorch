@@ -102,4 +102,4 @@ image_augmentation:
 # evaluation:
 #   detection:
 #     mode: "image_folder"
-#     path: "/content/drive/MyDrive/skripsi/imgs_dec/balance/images/test"
+#     path: "/content/drive/MyDrive/skripsi/imgs_det/balance/images/test"

@@ -57,7 +57,7 @@ if __name__ == '__main__':
     CLASSES = ['_', 'robot', 'ball', 'goal']
     COLORS = [(0,0,0), (0, 0, 255), (0, 255, 0), (255, 0, 0)]
 
-    _dir = '/Users/eky/Documents/_SKRIPSI/imgs_dec/unbalance/images/test'
+    _dir = '/Users/eky/Documents/_SKRIPSI/imgs_det/unbalance/images/test'
     
     file_list = sorted(os.listdir(_dir))
     image_list = [file for file in file_list if file.endswith('.jpg')]

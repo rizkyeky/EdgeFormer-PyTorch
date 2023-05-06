@@ -60,7 +60,7 @@ model:
   classification:
     name: "edgeformer"
     classifier_dropout: 0.2
-    pretrained: "checkpoints/checkpoint_last_93.pt"
+    # pretrained: "checkpoints/checkpoint_last_93.pt"
     edge:
       scale: "scale_s"
       mode: "outer_frame_v1"

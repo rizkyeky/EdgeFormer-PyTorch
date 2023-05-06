@@ -65,25 +65,27 @@ class SSDAnchorGenerator(torch.nn.Module):
 
     @torch.no_grad()
     def generate_anchors_center_form(self, height: int, width: int, output_stride: int):
-        min_size_h = float(self.sizes[output_stride]["min"])
-        min_size_w = float(self.sizes[output_stride]["min"])
+        min_size_h = self.sizes[output_stride]["min"]
+        min_size_w = self.sizes[output_stride]["min"]
 
-        max_size_h = float(self.sizes[output_stride]["max"])
-        max_size_w = float(self.sizes[output_stride]["max"])
+        max_size_h = self.sizes[output_stride]["max"]
+        max_size_w = self.sizes[output_stride]["max"]
         aspect_ratio = self.output_strides_aspect_ratio[output_stride]
 
         default_anchors_ctr: List[torch.Tensor] = []
-        scale_x = float(1.0 / width)
-        scale_y = float(1.0 / height)
-        ls = torch.cartesian_prod(torch.tensor(list(range(height))), torch.tensor(list(range(width))))
-        ls = list(ls)
+        scale_x = 1.0 / width
+        scale_y = 1.0 / height
 
-        for res in ls:
+        range_height = list(range(height))
+        range_widht = list(range(width))
+        ls = torch.cartesian_prod(torch.tensor(range_height), torch.tensor(range_widht))
+
+        for res in ls.tolist():
             # [x, y, w, h] format
-            x = float(res[1].item())
-            y = float(res[0].item())
-            cx = float((x + 0.5) * scale_x)
-            cy = float((y + 0.5) * scale_y)
+            x = res[1]
+            y = res[0]
+            cx = (x + 0.5) * scale_x
+            cy = (y + 0.5) * scale_y
 
             # small size box
             a = torch.tensor([cx, cy, min_size_w, min_size_h])
@@ -96,7 +98,7 @@ class SSDAnchorGenerator(torch.nn.Module):
             # change h/w ratio of the small sized box based on aspect ratios
             for ratio in aspect_ratio:
                 ratio = torch.sqrt(torch.tensor(ratio))
-                ratio = float(ratio.item())
+                ratio = ratio.item()
                 c = torch.tensor([cx, cy, min_size_w * ratio, min_size_h / ratio])
                 default_anchors_ctr.append(c)
                 d = torch.tensor([cx, cy, min_size_w / ratio, min_size_h * ratio])

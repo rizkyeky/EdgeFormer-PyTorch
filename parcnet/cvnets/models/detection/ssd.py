@@ -3,7 +3,7 @@ from torch import nn, Tensor
 from utils import logger
 import argparse
 from typing import Optional, Tuple, Dict, Union
-from torchvision.ops import nms as torch_nms
+from torchvision.ops.boxes import nms as torch_nms
 
 from . import register_detection_models
 from .base_detection import BaseDetection, DetectionPredTuple

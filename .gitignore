@@ -1,14 +1,17 @@
-parcnet/pretrained_models/detection/balance/
-.DS_Store
+
+*.DS_Store
 *.pyc
 *.png
 *.jpg
 *.pt
 *.pth
 
+parcnet/pretrained_models/detection/balance/
 parcnet/pretrained_models/detection/unbalance/
 parcnet/pretrained_models/classification/
 
+env/
+checkpoints/
 images_test/
 test_results/
 pretrained/

@@ -61,6 +61,7 @@ def predict_image(model: SingleShotDetector, image):
         
         image = img_transforms(image)
         image = image.unsqueeze(0)
+        # print(image.shape)
 
         # output_stride = 32
         # curr_height, curr_width = image.shape[2:]

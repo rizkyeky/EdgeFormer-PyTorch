@@ -1,8 +1,7 @@
-import sys
+# import sys
 import cv2
 import main_det
 import numpy as np
-# import json
 import time
 
 def start():

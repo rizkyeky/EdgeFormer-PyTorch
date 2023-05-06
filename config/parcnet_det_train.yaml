@@ -7,8 +7,8 @@ common:
   mixed_precision: true
   results_loc: "result"
 dataset:
-  # root_train: "imgs_dec"
-  # root_val: "imgs_dec"
+  # root_train: "imgs_det"
+  # root_val: "imgs_det"
   name: "krsbi_ssd"
   category: "detection"
   train_batch_size0: 32
@@ -102,4 +102,4 @@ stats:
 # evaluation:
 #   detection:
 #     mode: "image_folder"
-#     path: "/content/drive/MyDrive/skripsi/imgs_dec/balance/images/test"
+#     path: "/content/drive/MyDrive/skripsi/imgs_det/balance/images/test"
