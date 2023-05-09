@@ -15,10 +15,10 @@ from ..modules import InvertedResidual
 class shuffle_layer(nn.Module):
     def __init__(self, input_channel, groups=4):
         super(shuffle_layer, self).__init__()
-        ind = np.array(list(range(input_channel)))
-        ind = ind.reshape(groups, input_channel//groups)
-        ind = ind.T
-        self.shuffle_ind = ind.reshape(input_channel)
+        ind = torch.arange(input_channel)
+        ind = ind.view(groups, -1)
+        ind = ind.t()
+        self.shuffle_ind = ind.view(-1)
 
     def forward(self, x):
         out = x[:, self.shuffle_ind]
@@ -512,7 +512,8 @@ class gcc_ca_mf_block(BaseModule):
             return (torch.zeros(1), torch.zeros(1), torch.zeros(1), torch.zeros(1))
 
     def forward(self, x: Tensor) -> Tensor:
-
+        assert isinstance(x, Tensor)
+        
         x_1, x_2 = torch.chunk(x, 2, 1)
         x_1_res, x_2_res = x_1, x_2
         _, _, f_s, _ = x_1.shape

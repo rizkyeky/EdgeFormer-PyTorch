@@ -11,17 +11,17 @@ if __name__ == '__main__':
     img = main_det.img_transforms(img)
     img = img.unsqueeze(0)
     
-    # dummy_input = torch.rand(1, 3, 224, 224)
-    # try:
-    model_traced = torch.jit.trace(model, img)
-    # except Exception as e:
-    #     err = e.__str__().replace('\t', '')
-    #     err = err.split('\n')
-    #     print(len(err))
-    #     print(err[:10])
-        # print('Error tracing model')
+    dummy_input = torch.rand(1, 3, 224, 224)
+    try:
+        model_traced = torch.jit.trace(model, img)
+    except Exception as e:
+        err = e.__str__().replace('\t', '')
+        err = err.split('\n')
+        with open('error_trace.txt', 'w') as f:
+            f.write(e.__str__())
+        print('Error tracing model')
         # exit()
-    model_scripted = torch.jit.script(model_traced)
+    model_scripted = torch.jit.script(model)
 
     # model_optimized = optimize_for_mobile(model_scripted)
     model_scripted.save('pretrained/edgeformer-det_test.pt')

@@ -3,10 +3,10 @@
 import torch
 from math import sqrt
 import numpy as np
-from typing import Dict, Optional, List
+from typing import Any, Dict, Optional, List
 
 @torch.jit.script
-class AnchorsDict(object):
+class TorchStrDict(object):
     def __init__(self):
         self.data: Dict[str, torch.Tensor] = {}
 
@@ -34,29 +34,29 @@ class SSDAnchorGenerator(torch.nn.Module):
                  no_clipping: Optional[bool] = False
                  ):
         super(SSDAnchorGenerator, self).__init__()
+
         output_strides_aspect_ratio = dict()
         for k, v in zip(output_strides, aspect_ratios):
-            output_strides_aspect_ratio[k] = v
+            output_strides_aspect_ratio[k] = torch.tensor(v)
 
-        self.anchors_dict = AnchorsDict()
+        self.anchors_dict = TorchStrDict()
 
-        scales = np.linspace(min_ratio, max_ratio, len(output_strides) + 1)
+        scales = torch.linspace(min_ratio, max_ratio, len(output_strides) + 1)
         self.sizes = dict()
         for i, s in enumerate(output_strides):
             self.sizes[s] = {
                 "min": scales[i],
-                "max": sqrt(scales[i] * scales[i+1])
+                "max": torch.sqrt(scales[i] * scales[i+1])
             }
         self.output_strides_aspect_ratio = self.process_aspect_ratio(output_strides_aspect_ratio)
 
         self.clip = not no_clipping
 
     @staticmethod
-    def process_aspect_ratio(output_strides_aspect_ratio: Dict[int, List]) -> Dict[int, List]:
+    def process_aspect_ratio(output_strides_aspect_ratio: Dict[int, torch.Tensor]) -> Dict[int, torch.Tensor]:
         for os, curr_ar in output_strides_aspect_ratio.items():
-            assert isinstance(curr_ar, list)
-            new_ar = list(set(curr_ar)) # keep only unique values
-            output_strides_aspect_ratio[os] = new_ar
+            assert isinstance(curr_ar, torch.Tensor)
+            output_strides_aspect_ratio[os] = torch.unique(curr_ar)
         return output_strides_aspect_ratio
 
     def num_anchors_per_os(self):
@@ -67,42 +67,51 @@ class SSDAnchorGenerator(torch.nn.Module):
     def generate_anchors_center_form(self, height: int, width: int, output_stride: int):
         min_size_h = self.sizes[output_stride]["min"]
         min_size_w = self.sizes[output_stride]["min"]
-
+        
         max_size_h = self.sizes[output_stride]["max"]
         max_size_w = self.sizes[output_stride]["max"]
+
+        min_size_w = min_size_w.unsqueeze(0)
+        min_size_h = min_size_h.unsqueeze(0)
+        max_size_w = max_size_w.unsqueeze(0)
+        max_size_h = max_size_h.unsqueeze(0)
+        
         aspect_ratio = self.output_strides_aspect_ratio[output_stride]
 
         default_anchors_ctr: List[torch.Tensor] = []
         scale_x = 1.0 / width
         scale_y = 1.0 / height
 
-        range_height = list(range(height))
-        range_widht = list(range(width))
-        ls = torch.cartesian_prod(torch.tensor(range_height), torch.tensor(range_widht))
-
-        for res in ls.tolist():
+        range_height = torch.arange(start=0, end=height)
+        range_width = torch.arange(start=0, end=width)
+        ls = torch.cartesian_prod(range_height, range_width)
+        
+        for res in ls:
             # [x, y, w, h] format
             x = res[1]
             y = res[0]
             cx = (x + 0.5) * scale_x
             cy = (y + 0.5) * scale_y
-
+            
             # small size box
-            a = torch.tensor([cx, cy, min_size_w, min_size_h])
+            cx = cx.unsqueeze(0)
+            cy = cy.unsqueeze(0)
+    
+            a = torch.cat([cx, cy, min_size_w, min_size_h], dim=0)
             default_anchors_ctr.append(a)
 
             # big size box
-            b = torch.tensor([cx, cy, max_size_w, max_size_h])
+            b = torch.cat([cx, cy, max_size_w, max_size_h], dim=0)
             default_anchors_ctr.append(b)
 
             # change h/w ratio of the small sized box based on aspect ratios
             for ratio in aspect_ratio:
-                ratio = torch.sqrt(torch.tensor(ratio))
-                ratio = ratio.item()
-                c = torch.tensor([cx, cy, min_size_w * ratio, min_size_h / ratio])
+                ratio = torch.sqrt(ratio)
+                c = torch.cat([cx, cy, min_size_w * ratio, min_size_h / ratio], dim=0)
                 default_anchors_ctr.append(c)
-                d = torch.tensor([cx, cy, min_size_w / ratio, min_size_h * ratio])
+                d = torch.cat([cx, cy, min_size_w / ratio, min_size_h * ratio], dim=0)
                 default_anchors_ctr.append(d)
+
         default_anchors_ctr_tensor: torch.Tensor = torch.stack(default_anchors_ctr.copy())
         default_anchors_ctr.clear()
         if self.clip:
@@ -124,6 +133,3 @@ class SSDAnchorGenerator(torch.nn.Module):
     @torch.no_grad()
     def forward(self, fm_height: int, fm_width: int, fm_output_stride: int) -> torch.Tensor:
         return self.get_anchors(fm_height=fm_height, fm_width=fm_width, fm_output_stride=fm_output_stride)
-    
-    # def cart_product(self, seqs1, seqs2):
-    #     return torch.cartesian_prod(seqs1, seqs2)

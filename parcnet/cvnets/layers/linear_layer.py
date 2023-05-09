@@ -1,7 +1,7 @@
 
 import torch
 from torch import nn, Tensor
-from typing import Optional
+from typing import Optional, Tuple
 import argparse
 
 from utils import logger
@@ -62,8 +62,8 @@ class LinearLayer(BaseLayer):
         )
         return repr_str
 
-    def profile_module(self, input: Tensor) -> (Tensor, float, float):
-        out_size = list(input.shape)
+    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
+        out_size = input.shape
         out_size[-1] = self.out_features
         params = sum([p.numel() for p in self.parameters()])
         macs = params
@@ -188,12 +188,12 @@ class GroupLinear(BaseLayer):
         )
         return repr_str
 
-    def profile_module(self, input: Tensor) -> (Tensor, float, float):
+    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
 
         params = sum([p.numel() for p in self.parameters()])
         macs = params
 
-        out_size = list(input.shape)
+        out_size = input.shape
         out_size[-1] = self.out_features
 
         output = torch.zeros(size=out_size, dtype=input.dtype, device=input.device)
