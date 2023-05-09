@@ -19,7 +19,7 @@ if __name__ == '__main__':
         err = err.split('\n')
         with open('error_trace.txt', 'w') as f:
             f.write(e.__str__())
-        print('Error tracing model')
+        # print('Error tracing model')
         # exit()
     model_scripted = torch.jit.script(model)
 
