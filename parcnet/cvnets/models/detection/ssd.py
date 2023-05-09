@@ -182,9 +182,9 @@ class SingleShotDetector(BaseDetection):
         
         enc_end_points: Dict[str, Tensor] = self.encoder.extract_end_points_all(x)
 
-        locations = torch.empty(0)
-        confidences = torch.empty(0)
-        anchors = torch.empty(0)
+        locations = torch.empty(0).to(x.device)
+        confidences = torch.empty(0).to(x.device)
+        anchors = torch.empty(0).to(x.device)
         
         x = enc_end_points["out_l5"]
 
