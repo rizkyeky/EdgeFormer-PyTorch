@@ -11,6 +11,7 @@ parcnet/pretrained_models/detection/unbalance/
 parcnet/pretrained_models/classification/
 
 env/
+env_test/
 checkpoints/
 images_test/
 test_results/

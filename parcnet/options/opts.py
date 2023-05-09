@@ -54,7 +54,7 @@ def arguments_eky(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     # group.add_argument('--ddp.world-size', type=int, default=1, help="World size for DDP")
     # group.add_argument('--ddp.dist-url', type=str, default=None, help="DDP URL")
     # group.add_argument('--ddp.dist-port', type=int, default=6006, help="DDP Port")
-    group.add_argument('--eky.system', type=str, default='mac', help="mac, colab, kaggle")
+    group.add_argument('--eky.system', type=str, default='labai', help="mac, colab, kaggle")
     group.add_argument('--eky.dataset', type=str, default='imbalance', help="balance, imbalance")
     group.add_argument('--eky.type', type=str, default='train', help="train, test, infer")
     group.add_argument('--eky.path', type=str, default=None, help="project path")

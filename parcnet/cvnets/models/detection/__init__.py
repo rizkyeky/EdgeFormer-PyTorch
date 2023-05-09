@@ -76,6 +76,8 @@ def common_detection_args(parser: argparse.ArgumentParser):
     group = parser.add_argument_group(title='Detection arguments', description="Detection arguments")
 
     group.add_argument('--model.detection.name', type=str, default=None, help="Model name")
+    group.add_argument('--model.detection.is_training', type=bool, default=False,
+                           help="Training mode or inference mode")
     group.add_argument('--model.detection.n-classes', type=int, default=None, help="Number of classes in the dataset")
     group.add_argument('--model.detection.pretrained', type=str, default=None,
                        help="Path of the pretrained model")

@@ -47,6 +47,7 @@ scheduler:
 model:
   detection:
     name: "ssd"
+    is_training: false
     ssd:
       anchors_aspect_ratio: [ [ 2, 3 ], [ 2, 3 ], [ 2, 3 ], [ 2, 3 ], [ 2, 3 ], [2] ]
       output_strides: [ 16, 32, 64, 128, 256, -1 ]

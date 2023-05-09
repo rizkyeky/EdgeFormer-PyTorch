@@ -33,7 +33,9 @@ def start():
 
             orig = frame
             labels, scores, boxes = main_det.predict_image(model, frame)
+            
             for idx, score, coords in zip(labels, scores, boxes):
+                idx = int(idx)
                 if score > 0.0:
                     label = "{}: {:.2f}%".format(CLASSES[idx], score * 100)
                     startX, startY, endX, endY = coords

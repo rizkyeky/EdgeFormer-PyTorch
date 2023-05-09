@@ -354,7 +354,7 @@ class gcc_mf_block(BaseModule):
         x_1_res, x_2_res = x_1, x_2
         _, _, f_s, _ = x_1.shape
 
-        K_1_H, K_1_W, K_2_H, K_2_W = self.get_instance_kernel(f_s)
+        k_1_H, k_1_W, k_2_H, k_2_W = self.get_instance_kernel(f_s)
 
         if self.use_pe:
             pe_1_H, pe_1_W, pe_2_H, pe_2_W = self.get_instance_pe(f_s)
@@ -367,9 +367,9 @@ class gcc_mf_block(BaseModule):
         x_1, x_2 = self.pre_Norm_1(x_1), self.pre_Norm_2(x_2)
 
         # stage 1
-        x_1_1 = F.conv2d(torch.cat((x_1, x_1[:, :, :-1, :]), dim=2), weight=K_1_H, bias=self.meta_1_H_bias, padding=0,
+        x_1_1 = F.conv2d(torch.cat((x_1, x_1[:, :, :-1, :]), dim=2), weight=k_1_H, bias=self.meta_1_H_bias, padding=0,
                          groups=self.dim)
-        x_2_1 = F.conv2d(torch.cat((x_2, x_2[:, :, :, :-1]), dim=3), weight=K_1_W, bias=self.meta_1_W_bias, padding=0,
+        x_2_1 = F.conv2d(torch.cat((x_2, x_2[:, :, :, :-1]), dim=3), weight=k_1_W, bias=self.meta_1_W_bias, padding=0,
                          groups=self.dim)
         if self.mid_mix and self.mixer is not None:
             mid_rep = torch.cat((x_1_1, x_2_1), dim=1)
@@ -379,9 +379,9 @@ class gcc_mf_block(BaseModule):
             x_1_1, x_2_1 = x_1_1 + pe_2_W, x_2_1 + pe_2_H
 
         # stage 2
-        x_1_2 = F.conv2d(torch.cat((x_1_1, x_1_1[:, :, :, :-1]), dim=3), weight=K_2_W, bias=self.meta_2_W_bias,
+        x_1_2 = F.conv2d(torch.cat((x_1_1, x_1_1[:, :, :, :-1]), dim=3), weight=k_2_W, bias=self.meta_2_W_bias,
                          padding=0, groups=self.dim)
-        x_2_2 = F.conv2d(torch.cat((x_2_1, x_2_1[:, :, :-1, :]), dim=2), weight=K_2_H, bias=self.meta_2_H_bias,
+        x_2_2 = F.conv2d(torch.cat((x_2_1, x_2_1[:, :, :-1, :]), dim=2), weight=k_2_H, bias=self.meta_2_H_bias,
                          padding=0, groups=self.dim)
 
         # residual
@@ -516,12 +516,12 @@ class gcc_ca_mf_block(BaseModule):
         
         x_1, x_2 = torch.chunk(x, 2, 1)
         x_1_res, x_2_res = x_1, x_2
-        _, _, f_s, _ = x_1.shape
+        f_s = x_1.shape[2]
         
         if isinstance(f_s, Tensor):
             f_s = f_s.item()
 
-        K_1_H, K_1_W, K_2_H, K_2_W = self.get_instance_kernel(f_s)
+        k_1_H, k_1_W, k_2_H, k_2_W = self.get_instance_kernel(f_s)
 
         pe_1_H: Tensor = torch.zeros(1)
         pe_1_W: Tensor = torch.zeros(1)
@@ -539,9 +539,9 @@ class gcc_ca_mf_block(BaseModule):
         x_1, x_2 = self.pre_Norm_1(x_1), self.pre_Norm_2(x_2)
 
         # stage 1
-        x_1_1 = F.conv2d(torch.cat((x_1, x_1[:, :, :-1, :]), dim=2), weight=K_1_H, bias=self.meta_1_H_bias, padding=0,
+        x_1_1 = F.conv2d(torch.cat((x_1, x_1[:, :, :-1, :]), dim=2), weight=k_1_H, bias=self.meta_1_H_bias, padding=0,
                          groups=self.dim)
-        x_2_1 = F.conv2d(torch.cat((x_2, x_2[:, :, :, :-1]), dim=3), weight=K_1_W, bias=self.meta_1_W_bias, padding=0,
+        x_2_1 = F.conv2d(torch.cat((x_2, x_2[:, :, :, :-1]), dim=3), weight=k_1_W, bias=self.meta_1_W_bias, padding=0,
                          groups=self.dim)
         if self.mid_mix and self.mixer is not None:
             mid_rep = torch.cat((x_1_1, x_2_1), dim=1)
@@ -551,9 +551,9 @@ class gcc_ca_mf_block(BaseModule):
             x_1_1, x_2_1 = x_1_1 + pe_2_W, x_2_1 + pe_2_H
 
         # stage 2
-        x_1_2 = F.conv2d(torch.cat((x_1_1, x_1_1[:, :, :, :-1]), dim=3), weight=K_2_W, bias=self.meta_2_W_bias,
+        x_1_2 = F.conv2d(torch.cat((x_1_1, x_1_1[:, :, :, :-1]), dim=3), weight=k_2_W, bias=self.meta_2_W_bias,
                          padding=0, groups=self.dim)
-        x_2_2 = F.conv2d(torch.cat((x_2_1, x_2_1[:, :, :-1, :]), dim=2), weight=K_2_H, bias=self.meta_2_H_bias,
+        x_2_2 = F.conv2d(torch.cat((x_2_1, x_2_1[:, :, :-1, :]), dim=2), weight=k_2_H, bias=self.meta_2_H_bias,
                          padding=0, groups=self.dim)
 
         # residual
@@ -882,11 +882,11 @@ class outer_frame_v1(BaseModule):
         super(outer_frame_v1, self).__init__()
 
         # structure parameters for computing madds
-        self.n_blocks = n_blocks
-        self.in_channels = in_channels
-        self.cf_s_channels = cf_s_channels
-        self.cf_ffn_channels = cf_ffn_channels
-        self.big_kernel_size = big_kernel_size
+        self.n_blocks = torch.tensor(n_blocks)
+        self.in_channels = torch.tensor(in_channels)
+        self.cf_s_channels = torch.tensor(cf_s_channels)
+        self.cf_ffn_channels = torch.tensor(cf_ffn_channels)
+        self.big_kernel_size = torch.tensor(big_kernel_size)
         self.meta_encoder = meta_encoder
         self.fusion_method = fusion_method
         self.bias = bias
@@ -896,7 +896,7 @@ class outer_frame_v1(BaseModule):
         self.dim_adaptive=nn.Sequential(
             ConvLayer(
                 opts=opts, in_channels=in_channels, out_channels=cf_s_channels,
-                kernel_size=3, stride=1, use_norm=True, use_act=True, dilation=dilation, groups=int(np.gcd(cf_s_channels, in_channels))
+                kernel_size=3, stride=1, use_norm=True, use_act=True, dilation=dilation, groups=torch.gcd(torch.tensor(cf_s_channels), torch.tensor(in_channels)).item()
             ),
             ConvLayer(
                 opts=opts, in_channels=cf_s_channels, out_channels=cf_s_channels,
@@ -948,14 +948,14 @@ class outer_frame_v1(BaseModule):
         # **************************************************************************************************fusion layer
         if fusion_method == 'add':
             self.channel_adaptive = ConvLayer(opts=opts, in_channels=cf_s_channels, out_channels=in_channels,
-                                              groups=int(np.gcd(cf_s_channels, in_channels)),
+                                              groups=torch.gcd(torch.tensor(cf_s_channels), torch.tensor(in_channels)).item(),
                                               kernel_size=1, stride=1, use_norm=True, use_act=True)
             self.local_global_fusion = ConvLayer(opts=opts, in_channels=in_channels, out_channels=in_channels,
                                                  kernel_size=3, stride=1, use_norm=True, use_act=True)
 
         elif fusion_method == 'concat':
             self.channel_adaptive = ConvLayer(opts=opts, in_channels=cf_s_channels, out_channels=in_channels,
-                                              groups=int(np.gcd(cf_s_channels, in_channels)),
+                                              groups=torch.gcd(torch.tensor(cf_s_channels), torch.tensor(in_channels)).item(),
                                               kernel_size=1, stride=1, use_norm=True, use_act=True)
             self.local_global_fusion = ConvLayer(opts=opts, in_channels=2*in_channels, out_channels=in_channels,
                                                  kernel_size=3, stride=1, use_norm=True, use_act=True)
@@ -1012,7 +1012,7 @@ class outer_frame_v1(BaseModule):
 
         # fusion part
         p_c_adaptive = sum([p.numel() for p in self.channel_adaptive.parameters()])
-        m_c_adaptive = self.cf_s_channels * self.in_channels * (w * h) / np.gcd(self.cf_s_channels, self.in_channels)
+        m_c_adaptive = self.cf_s_channels * self.in_channels * (w * h) / torch.gcd(self.cf_s_channels, self.in_channels)
 
         p_l_g_fusion = sum([p.numel() for p in self.local_global_fusion.parameters()])
         if self.fusion_method == 'add':

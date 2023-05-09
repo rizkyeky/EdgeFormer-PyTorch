@@ -78,7 +78,8 @@ class SSDAnchorGenerator(torch.nn.Module):
         
         aspect_ratio = self.output_strides_aspect_ratio[output_stride]
 
-        default_anchors_ctr: List[torch.Tensor] = []
+        # default_anchors_ctr = torch.empty(0)
+        default_anchors_ctr = []
         scale_x = 1.0 / width
         scale_y = 1.0 / height
 
@@ -98,18 +99,23 @@ class SSDAnchorGenerator(torch.nn.Module):
             cy = cy.unsqueeze(0)
     
             a = torch.cat([cx, cy, min_size_w, min_size_h], dim=0)
+            # default_anchors_ctr = torch.cat((default_anchors_ctr, a))
             default_anchors_ctr.append(a)
 
             # big size box
             b = torch.cat([cx, cy, max_size_w, max_size_h], dim=0)
+            # default_anchors_ctr = torch.cat((default_anchors_ctr, b))
             default_anchors_ctr.append(b)
 
             # change h/w ratio of the small sized box based on aspect ratios
             for ratio in aspect_ratio:
                 ratio = torch.sqrt(ratio)
                 c = torch.cat([cx, cy, min_size_w * ratio, min_size_h / ratio], dim=0)
+                # default_anchors_ctr = torch.cat((default_anchors_ctr, c))
                 default_anchors_ctr.append(c)
+                
                 d = torch.cat([cx, cy, min_size_w / ratio, min_size_h * ratio], dim=0)
+                # default_anchors_ctr = torch.cat((default_anchors_ctr, d))
                 default_anchors_ctr.append(d)
 
         default_anchors_ctr_tensor: torch.Tensor = torch.stack(default_anchors_ctr.copy())

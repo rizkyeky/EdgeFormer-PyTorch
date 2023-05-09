@@ -1,9 +1,11 @@
 CUDA error: the launch timed out and was terminated
 CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
 For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
 CUDA error: the launch timed out and was terminated
 CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
 For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
 Traceback (most recent call last):
   File "/home/labai/eky_edgeformer/parcnet/engine/training_engine.py", line 400, in run
     raise e
@@ -19,6 +21,7 @@ Traceback (most recent call last):
     return forward_call(*input, **kwargs)
   File "/home/labai/eky_edgeformer/parcnet/loss_fn/detection_loss_fns/ssd_multibox_loss.py", line 78, in forward
     target=gt_labels[mask],
+    
 RuntimeError: CUDA error: the launch timed out and was terminated
 CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
 For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
@@ -36,6 +39,7 @@ Traceback (most recent call last):
     torch.cuda.empty_cache()
   File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/cuda/memory.py", line 125, in empty_cache
     torch._C._cuda_emptyCache()
+
 RuntimeError: CUDA error: the launch timed out and was terminated
 CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
 For debugging consider passing CUDA_LAUNCH_BLOCKING=1.

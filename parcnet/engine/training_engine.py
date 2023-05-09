@@ -158,10 +158,10 @@ class Trainer(object):
             # results_det: list[DetectionPredTuple] = []
             with autocast(enabled=self.mixed_precision_training):
                 # prediction
-                pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img, is_training=True)
+                pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
                 
                 # compute loss
-                loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
+                loss = self.criteria(prediction=pred_label, target=target_label)
             
             # perform the backward pass with gradient accumulation [Optional]
             self.gradient_scalar.scale(loss).backward()
@@ -199,7 +199,7 @@ class Trainer(object):
             self.train_iterations += 1
         
         avg_loss = train_stats.avg_statistics(metric_name='loss')
-        # train_stats.epoch_summary(epoch=epoch, stage="training")
+        train_stats.epoch_summary(epoch=epoch, stage="training")
         avg_ckpt_metric = train_stats.avg_statistics(metric_name=self.ckpt_metric)
         return avg_loss, avg_ckpt_metric
 
@@ -233,7 +233,7 @@ class Trainer(object):
 
                 with autocast(enabled=self.mixed_precision_training):
                     # prediction
-                    pred_label: tuple[Tensor, Tensor, Tensor] = model(input_img, is_training=True)
+                    pred_label: tuple[Tensor, Tensor, Tensor] = model(input_img)
                     # compute loss
                     loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
                     
@@ -251,7 +251,7 @@ class Trainer(object):
                                                   learning_rate=lr
                                                   )
 
-        # validation_stats.epoch_summary(epoch=epoch, stage="validation" + extra_str)
+        validation_stats.epoch_summary(epoch=epoch, stage="validation" + extra_str)
         avg_loss = validation_stats.avg_statistics(metric_name='loss')
         avg_ckpt_metric = validation_stats.avg_statistics(metric_name=self.ckpt_metric)
         return avg_loss, avg_ckpt_metric

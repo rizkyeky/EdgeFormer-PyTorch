@@ -80,7 +80,7 @@ def predict_image(model: SingleShotDetector, image):
         else:
             prediction: DetectionPredTuple = model(image)
         
-        labels = prediction[0]
+        labels = prediction[0].cpu().numpy()
         scores = prediction[1].cpu().numpy()
         boxes = prediction[2].cpu().numpy()
 
