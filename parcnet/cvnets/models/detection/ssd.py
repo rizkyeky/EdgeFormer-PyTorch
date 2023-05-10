@@ -98,7 +98,7 @@ class SingleShotDetector(BaseDetection):
 
         # Anchor box related parameters
         self.conf_threshold = getattr(opts, "model.detection.ssd.conf_threshold", 0.01)
-        self.nms_threshold = getattr(opts, "model.detection.ssd.nms_iou_threshold", 0.3)
+        self.nms_threshold = getattr(opts, "model.detection.ssd.nms_iou_threshold", 0.5)
         self.top_k = getattr(opts, "model.detection.ssd.num_objects_per_class", 200)
 
         self.anchor_box_generator = SSDAnchorGenerator(
@@ -244,11 +244,11 @@ class SingleShotDetector(BaseDetection):
             assert bsz == 1
             return self.predict(x)
 
-    @torch.no_grad()
+    # @torch.no_grad()
     def predict(self, x: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
-
-        confidences, locations, anchors = self.ssd_forward(x)
-        scores = torch.nn.functional.softmax(confidences, dim=-1)
+        with torch.no_grad():
+            confidences, locations, anchors = self.ssd_forward(x)
+            scores = torch.nn.functional.softmax(confidences, dim=-1)
         # convert boxes in center form [c_x, c_y]
         # boxes = box_utils.convert_locations_to_boxes(
         #     pred_locations=locations,
