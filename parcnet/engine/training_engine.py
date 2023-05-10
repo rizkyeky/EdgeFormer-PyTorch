@@ -161,7 +161,7 @@ class Trainer(object):
                 pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
                 
                 # compute loss
-                loss = self.criteria(prediction=pred_label, target=target_label)
+                loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
             
             # perform the backward pass with gradient accumulation [Optional]
             self.gradient_scalar.scale(loss).backward()

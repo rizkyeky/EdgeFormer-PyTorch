@@ -57,7 +57,7 @@ class SSDLoss(BaseCriteria):
             True if self.max_iter > 0 else False
         )
 
-    def forward(self, prediction: Tuple[Tensor, Tensor, Tensor], target: Tensor) -> Tensor:
+    def forward(self, input_sample: Tensor, prediction: Tuple[Tensor, Tensor, Tensor], target: Tensor) -> Tensor:
         
         # confidence: (batch_size, num_priors, num_classes)
         # predicted_locations :(batch_size, num_priors, 4)
