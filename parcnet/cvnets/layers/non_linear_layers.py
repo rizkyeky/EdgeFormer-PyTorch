@@ -7,7 +7,7 @@ from .activation import (
 )
 
 
-def get_activation_fn(act_type: str = 'swish', num_parameters: Optional[int] = -1, inplace: Optional[bool] = True,
+def get_activation_fn(act_type: str = 'swish', num_parameters: Optional[int] = -1, inplace: bool = True,
                       negative_slope: Optional[float] = 0.1):
     if act_type == 'relu':
         return ReLU(inplace=False)

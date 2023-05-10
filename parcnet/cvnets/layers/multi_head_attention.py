@@ -16,7 +16,7 @@ class MultiHeadAttention(BaseLayer):
             https://arxiv.org/abs/1706.03762
     '''
     def __init__(self, embed_dim: int, num_heads: int, attn_dropout: Optional[float] =0.0, 
-                 bias: Optional[bool] = True,
+                 bias: bool = True,
                  *args, **kwargs):
         """
         :param embed_dim: Embedding dimension

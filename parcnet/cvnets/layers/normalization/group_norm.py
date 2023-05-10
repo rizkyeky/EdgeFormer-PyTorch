@@ -10,7 +10,7 @@ class GroupNorm(nn.GroupNorm):
                  num_groups: int,
                  num_channels: int,
                  eps: Optional[float] = 1e-5,
-                 affine: Optional[bool] = True
+                 affine: bool = True
                  ):
         super(GroupNorm, self).__init__(
             num_groups=num_groups,

@@ -47,7 +47,10 @@ class BaseEncoder(nn.Module):
     def reset_parameters(self, opts):
         initialize_weights(opts=opts, modules=self.modules())
 
-    def extract_end_points_all(self, x: Tensor, use_l5:bool = True, use_l5_exp:bool = False) -> Dict[str, Tensor]:
+    def extract_end_points_all(self, x: Tensor, use_l5: bool = True, use_l5_exp: bool = False) -> Dict[str, Tensor]:
+        
+        assert self.conv_1x1_exp is not None, 'Please implement self.conv_1x1_exp'
+
         out_dict = {} # Use dictionary over NamedTuple so that JIT is happy
         x = self.conv_1(x)  # 112 x112
         x = self.layer_1(x)  # 112 x112
@@ -67,7 +70,6 @@ class BaseEncoder(nn.Module):
             out_dict["out_l5"] = x
 
             if use_l5_exp:
-                assert self.conv_1x1_exp is not None, 'Please implement self.conv_1x1_exp'
                 x = self.conv_1x1_exp(x)
                 out_dict["out_l5_exp"] = x
         return out_dict
@@ -76,14 +78,9 @@ class BaseEncoder(nn.Module):
         return self.extract_end_points_all(x, use_l5=False)
 
     def extract_features(self, x: Tensor) -> Tensor:
-        assert self.model_conf_dict, "Model configuration dictionary should not be empty"
-        assert self.conv_1 is not None, 'Please implement self.conv_1'
-        assert self.layer_1 is not None, 'Please implement self.layer_1'
-        assert self.layer_2 is not None, 'Please implement self.layer_2'
-        assert self.layer_3 is not None, 'Please implement self.layer_3'
-        assert self.layer_4 is not None, 'Please implement self.layer_4'
-        assert self.layer_5 is not None, 'Please implement self.layer_5'
+
         assert self.conv_1x1_exp is not None, 'Please implement self.conv_1x1_exp'
+
         x = self.conv_1(x)
         x = self.layer_1(x)
         x = self.layer_2(x)
@@ -96,6 +93,7 @@ class BaseEncoder(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         assert self.classifier is not None, 'Please implement self.classifier'
+
         x = self.extract_features(x)
         x = self.classifier(x)
         return x
@@ -141,7 +139,7 @@ class BaseEncoder(nn.Module):
             logger.singe_dash_line()
         return input, overall_params, overall_macs
 
-    def profile_model(self, input: Tensor, is_classification: bool = True) -> Tuple[Tensor or Dict[str, Tensor], float, float]:
+    def profile_model(self, input: Tensor, is_classification: bool = True) -> Tuple[Tensor or Dict[Tensor], float, float]:
         # Note: Model profiling is for reference only and may contain errors.
         # It relies heavily on the user to implement the underlying functions accurately.
         overall_params, overall_macs = 0.0, 0.0
@@ -205,7 +203,7 @@ class BaseEncoder(nn.Module):
         return out_dict, overall_params, overall_macs
 
 
-    def infe_speed(self, input_shape=(1, 3, 256, 256), use_cuda: Optional[bool]=True, warmup_num=20, repeat_num=100):
+    def infe_speed(self, input_shape=(1, 3, 256, 256), use_cuda: bool=True, warmup_num=20, repeat_num=100):
 
         input = torch.randn(input_shape)
 

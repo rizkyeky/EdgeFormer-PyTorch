@@ -19,7 +19,7 @@ class ASPP(BaseModule):
                  in_channels: int,
                  out_channels: int,
                  atrous_rates: Tuple,
-                 is_sep_conv: Optional[bool] = False,
+                 is_sep_conv: bool = False,
                  dropout: Optional[float] = 0.1,
                  *args, **kwargs
                  ):

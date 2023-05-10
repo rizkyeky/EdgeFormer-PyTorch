@@ -22,8 +22,8 @@ class MobileViTBlock(BaseModule):
                  dropout: Optional[int] = 0.1, ffn_dropout: Optional[int] = 0.1, patch_h: Optional[int] = 8,
                  patch_w: Optional[int] = 8, transformer_norm_layer: Optional[str] = "layer_norm",
                  conv_ksize: Optional[int] = 3,
-                 dilation: Optional[int] = 1, var_ffn: Optional[bool] = False,
-                 no_fusion: Optional[bool] = False,
+                 dilation: Optional[int] = 1, var_ffn: bool = False,
+                 no_fusion: bool = False,
                  *args, **kwargs):
         conv_3x3_in = ConvLayer(
             opts=opts, in_channels=in_channels, out_channels=in_channels,
@@ -150,7 +150,7 @@ class MobileViTBlock(BaseModule):
 
         return patches, info_dict
 
-    def folding(self, patches: Tensor, info_dict: Dict) -> Tensor:
+    def folding(self, patches: Tensor, info_dict: Dict[str, int]) -> Tensor:
         n_dim = patches.dim()
         assert n_dim == 3, "Tensor should be of shape BPxNxC. Got: {}".format(patches.shape)
         # [BP, N, C] --> [B, P, N, C]
@@ -195,7 +195,7 @@ class MobileViTBlock(BaseModule):
             )
         return fm
 
-    def profile_module(self, input: Tensor) -> (Tensor, float, float):
+    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
         params = macs = 0.0
 
         res = input

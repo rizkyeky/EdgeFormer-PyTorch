@@ -23,10 +23,9 @@ def arguments_model(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     return parser
 
 
-def get_model(opts, cateogry=None):
+def get_model(opts):
     dataset_category = getattr(opts, "dataset.category", "classification")
     model = None
-    # print(dataset_category)
     if dataset_category == "classification":
         model = build_classification_model(opts=opts)
     elif dataset_category == "segmentation":

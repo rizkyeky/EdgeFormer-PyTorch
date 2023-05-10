@@ -8,7 +8,6 @@ from utils.download_utils import get_local_path
 from utils import logger
 from utils.ddp_utils import is_master
 from utils.common_utils import check_frozen_norm_layer
-import torch
 
 from ...misc.common import load_pretrained_model
 from ...models.classification import build_classification_model
@@ -29,7 +28,7 @@ def register_detection_models(name):
 
         DETECT_MODEL_REGISTRY[name] = cls
         return cls
-    
+
     return register_model_class
 
 
@@ -37,7 +36,6 @@ def build_detection_model(opts):
     seg_model_name = getattr(opts, "model.detection.name", None)
     model = None
     is_master_node = is_master(opts)
-    # print(seg_model_name, DETECT_MODEL_REGISTRY)
     if seg_model_name in DETECT_MODEL_REGISTRY:
         output_stride = getattr(opts, "model.detection.output_stride", None)
         encoder = build_classification_model(
@@ -45,7 +43,6 @@ def build_detection_model(opts):
             output_stride=output_stride
         )
         model = DETECT_MODEL_REGISTRY[seg_model_name](opts, encoder)
-        # model.ssd_heads += [torch.nn.Linear(model.ssd_heads[-1].in_channel, 3)]
     else:
         supported_models = list(DETECT_MODEL_REGISTRY.keys())
         supp_model_str = "Supported detection models are:"
@@ -76,8 +73,7 @@ def common_detection_args(parser: argparse.ArgumentParser):
     group = parser.add_argument_group(title='Detection arguments', description="Detection arguments")
 
     group.add_argument('--model.detection.name', type=str, default=None, help="Model name")
-    group.add_argument('--model.detection.is_training', type=bool, default=False,
-                           help="Training mode or inference mode")
+    group.add_argument('--model.detection.is_training', type=bool, default=False, help="Training mode or Inference mode")
     group.add_argument('--model.detection.n-classes', type=int, default=None, help="Number of classes in the dataset")
     group.add_argument('--model.detection.pretrained', type=str, default=None,
                        help="Path of the pretrained model")

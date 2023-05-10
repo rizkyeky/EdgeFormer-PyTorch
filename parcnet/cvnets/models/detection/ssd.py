@@ -1,9 +1,10 @@
 import torch
+import torchvision
 from torch import nn, Tensor
 from utils import logger
 import argparse
-from typing import List, Optional, Tuple, Dict, Union
-from torchvision.ops.boxes import nms as torch_nms
+from typing import Optional, Tuple
+from torchvision.ops import nms as torch_nms
 
 from . import register_detection_models
 from .base_detection import BaseDetection, DetectionPredTuple
@@ -32,12 +33,16 @@ class SingleShotDetector(BaseDetection):
         self.encoder.conv_1x1_exp = None
 
         self.is_training = getattr(opts, "model.detection.is_training", False)
+        self.device = getattr(opts, "dev.device", torch.device("cpu"))
 
         output_strides = getattr(opts, "model.detection.ssd.output_strides", [16, 32, 64, 128, 256, -1 ])
         n_os = len(output_strides)
 
         anchors_aspect_ratio = getattr(opts, "model.detection.ssd.anchors_aspect_ratio", [[2, 3]] * len(output_strides))
         proj_channels = getattr(opts, "model.detection.ssd.proj_channels", [512, 256, 256, 128, 128, 64])
+
+        self.center_variance: float = getattr(self.opts, "model.detection.ssd.center_variance", 0.1)
+        self.size_variance: float = getattr(self.opts, "model.detection.ssd.size_variance", 0.2)
 
         anchors_aspect_ratio = anchors_aspect_ratio + [[2]] * (n_os - len(anchors_aspect_ratio))
         proj_channels = proj_channels + [128] * (n_os - len(proj_channels))
@@ -117,7 +122,7 @@ class SingleShotDetector(BaseDetection):
                         proj_channels=proj_dim,
                         kernel_size=3 if os != -1 else 1)
             ]
-        
+
         self.anchors_aspect_ratio = anchors_aspect_ratio
         self.output_strides = output_strides
 
@@ -179,12 +184,12 @@ class SingleShotDetector(BaseDetection):
         return parser
 
     def ssd_forward(self, x: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
-        
-        enc_end_points: Dict[str, Tensor] = self.encoder.extract_end_points_all(x)
+        # print("****************************************************************************************ssd_forward ****")
+        enc_end_points = self.encoder.extract_end_points_all(x)
 
-        locations = torch.empty(0).to(x.device)
-        confidences = torch.empty(0).to(x.device)
-        anchors = torch.empty(0).to(x.device)
+        locations = torch.empty(0).to(self.device)
+        confidences = torch.empty(0).to(self.device)
+        anchors = torch.empty(0).to(self.device)
         
         x = enc_end_points["out_l5"]
 
@@ -199,8 +204,20 @@ class SingleShotDetector(BaseDetection):
             elif os == 32:
                 fm_h, fm_w = enc_end_points["out_l5"].shape[2:]
                 loc, pred = ssd_head(enc_end_points["out_l5"])
+            elif os == 64:
+                x = self.extra_layers["os_64"](x)
+                fm_h, fm_w = x.shape[2:]
+                loc, pred = ssd_head(x)
+            elif os == 128:
+                x = self.extra_layers["os_128"](x)
+                fm_h, fm_w = x.shape[2:]
+                loc, pred = ssd_head(x)
+            elif os == 256:
+                x = self.extra_layers["os_256"](x)
+                fm_h, fm_w = x.shape[2:]
+                loc, pred = ssd_head(x)
             else:
-                x = self.extra_layers["os_{}".format(os)](x)
+                x = self.extra_layers["os_-1"](x)
                 fm_h, fm_w = x.shape[2:]
                 loc, pred = ssd_head(x)
 
@@ -218,56 +235,76 @@ class SingleShotDetector(BaseDetection):
 
         return confidences, locations, anchors
 
-    def forward(self, x: Tensor) -> Union[DetectionPredTuple, Tuple[Tensor, Tensor, Tensor]]:
+    def forward(self, x: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
         bsz, _, __, ___ = x.shape
         if self.is_training:
             assert bsz != 1
             return self.ssd_forward(x)  
         else:
-            with torch.no_grad():
-                
-                confidences, locations, anchors = self.ssd_forward(x)
-                scores = nn.functional.softmax(confidences, dim=-1)
-                
-                boxes = box_utils.convert_locations_to_boxes(
-                    pred_locations=locations,
-                    anchor_boxes=anchors,
-                    center_variance= 0.1,
-                    size_variance= 0.2
-                )
-                boxes = box_utils.center_form_to_corner_form(boxes)
+            assert bsz == 1
+            return self.predict(x)
 
-                boxes = boxes[0]
-                scores = scores[0]
+    @torch.no_grad()
+    def predict(self, x: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
 
-                object_boxes = torch.empty(0)
-                object_scores = torch.empty(0)
-                object_labels = torch.empty(0)
+        confidences, locations, anchors = self.ssd_forward(x)
+        scores = torch.nn.functional.softmax(confidences, dim=-1)
+        # convert boxes in center form [c_x, c_y]
+        # boxes = box_utils.convert_locations_to_boxes(
+        #     pred_locations=locations,
+        #     anchor_boxes=anchors,
+        #     center_variance=self.center_variance,
+        #     size_variance=self.size_variance,
+        # )
+        pred_locations=locations
+        anchor_boxes=anchors
+        if anchor_boxes.dim() + 1 == pred_locations.dim():
+            anchor_boxes = anchor_boxes.unsqueeze(0)
 
-                for class_index in range(1, self.n_classes):
-                    included_scores = scores[:, class_index]
-                    keep_idxs = included_scores > self.conf_threshold
-                    included_scores = included_scores[keep_idxs]
-                    masked_boxes = boxes[keep_idxs, :]
+        pred_size = torch.exp(pred_locations[..., 2:] * self.size_variance) * anchor_boxes[..., 2:]
+        pred_center = (pred_locations[..., :2] * self.center_variance * anchor_boxes[..., 2:]) + anchor_boxes[..., :2]
 
-                    filtered_boxes, filtered_scores = nms(
-                        scores=included_scores,
-                        boxes=masked_boxes,
-                        nms_threshold=self.nms_threshold,
-                        top_k=self.top_k
-                    )
-                    
-                    filtered_labels = torch.full_like(filtered_scores, fill_value=class_index, dtype=torch.int8,)
-                    
-                    object_boxes = torch.cat((object_boxes, filtered_boxes), dim=0)
-                    object_scores = torch.cat((object_scores, filtered_scores), dim=0)
-                    object_labels = torch.cat((object_labels, filtered_labels), dim=0)
+        boxes = torch.cat((pred_center, pred_size), dim=-1)
 
-                return DetectionPredTuple(
-                    labels=object_labels,
-                    scores=object_scores,
-                    boxes=object_boxes
-                )
+        # convert boxes from center form [c_x, c_y] to corner form [x, y]
+        # boxes = box_utils.center_form_to_corner_form(boxes)
+        boxes = torch.cat((
+            boxes[..., :2] - (boxes[..., 2:] * 0.5),
+            boxes[..., :2] + (boxes[..., 2:] * 0.5)
+        ), dim=-1)
+
+        boxes = boxes[0]
+        scores = scores[0]
+
+        object_boxes = torch.empty(0)
+        object_scores = torch.empty(0)
+        object_labels = torch.empty(0)
+
+        for class_index in range(1, self.n_classes):
+            probs = scores[:, class_index]
+            mask = probs > self.conf_threshold
+            probs = probs[mask]
+            masked_boxes = boxes[mask, :]
+
+            # filtered_boxes, filtered_scores = nms(
+            #     scores=probs.reshape(-1),
+            #     boxes=masked_boxes,
+            #     nms_threshold=self.nms_threshold,
+            #     top_k=self.top_k
+            # )
+            top_k = self.top_k
+            keep = torch.ops.torchvision.nms(masked_boxes, probs.reshape(-1), self.nms_threshold)
+            if top_k > 0:
+                keep = keep[:top_k]
+            
+            filtered_boxes, filtered_scores = boxes[keep], scores[keep]
+            filtered_labels = torch.full_like(filtered_scores, fill_value=class_index, dtype=torch.int8,)
+
+            object_boxes = torch.cat((object_boxes, filtered_boxes), dim=0)
+            object_scores = torch.cat((object_scores, filtered_scores), dim=0)
+            object_labels = torch.cat((object_labels, filtered_labels), dim=0)
+
+        return object_boxes, object_scores, object_labels
 
     def profile_model(self, input: Tensor) -> None:
         # Note: Model profiling is for reference only and may contain errors.
@@ -333,7 +370,7 @@ class SingleShotDetector(BaseDetection):
         logger.double_dash_line(dashes=65)
 
 
-def nms(boxes: Tensor, scores: Tensor, nms_threshold: float, top_k: int = 200) -> Tuple[Tensor, Tensor]:
+def nms(boxes: Tensor, scores: Tensor, nms_threshold: float, top_k: Optional[int] = 200) -> Tuple[Tensor, Tensor]:
     """
     Args:
         boxes (N, 4): boxes in corner-form.
@@ -343,8 +380,6 @@ def nms(boxes: Tensor, scores: Tensor, nms_threshold: float, top_k: int = 200) -
     Returns:
          picked: Boxes and scores
     """
-    boxes = boxes.to(torch.float32)
-    scores = scores.to(torch.float32)
     keep = torch_nms(boxes, scores, nms_threshold)
     if top_k > 0:
         keep = keep[:top_k]

@@ -12,14 +12,14 @@ if __name__ == '__main__':
     img = img.unsqueeze(0)
     
     dummy_input = torch.rand(1, 3, 224, 224)
-    try:
-        model_traced = torch.jit.trace(model, img)
-    except Exception as e:
-        err = e.__str__().replace('\t', '')
-        err = err.split('\n')
-        with open('error_trace.txt', 'w') as f:
-            f.write(e.__str__())
-        # print('Error tracing model')
+    # try:
+    # model_traced = torch.jit.trace(model, img)
+    # except Exception as e:
+    #     err = e.__str__().replace('\t', '')
+    #     err = err.split('\n')
+    #     with open('error_trace.txt', 'w') as f:
+    #         f.write(e.__str__())
+    #     print('Error tracing model')
         # exit()
     model_scripted = torch.jit.script(model)
 

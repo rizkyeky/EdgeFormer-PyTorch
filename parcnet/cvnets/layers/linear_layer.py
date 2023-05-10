@@ -1,7 +1,7 @@
 
 import torch
 from torch import nn, Tensor
-from typing import Optional, Tuple
+from typing import Optional
 import argparse
 
 from utils import logger
@@ -13,7 +13,7 @@ class LinearLayer(BaseLayer):
     def __init__(self,
                  in_features: int,
                  out_features: int,
-                 bias: Optional[bool] = True,
+                 bias: bool = True,
                  *args, **kwargs) -> None:
         """
             Applies a linear transformation to the input data
@@ -62,8 +62,8 @@ class LinearLayer(BaseLayer):
         )
         return repr_str
 
-    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
-        out_size = input.shape
+    def profile_module(self, input: Tensor) -> (Tensor, float, float):
+        out_size = list(input.shape)
         out_size[-1] = self.out_features
         params = sum([p.numel() for p in self.parameters()])
         macs = params
@@ -76,8 +76,8 @@ class GroupLinear(BaseLayer):
                  in_features: int,
                  out_features: int,
                  n_groups: int,
-                 bias: Optional[bool] = True,
-                 feature_shuffle: Optional[bool] = False,
+                 bias: bool = True,
+                 feature_shuffle: bool = False,
                  *args, **kwargs):
         """
             Applies a group linear transformation as defined in the following papers:
@@ -188,12 +188,12 @@ class GroupLinear(BaseLayer):
         )
         return repr_str
 
-    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
+    def profile_module(self, input: Tensor) -> (Tensor, float, float):
 
         params = sum([p.numel() for p in self.parameters()])
         macs = params
 
-        out_size = input.shape
+        out_size = list(input.shape)
         out_size[-1] = self.out_features
 
         output = torch.zeros(size=out_size, dtype=input.dtype, device=input.device)

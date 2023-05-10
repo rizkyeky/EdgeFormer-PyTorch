@@ -56,7 +56,7 @@ def main(opts, **kwargs):
             logger.log('Max. epochs for training: {}'.format(max_epochs))
     # set-up the model
     model = get_model(opts)
-    system_type = getattr(opts, "eky.system", 'mac')
+    system_type = getattr(opts, "eky.system", 'labai')
 
     if system_type != 'mac':
         if num_gpus == 0:

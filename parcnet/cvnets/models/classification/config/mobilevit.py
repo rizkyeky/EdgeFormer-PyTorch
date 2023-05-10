@@ -7,7 +7,7 @@ from typing import Dict
 from utils import logger
 
 
-def get_configuration(opts) -> Dict:
+def get_configuration(opts) -> Dict[str, Dict]:
     mode = getattr(opts, "model.classification.mit.mode", "small")
     if mode is None:
         logger.error("Please specify mode")

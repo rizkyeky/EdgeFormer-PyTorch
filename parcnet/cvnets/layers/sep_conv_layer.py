@@ -18,9 +18,9 @@ class SeparableConv(BaseLayer):
                  kernel_size: int or tuple,
                  stride: Optional[int or tuple] = 1,
                  dilation: Optional[int or tuple] = 1,
-                 use_norm: Optional[bool] = True,
-                 use_act: Optional[bool] = True,
-                 bias: Optional[bool] = False, padding_mode: Optional[str] = 'zeros',
+                 use_norm: bool = True,
+                 use_act: bool = True,
+                 bias: bool = False, padding_mode: Optional[str] = 'zeros',
                  *args, **kwargs):
         super(SeparableConv, self).__init__()
         self.dw_conv = ConvLayer(

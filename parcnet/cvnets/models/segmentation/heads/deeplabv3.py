@@ -21,7 +21,7 @@ class DeeplabV3(BaseSegHead):
         This class defines the DeepLabv3 architecture
             https://arxiv.org/abs/1706.05587
     '''
-    def __init__(self, opts, enc_conf: dict, use_l5_exp: Optional[bool] = False, *args, **kwargs):
+    def __init__(self, opts, enc_conf: dict, use_l5_exp: bool = False, *args, **kwargs):
         classifier_dropout = getattr(opts, "model.segmentation.classifier_dropout", 0.1)
         atrous_rates = getattr(opts, "model.segmentation.deeplabv3.aspp_rates", (6, 12, 18))
         out_channels = getattr(opts, "model.segmentation.deeplabv3.aspp_out_channels", 256)

@@ -6,7 +6,7 @@
 import torch
 from torch import nn, Tensor
 from utils import logger
-from typing import Optional, Dict
+from typing import Optional, Dict, Tuple
 import argparse
 
 from ....misc.common import parameter_list
@@ -15,7 +15,7 @@ from ....layers import ConvLayer, Dropout2d
 
 
 class BaseSegHead(nn.Module):
-    def __init__(self, opts, enc_conf: dict, use_l5_exp: Optional[bool] = False):
+    def __init__(self, opts, enc_conf: dict, use_l5_exp: bool = False):
         super(BaseSegHead, self).__init__()
         enc_ch_l5_exp_out = _check_out_channels(enc_conf, "exp_before_cls")
         enc_ch_l5_out = _check_out_channels(enc_conf, 'layer5')
@@ -69,7 +69,7 @@ class BaseSegHead(nn.Module):
     def add_arguments(cls, parser: argparse.ArgumentParser):
         return parser
 
-    def profile_module(self, x: Tensor) -> (Tensor, float, float):
+    def profile_module(self, x: Tensor) -> Tuple[Tensor, float, float]:
         # Note: Model profiling is for reference only and may contain errors.
         # It relies heavily on the user to implement the underlying functions accurately.
 

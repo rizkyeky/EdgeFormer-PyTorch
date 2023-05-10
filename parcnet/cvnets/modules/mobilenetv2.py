@@ -1,7 +1,7 @@
 from cvnets.modules import BaseModule
 from torch import nn, Tensor
 from utils.math_utils import make_divisible
-from typing import Optional, Union
+from typing import Optional, Tuple, Union
 
 from ..misc.profiler import module_profile
 from ..modules import SqueezeExcitation
@@ -17,10 +17,10 @@ class InvertedResidualSE(BaseModule):
                  in_channels: int,
                  out_channels: int,
                  expand_ratio: Union[int, float],
-                 use_hs: Optional[bool] = False,
+                 use_hs: bool = False,
                  dilation: Optional[int] = 1,
                  stride: Optional[int] = 1,
-                 use_se: Optional[bool] = False
+                 use_se: bool = False
                  ) -> None:
         super(InvertedResidualSE, self).__init__()
         self.stride = stride
@@ -63,11 +63,11 @@ class InvertedResidualSE(BaseModule):
         self.use_hs = use_hs
         self.use_se = use_se
 
-    def forward(self, x: Tensor, *args, **kwargs) -> Tensor:
+    def forward(self, x: Tensor) -> Tensor:
         y = self.block(x)
         return x + y if self.use_res_connect else y
 
-    def profile_module(self, input: Tensor) -> (Tensor, float, float):
+    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
         return module_profile(module=self.block, x=input)
 
     def __repr__(self) -> str:
@@ -130,7 +130,7 @@ class InvertedResidual(BaseModule):
         else:
             return self.block(x)
 
-    def profile_module(self, input: Tensor) -> (Tensor, float, float):
+    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
         return module_profile(module=self.block, x=input)
 
     def __repr__(self) -> str:

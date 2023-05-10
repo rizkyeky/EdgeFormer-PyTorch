@@ -88,7 +88,7 @@ class SSDHead(BaseModule):
         box_locations, box_classes = torch.split(x, [self.n_coordinates, self.n_classes], dim=-1)
         return box_locations, box_classes
 
-    def profile_module(self, input: Tensor) -> tuple([Tensor, float, float]):
+    def profile_module(self, input: Tensor) -> (Tensor, float, float):
         params = macs = 0.0
 
         if self.proj_layer is not None:

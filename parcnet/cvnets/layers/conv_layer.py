@@ -1,6 +1,6 @@
 import torch
 from torch import nn, Tensor
-from typing import Optional, Tuple
+from typing import Optional
 import argparse
 
 from utils import logger
@@ -23,8 +23,8 @@ class ConvLayer(BaseLayer):
     def __init__(self, opts, in_channels: int, out_channels: int, kernel_size: int or tuple,
                  stride: Optional[int or tuple] = 1,
                  dilation: Optional[int or tuple] = 1, groups: Optional[int] = 1,
-                 bias: Optional[bool] = False, padding_mode: Optional[str] = 'zeros',
-                 use_norm: Optional[bool] = True, use_act: Optional[bool] = True,
+                 bias: bool = False, padding_mode: Optional[str] = 'zeros',
+                 use_norm: bool = True, use_act: bool = True,
                  *args, **kwargs
                  ) -> None:
         """
@@ -129,7 +129,7 @@ class ConvLayer(BaseLayer):
         repr_str += ', bias={})'.format(self.bias)
         return repr_str
 
-    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
+    def profile_module(self, input: Tensor) -> (Tensor, float, float):
         if input.dim() != 4:
             logger.error(
                 'Conv2d requires 4-dimensional input (BxCxHxW). Provided input has shape: {}'.format(input.size()))
@@ -164,10 +164,10 @@ class TransposeConvLayer(BaseLayer):
     def __init__(self, opts, in_channels: int, out_channels: int, kernel_size: int or tuple,
                  stride: Optional[int or tuple] = 1,
                  dilation: Optional[int] = 1, groups: Optional[int] = 1,
-                 bias: Optional[bool] = False, padding_mode: Optional[str] = 'zeros',
-                 use_norm: Optional[bool] = True, use_act: Optional[bool] = True,
+                 bias: bool = False, padding_mode: Optional[str] = 'zeros',
+                 use_norm: bool = True, use_act: bool = True,
                  padding: Optional[int or tuple] = (0, 0),
-                 auto_padding: Optional[bool] = True):
+                 auto_padding: bool = True):
         """
         Applies a 2D Transpose Convolution over an input signal composed of several input planes.
         :param opts: over an input signal composed of several input planes.
@@ -261,7 +261,7 @@ class TransposeConvLayer(BaseLayer):
         repr_str += ')'
         return repr_str
 
-    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
+    def profile_module(self, input: Tensor) -> (Tensor, float, float):
         if input.dim() != 4:
             logger.error(
                 'Conv2d requires 4-dimensional input (BxCxHxW). Provided input has shape: {}'.format(input.size()))
@@ -324,7 +324,7 @@ class NormActLayer(BaseLayer):
     def forward(self, x: Tensor) -> Tensor:
         return self.block(x)
 
-    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
+    def profile_module(self, input: Tensor) -> (Tensor, float, float):
         # compute parameters
         params = sum([p.numel() for p in self.parameters()])
         macs = 0.0

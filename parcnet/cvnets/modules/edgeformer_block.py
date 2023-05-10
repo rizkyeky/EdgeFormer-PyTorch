@@ -15,10 +15,10 @@ from ..modules import InvertedResidual
 class shuffle_layer(nn.Module):
     def __init__(self, input_channel, groups=4):
         super(shuffle_layer, self).__init__()
-        ind = torch.arange(input_channel)
-        ind = ind.view(groups, -1)
-        ind = ind.t()
-        self.shuffle_ind = ind.view(-1)
+        ind = np.array(list(range(input_channel)))
+        ind = ind.reshape(groups, input_channel//groups)
+        ind = ind.T
+        self.shuffle_ind = ind.reshape(input_channel)
 
     def forward(self, x):
         out = x[:, self.shuffle_ind]
@@ -103,7 +103,7 @@ class gcc_dk(nn.Module):
 ##*******************************************************************************************************big kernel conv
 # big kernel conv based pure ConvNet Meta-Former block
 class bkc_mf_block(BaseModule):
-    def __init__(self, dim: int, big_kernel_size: int, mid_mix: bool = True, bias: Optional[bool]=True,
+    def __init__(self, dim: int, big_kernel_size: int, mid_mix: bool=True, bias: bool=True,
                  ffn_dim: Optional[int]=2, ffn_dropout=0.0, dropout=0.1):
 
         super(bkc_mf_block, self).__init__()
@@ -118,7 +118,6 @@ class bkc_mf_block(BaseModule):
         self.bk_conv_2_W = nn.Conv2d(dim, dim, kernel_size=(big_kernel_size, 1), padding=(big_kernel_size//2, 0), groups=dim, bias=bias)
         self.bk_conv_2_H = nn.Conv2d(dim, dim, kernel_size=(1, big_kernel_size), padding=(0, big_kernel_size//2), groups=dim, bias=bias)
 
-        self.mixer = None
         if mid_mix:
             self.mixer = nn.ChannelShuffle(groups=2)
 
@@ -147,7 +146,7 @@ class bkc_mf_block(BaseModule):
         # stage 1
         x_1_1 = self.bk_conv_1_H(x_1)
         x_2_1 = self.bk_conv_1_W(x_2)
-        if self.mid_mix and self.mixer is not None:
+        if self.mid_mix:
             mid_rep = torch.cat((x_1_1, x_2_1), dim=1)
             x_1_1, x_2_1 = torch.chunk(self.mixer(mid_rep), chunks=2, dim=1)
 
@@ -168,7 +167,7 @@ class bkc_mf_block(BaseModule):
 # big kernel conv based pure ConvNet Meta-Former block
 # channel wise attention is used
 class bkc_ca_mf_block(BaseModule):
-    def __init__(self, dim: int, big_kernel_size: int, mid_mix: bool = True, bias: Optional[bool]=True,
+    def __init__(self, dim: int, big_kernel_size: int, mid_mix: bool=True, bias: bool=True,
                  ffn_dim: Optional[int]=2, ffn_dropout=0.0, dropout=0.1):
 
         super(bkc_ca_mf_block, self).__init__()
@@ -183,7 +182,6 @@ class bkc_ca_mf_block(BaseModule):
         self.bk_conv_2_W = nn.Conv2d(dim, dim, kernel_size=(big_kernel_size, 1), padding=(big_kernel_size//2, 0), groups=dim, bias=bias)
         self.bk_conv_2_H = nn.Conv2d(dim, dim, kernel_size=(1, big_kernel_size), padding=(0, big_kernel_size//2), groups=dim, bias=bias)
 
-        self.mixer = None
         if mid_mix:
             self.mixer = nn.ChannelShuffle(groups=2)
 
@@ -214,7 +212,7 @@ class bkc_ca_mf_block(BaseModule):
         # stage 1
         x_1_1 = self.bk_conv_1_H(x_1)
         x_2_1 = self.bk_conv_1_W(x_2)
-        if self.mid_mix and self.mixer is not None:
+        if self.mid_mix:
             mid_rep = torch.cat((x_1_1, x_2_1), dim=1)
             x_1_1, x_2_1 = torch.chunk(self.mixer(mid_rep), chunks=2, dim=1)
 
@@ -239,9 +237,9 @@ class gcc_mf_block(BaseModule):
                  dim: int,
                  meta_kernel_size: int,
                  instance_kernel_method='crop',
-                 use_pe:Optional[bool]=True,
-                 mid_mix: bool = True,
-                 bias: Optional[bool]=True,
+                 use_pe:bool=True,
+                 mid_mix: bool=True,
+                 bias: bool=True,
                  ffn_dim: Optional[int]=2,
                  ffn_dropout=0.0,
                  dropout=0.1):
@@ -275,13 +273,8 @@ class gcc_mf_block(BaseModule):
             self.meta_pe_1_W = nn.Parameter(torch.randn(1, dim, 1, meta_kernel_size))
             self.meta_pe_2_H = nn.Parameter(torch.randn(1, dim, meta_kernel_size, 1))
             self.meta_pe_2_W = nn.Parameter(torch.randn(1, dim, 1, meta_kernel_size))
-        else:
-            self.meta_pe_1_H = None
-            self.meta_pe_1_W = None
-            self.meta_pe_2_H = None
-            self.meta_pe_2_W = None
 
-        self.mixer = None
+
         if mid_mix:
             self.mixer = nn.ChannelShuffle(groups=2)
 
@@ -300,7 +293,7 @@ class gcc_mf_block(BaseModule):
             Dropout(p=dropout)
         )
 
-    def get_instance_kernel(self, instance_kernel_size: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
+    def get_instance_kernel(self, instance_kernel_size):
         if self.instance_kernel_method == 'crop':
             return self.meta_kernel_1_H[:, :, : instance_kernel_size,:], \
                    self.meta_kernel_1_W[:, :, :, :instance_kernel_size], \
@@ -317,14 +310,8 @@ class gcc_mf_block(BaseModule):
 
         else:
             print('{} is not supported!'.format(self.instance_kernel_method))
-            return (torch.zeros(1), torch.zeros(1), torch.zeros(1), torch.zeros(1))
 
-    def get_instance_pe(self, instance_kernel_size: Tensor) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
-        assert isinstance(instance_kernel_size, Tensor)
-        assert isinstance(self.meta_pe_1_H, nn.Parameter)
-        assert isinstance(self.meta_pe_1_W, nn.Parameter)
-        assert isinstance(self.meta_pe_2_H, nn.Parameter)
-        assert isinstance(self.meta_pe_2_W, nn.Parameter)
+    def get_instance_pe(self, instance_kernel_size):
         if self.instance_kernel_method == 'crop':
             return self.meta_pe_1_H[:, :, :instance_kernel_size, :]\
                        .expand(1, self.dim, instance_kernel_size, instance_kernel_size), \
@@ -346,7 +333,6 @@ class gcc_mf_block(BaseModule):
                        .expand(1, self.dim, instance_kernel_size, instance_kernel_size)
         else:
             print('{} is not supported!'.format(self.instance_kernel_method))
-            return (torch.zeros(1), torch.zeros(1), torch.zeros(1), torch.zeros(1))
 
     def forward(self, x: Tensor) -> Tensor:
 
@@ -354,7 +340,7 @@ class gcc_mf_block(BaseModule):
         x_1_res, x_2_res = x_1, x_2
         _, _, f_s, _ = x_1.shape
 
-        k_1_H, k_1_W, k_2_H, k_2_W = self.get_instance_kernel(f_s)
+        K_1_H, K_1_W, K_2_H, K_2_W = self.get_instance_kernel(f_s)
 
         if self.use_pe:
             pe_1_H, pe_1_W, pe_2_H, pe_2_W = self.get_instance_pe(f_s)
@@ -367,11 +353,11 @@ class gcc_mf_block(BaseModule):
         x_1, x_2 = self.pre_Norm_1(x_1), self.pre_Norm_2(x_2)
 
         # stage 1
-        x_1_1 = F.conv2d(torch.cat((x_1, x_1[:, :, :-1, :]), dim=2), weight=k_1_H, bias=self.meta_1_H_bias, padding=0,
+        x_1_1 = F.conv2d(torch.cat((x_1, x_1[:, :, :-1, :]), dim=2), weight=K_1_H, bias=self.meta_1_H_bias, padding=0,
                          groups=self.dim)
-        x_2_1 = F.conv2d(torch.cat((x_2, x_2[:, :, :, :-1]), dim=3), weight=k_1_W, bias=self.meta_1_W_bias, padding=0,
+        x_2_1 = F.conv2d(torch.cat((x_2, x_2[:, :, :, :-1]), dim=3), weight=K_1_W, bias=self.meta_1_W_bias, padding=0,
                          groups=self.dim)
-        if self.mid_mix and self.mixer is not None:
+        if self.mid_mix:
             mid_rep = torch.cat((x_1_1, x_2_1), dim=1)
             x_1_1, x_2_1 = torch.chunk(self.mixer(mid_rep), chunks=2, dim=1)
 
@@ -379,9 +365,9 @@ class gcc_mf_block(BaseModule):
             x_1_1, x_2_1 = x_1_1 + pe_2_W, x_2_1 + pe_2_H
 
         # stage 2
-        x_1_2 = F.conv2d(torch.cat((x_1_1, x_1_1[:, :, :, :-1]), dim=3), weight=k_2_W, bias=self.meta_2_W_bias,
+        x_1_2 = F.conv2d(torch.cat((x_1_1, x_1_1[:, :, :, :-1]), dim=3), weight=K_2_W, bias=self.meta_2_W_bias,
                          padding=0, groups=self.dim)
-        x_2_2 = F.conv2d(torch.cat((x_2_1, x_2_1[:, :, :-1, :]), dim=2), weight=k_2_H, bias=self.meta_2_H_bias,
+        x_2_2 = F.conv2d(torch.cat((x_2_1, x_2_1[:, :, :-1, :]), dim=2), weight=K_2_H, bias=self.meta_2_H_bias,
                          padding=0, groups=self.dim)
 
         # residual
@@ -401,9 +387,9 @@ class gcc_ca_mf_block(BaseModule):
                  dim: int,
                  meta_kernel_size: int,
                  instance_kernel_method='crop',
-                 use_pe:Optional[bool]=True,
-                 mid_mix: bool = True,
-                 bias: Optional[bool]=True,
+                 use_pe:bool=True,
+                 mid_mix: bool=True,
+                 bias: bool=True,
                  ffn_dim: Optional[int]=2,
                  ffn_dropout=0.0,
                  dropout=0.1):
@@ -443,9 +429,7 @@ class gcc_ca_mf_block(BaseModule):
             self.meta_pe_2_H = None
             self.meta_pe_2_W = None
 
-        self.mixer = None
-        if mid_mix:
-            self.mixer = nn.ChannelShuffle(groups=2)
+        self.mixer = nn.ChannelShuffle(groups=2)
 
         self.mid_mix = mid_mix
         self.use_pe = use_pe
@@ -464,6 +448,8 @@ class gcc_ca_mf_block(BaseModule):
         self.ca = CA_layer(channel=2*dim)
 
     def get_instance_kernel(self, instance_kernel_size: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
+        assert isinstance(instance_kernel_size, int)
+
         if self.instance_kernel_method == 'crop':
             return self.meta_kernel_1_H[:, :, : instance_kernel_size,:], \
                    self.meta_kernel_1_W[:, :, :, :instance_kernel_size], \
@@ -480,14 +466,16 @@ class gcc_ca_mf_block(BaseModule):
 
         else:
             print('{} is not supported!'.format(self.instance_kernel_method))
-            return (torch.zeros(1), torch.zeros(1), torch.zeros(1), torch.zeros(1))
+            return (torch.empty(0), torch.empty(0), torch.empty(0), torch.empty(0))
 
     def get_instance_pe(self, instance_kernel_size: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
         assert isinstance(instance_kernel_size, int)
+
         assert isinstance(self.meta_pe_1_H, nn.Parameter)
         assert isinstance(self.meta_pe_1_W, nn.Parameter)
         assert isinstance(self.meta_pe_2_H, nn.Parameter)
         assert isinstance(self.meta_pe_2_W, nn.Parameter)
+
         if self.instance_kernel_method == 'crop':
             return self.meta_pe_1_H[:, :, :instance_kernel_size, :]\
                        .expand(1, self.dim, instance_kernel_size, instance_kernel_size), \
@@ -509,24 +497,23 @@ class gcc_ca_mf_block(BaseModule):
                        .expand(1, self.dim, instance_kernel_size, instance_kernel_size)
         else:
             print('{} is not supported!'.format(self.instance_kernel_method))
-            return (torch.zeros(1), torch.zeros(1), torch.zeros(1), torch.zeros(1))
+            return (torch.empty(0), torch.empty(0), torch.empty(0), torch.empty(0))
 
     def forward(self, x: Tensor) -> Tensor:
-        assert isinstance(x, Tensor)
-        
+
         x_1, x_2 = torch.chunk(x, 2, 1)
         x_1_res, x_2_res = x_1, x_2
-        f_s = x_1.shape[2]
-        
+        _, _, f_s, _ = x_1.shape
+
         if isinstance(f_s, Tensor):
             f_s = f_s.item()
 
         k_1_H, k_1_W, k_2_H, k_2_W = self.get_instance_kernel(f_s)
 
-        pe_1_H: Tensor = torch.zeros(1)
-        pe_1_W: Tensor = torch.zeros(1)
-        pe_2_H: Tensor = torch.zeros(1)
-        pe_2_W: Tensor = torch.zeros(1)
+        pe_1_H: Tensor = torch.empty(0)
+        pe_1_W: Tensor = torch.empty(0)
+        pe_2_H: Tensor = torch.empty(0)
+        pe_2_W: Tensor = torch.empty(0)
 
         if self.use_pe:
             pe_1_H, pe_1_W, pe_2_H, pe_2_W = self.get_instance_pe(f_s)
@@ -543,7 +530,7 @@ class gcc_ca_mf_block(BaseModule):
                          groups=self.dim)
         x_2_1 = F.conv2d(torch.cat((x_2, x_2[:, :, :, :-1]), dim=3), weight=k_1_W, bias=self.meta_1_W_bias, padding=0,
                          groups=self.dim)
-        if self.mid_mix and self.mixer is not None:
+        if self.mid_mix:
             mid_rep = torch.cat((x_1_1, x_2_1), dim=1)
             x_1_1, x_2_1 = torch.chunk(self.mixer(mid_rep), chunks=2, dim=1)
 
@@ -573,9 +560,9 @@ class gcc_dk_mf_block(BaseModule):
                  dim: int,
                  meta_kernel_size: int,
                  instance_kernel_method='crop',
-                 use_pe:Optional[bool]=True,
-                 mid_mix: bool = True,
-                 bias: Optional[bool]=True,
+                 use_pe:bool=True,
+                 mid_mix: bool=True,
+                 bias: bool=True,
                  ffn_dim: Optional[int]=2,
                  ffn_dropout=0.0,
                  dropout=0.1):
@@ -610,7 +597,6 @@ class gcc_dk_mf_block(BaseModule):
             self.meta_pe_2_H = nn.Parameter(torch.randn(1, dim, meta_kernel_size, 1))
             self.meta_pe_2_W = nn.Parameter(torch.randn(1, dim, 1, meta_kernel_size))
 
-        self.mixer = None
         if mid_mix:
             self.mixer = nn.ChannelShuffle(groups=2)
 
@@ -682,7 +668,7 @@ class gcc_dk_mf_block(BaseModule):
         x_1_1, x_2_1 = x_1_1.view(b, c, f_s, f_s), x_2_1.view(b, c, f_s, f_s)
 
         # mid_mix is not used in here.
-        if self.mid_mix and self.mixer is not None:
+        if self.mid_mix:
             mid_rep = torch.cat((x_1_1, x_2_1), dim=1)
             x_1_1, x_2_1 = torch.chunk(self.mixer(mid_rep), chunks=2, dim=1)
 
@@ -719,9 +705,9 @@ class gcc_dk_ca_mf_block(BaseModule):
                  dim: int,
                  meta_kernel_size: int,
                  instance_kernel_method='crop',
-                 use_pe:Optional[bool]=True,
-                 mid_mix: bool = True,
-                 bias: Optional[bool]=True,
+                 use_pe:bool=True,
+                 mid_mix: bool=True,
+                 bias: bool=True,
                  ffn_dim: Optional[int]=2,
                  ffn_dropout=0.0,
                  dropout=0.1):
@@ -754,7 +740,6 @@ class gcc_dk_ca_mf_block(BaseModule):
             self.meta_pe_2_H = nn.Parameter(torch.randn(1, dim, meta_kernel_size, 1))
             self.meta_pe_2_W = nn.Parameter(torch.randn(1, dim, 1, meta_kernel_size))
 
-        self.mixer = None
         if mid_mix:
             self.mixer = nn.ChannelShuffle(groups=2)
 
@@ -822,7 +807,7 @@ class gcc_dk_ca_mf_block(BaseModule):
         x_2_1 = F.conv2d(torch.cat((x_2_r, x_2_r[:, :, :, :-1]), dim=3), weight=self.kernel_generate_1_W(x_2_r),
                          bias=self.meta_2_W_bias, padding=0, groups=b * c)
 
-        if self.mid_mix and self.mixer is not None:
+        if self.mid_mix:
             mid_rep = torch.cat((x_1_1, x_2_1), dim=1)
             x_1_1, x_2_1 = torch.chunk(self.mixer(mid_rep), chunks=2, dim=1)
 
@@ -871,9 +856,9 @@ class outer_frame_v1(BaseModule):
                  meta_encoder: Optional[str]='gcc_ca',
                  instance_kernel_method: Optional[str]='crop',
                  fusion_method: Optional[str]='add',
-                 use_pe: Optional[bool] = True,
-                 mid_mix: bool = True,
-                 bias: Optional[bool]=False,
+                 use_pe: bool = True,
+                 mid_mix: bool=True,
+                 bias: bool=False,
                  cf_ffn_channels: Optional[int]=2,
                  ffn_dropout: Optional[float]=0.0,
                  dropout:Optional[float]=0.1,
@@ -882,11 +867,12 @@ class outer_frame_v1(BaseModule):
         super(outer_frame_v1, self).__init__()
 
         # structure parameters for computing madds
-        self.n_blocks = torch.tensor(n_blocks)
+        
+        self.n_blocks = n_blocks
         self.in_channels = torch.tensor(in_channels)
         self.cf_s_channels = torch.tensor(cf_s_channels)
-        self.cf_ffn_channels = torch.tensor(cf_ffn_channels)
-        self.big_kernel_size = torch.tensor(big_kernel_size)
+        self.cf_ffn_channels = cf_ffn_channels
+        self.big_kernel_size = big_kernel_size
         self.meta_encoder = meta_encoder
         self.fusion_method = fusion_method
         self.bias = bias
@@ -977,7 +963,7 @@ class outer_frame_v1(BaseModule):
 
         return x
 
-    def profile_module(self, input: Tensor) -> tuple[Tensor, float, float]:
+    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
         params = macs = 0.0
         b, c, h, w = input.shape
 
@@ -1040,9 +1026,9 @@ class outer_frame_v2(BaseModule):
                  meta_encoder: Optional[str]='gcc_ca',
                  instance_kernel_method: Optional[str]='crop',
                  fusion_method: Optional[str]='add',
-                 use_pe: Optional[bool] = True,
-                 mid_mix: bool = True,
-                 bias: Optional[bool]=True,
+                 use_pe: bool = True,
+                 mid_mix: bool=True,
+                 bias: bool=True,
                  cf_ffn_channels: Optional[int]=2,
                  ffn_dropout: Optional[float]=0.0,
                  dropout:Optional[float]=0.1,
@@ -1126,7 +1112,7 @@ class outer_frame_v2(BaseModule):
             x = self.local_rep_channel[i](x) + self.global_rep_channel[i](x)
         return x
 
-    def profile_module(self, input: Tensor) -> tuple[Tensor, float, float]:
+    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
         params = macs = 0.0
         b, c, h, w = input.shape
 
@@ -1178,9 +1164,9 @@ class outer_frame_v2(BaseModule):
 #                  meta_encoder: Optional[str]='big_kernel',
 #                  instance_kernel_method: Optional[str]='crop',
 #                  fusion_method: Optional[str]='add',
-#                  use_pe: Optional[bool] = True,
-#                  mid_mix: bool = True,
-#                  bias: Optional[bool]=True,
+#                  use_pe: bool = True,
+#                  mid_mix: bool=True,
+#                  bias: bool=True,
 #                  cf_ffn_channels: Optional[int]=2,
 #                  ffn_dropout: Optional[float]=0.0,
 #                  dropout:Optional[float]=0.1,

@@ -21,7 +21,7 @@ class MaxPool2d(nn.MaxPool2d):
 
 class AvgPool2d(nn.AvgPool2d):
     def __init__(self, kernel_size: tuple, stride: Optional[tuple] = None, padding: Optional[tuple] = (0, 0),
-                 ceil_mode: Optional[bool] = False, count_include_pad: Optional[bool] = True, divisor_override: Optional[bool] = None):
+                 ceil_mode: bool = False, count_include_pad: bool = True, divisor_override: bool = None):
         super(AvgPool2d, self).__init__(
             kernel_size=kernel_size,
             stride=stride,

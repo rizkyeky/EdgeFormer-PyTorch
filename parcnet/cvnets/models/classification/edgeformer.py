@@ -133,7 +133,7 @@ class edgeformer(BaseEncoder):
 
         return parser
 
-    def _make_layer(self, opts, input_channel, cfg: Dict, dilate: Optional[bool] = False) -> Tuple[nn.Sequential, int]:
+    def _make_layer(self, opts, input_channel, cfg: Dict[str, int], dilate: bool = False) -> Tuple[nn.Sequential, int]:
         block_type = cfg.get("block_type", "edgeformer")
         if "outer_frame" in block_type.lower():
             if block_type.lower() == "outer_frame_v1":
@@ -158,7 +158,7 @@ class edgeformer(BaseEncoder):
             )
 
     @staticmethod
-    def _make_mb_layer(opts, input_channel: int, cfg: Dict) -> Tuple[nn.Sequential, int]:
+    def _make_mb_layer(opts, input_channel: int, cfg: Dict[str, int]) -> Tuple[nn.Sequential, int]:
         output_channels = cfg.get("out_channels")
         num_blocks = cfg.get("num_blocks", 2)
         expand_ratio = cfg.get("expand_ratio", 4)
@@ -178,7 +178,7 @@ class edgeformer(BaseEncoder):
             input_channel = output_channels
         return nn.Sequential(*block), input_channel
 
-    def _make_outer_frame_v1(self, opts, input_channel, cfg: Dict, dilate: Optional[bool] = False) -> Tuple[
+    def _make_outer_frame_v1(self, opts, input_channel, cfg: Dict[str, int], dilate: bool = False) -> Tuple[
         nn.Sequential, int]:
         prev_dilation = self.dilation
         block = []
@@ -220,7 +220,7 @@ class edgeformer(BaseEncoder):
 
         return nn.Sequential(*block), input_channel
 
-    def _make_outer_frame_v2(self, opts, input_channel, cfg: Dict, dilate: Optional[bool] = False) -> Tuple[nn.Sequential, int]:
+    def _make_outer_frame_v2(self, opts, input_channel, cfg: Dict[str, int], dilate: bool = False) -> Tuple[nn.Sequential, int]:
         prev_dilation = self.dilation
         block = []
         stride = cfg.get("stride", 1)

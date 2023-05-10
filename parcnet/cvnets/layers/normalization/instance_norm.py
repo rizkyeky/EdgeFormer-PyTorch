@@ -11,8 +11,8 @@ class InstanceNorm2d(nn.InstanceNorm2d):
                  num_features: int,
                  eps: Optional[float] = 1e-5,
                  momentum: Optional[float] = 0.1,
-                 affine: Optional[bool] = True,
-                 track_running_stats: Optional[bool] = True
+                 affine: bool = True,
+                 track_running_stats: bool = True
                  ):
         super(InstanceNorm2d, self).__init__(num_features=num_features, eps=eps, momentum=momentum, affine=affine,
                                              track_running_stats=track_running_stats)
@@ -29,8 +29,8 @@ class InstanceNorm1d(nn.InstanceNorm1d):
                  num_features: int,
                  eps: Optional[float] = 1e-5,
                  momentum: Optional[float] = 0.1,
-                 affine: Optional[bool] = True,
-                 track_running_stats: Optional[bool] = True
+                 affine: bool = True,
+                 track_running_stats: bool = True
                  ):
         super(InstanceNorm1d, self).__init__(num_features=num_features, eps=eps, momentum=momentum, affine=affine,
                                              track_running_stats=track_running_stats)

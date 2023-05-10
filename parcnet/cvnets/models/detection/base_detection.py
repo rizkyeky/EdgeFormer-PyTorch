@@ -1,6 +1,6 @@
 
 from torch import nn, Tensor
-from typing import Dict, NamedTuple
+from typing import NamedTuple, Dict
 import argparse
 from utils import logger
 
@@ -11,7 +11,7 @@ from ...misc.init_utils import initialize_weights
 
 DetectionPredTuple = NamedTuple(
     'DetectionPredTuple', [
-        ('labels', list),
+        ('labels', Tensor),
         ('scores', Tensor),
         ('boxes', Tensor)
     ]
@@ -92,13 +92,13 @@ class BaseDetection(nn.Module):
         raise NotImplementedError
 
 
-def _check_out_channels(config: Dict, layer_name: str) -> int:
-    enc_ch_l: Dict = config.get(layer_name, None)
-    if enc_ch_l is None or not enc_ch_l:
+def _check_out_channels(config: Dict[str, int], layer_name: str) -> int:
+    enc_ch_l: Dict[str, int] = config.get(layer_name, -1)
+    if enc_ch_l == -1 or not enc_ch_l:
         logger.error('Encoder does not define input-output mapping for {}: Got: {}'.format(layer_name, config))
 
-    enc_ch_l_out = enc_ch_l.get('out', None)
-    if enc_ch_l_out is None or not enc_ch_l_out:
+    enc_ch_l_out = enc_ch_l.get('out', -1)
+    if enc_ch_l_out == -1 or not enc_ch_l_out:
         logger.error(
             'Output channels are not defined in {} of the encoder. Got: {}'.format(layer_name, enc_ch_l))
 
