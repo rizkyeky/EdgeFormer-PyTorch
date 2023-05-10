@@ -106,7 +106,7 @@ class SingleShotDetector(BaseDetection):
             aspect_ratios=anchors_aspect_ratio,
             min_ratio=getattr(opts, "model.detection.ssd.min_box_size", 0.1),
             max_ratio=getattr(opts, "model.detection.ssd.max_box_size", 1.05)
-        )
+        ).to(self.device)
 
         anchors_aspect_ratio = self.anchor_box_generator.num_anchors_per_os()
         self.ssd_heads = nn.ModuleList()
@@ -231,7 +231,7 @@ class SingleShotDetector(BaseDetection):
             )
             anchors = torch.cat((anchors, anchors_fm_ctr), dim=0)
         
-        anchors = anchors.unsqueeze(dim=0).to(device=x.device)
+        anchors = anchors.unsqueeze(dim=0).to(self.device)
 
         return confidences, locations, anchors
 
