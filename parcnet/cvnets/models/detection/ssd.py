@@ -292,12 +292,13 @@ class SingleShotDetector(BaseDetection):
             #     nms_threshold=self.nms_threshold,
             #     top_k=self.top_k
             # )
-            top_k = self.top_k
-            keep = torch.ops.torchvision.nms(masked_boxes, probs.reshape(-1), self.nms_threshold)
-            if top_k > 0:
-                keep = keep[:top_k]
+            reshape_probs = probs.reshape(-1)
+            keep = torch.ops.torchvision.nms(masked_boxes, reshape_probs, self.nms_threshold)
+            if self.top_k > 0:
+                keep = keep[:self.top_k]
             
-            filtered_boxes, filtered_scores = boxes[keep], scores[keep]
+            filtered_boxes, filtered_scores = masked_boxes[keep], reshape_probs[keep]
+
             filtered_labels = torch.full_like(filtered_scores, fill_value=class_index, dtype=torch.int8,)
 
             object_boxes = torch.cat((object_boxes, filtered_boxes), dim=0)

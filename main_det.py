@@ -76,13 +76,13 @@ def predict_image(model: SingleShotDetector, image):
         if (torch.cuda.is_available() and mixed_precision_training):
             with torch.cuda.amp.autocast(enabled=True):
                 img = image.cuda()
-                prediction: DetectionPredTuple = model(img)
+                prediction = model(img)
         else:
-            prediction: DetectionPredTuple = model(image)
+            prediction = model(image)
         
-        labels = prediction[0].cpu().numpy()
+        boxes = prediction[0].cpu().numpy()
         scores = prediction[1].cpu().numpy()
-        boxes = prediction[2].cpu().numpy()
+        labels = prediction[2].cpu().numpy()
 
         boxes[..., 0::2] = boxes[..., 0::2] * orig_w
         boxes[..., 1::2] = boxes[..., 1::2] * orig_h
@@ -91,7 +91,7 @@ def predict_image(model: SingleShotDetector, image):
         
         boxes = boxes.astype(np.int16)
         
-    return labels, scores, boxes
+    return boxes, scores, labels
         
 # if __name__ == '__main__':
 

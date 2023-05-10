@@ -6,8 +6,8 @@ import time
 
 def start():
 
-    # file = 'pretrained/edgeformer-det.pt'
-    file = ''
+    file = 'pretrained/edgeformer-det_test.pt'
+    # file = ''
 
     cap = cv2.VideoCapture('images_test/video_test.mp4')
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
@@ -32,8 +32,7 @@ def start():
         if ret == True:
 
             orig = frame
-            labels, scores, boxes = main_det.predict_image(model, frame)
-            
+            boxes, scores, labels = main_det.predict_image(model, frame)
             for idx, score, coords in zip(labels, scores, boxes):
                 idx = int(idx)
                 if score > 0.0:

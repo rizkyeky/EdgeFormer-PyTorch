@@ -49,8 +49,6 @@ class BaseEncoder(nn.Module):
 
     def extract_end_points_all(self, x: Tensor, use_l5: bool = True, use_l5_exp: bool = False) -> Dict[str, Tensor]:
         
-        assert self.conv_1x1_exp is not None, 'Please implement self.conv_1x1_exp'
-
         out_dict = {} # Use dictionary over NamedTuple so that JIT is happy
         x = self.conv_1(x)  # 112 x112
         x = self.layer_1(x)  # 112 x112
@@ -70,6 +68,7 @@ class BaseEncoder(nn.Module):
             out_dict["out_l5"] = x
 
             if use_l5_exp:
+                assert self.conv_1x1_exp is not None, 'Please implement self.conv_1x1_exp'
                 x = self.conv_1x1_exp(x)
                 out_dict["out_l5_exp"] = x
         return out_dict
