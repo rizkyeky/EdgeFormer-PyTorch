@@ -228,8 +228,8 @@ class SingleShotDetector(BaseDetection):
                 fm_height=fm_h,
                 fm_width=fm_w,
                 fm_output_stride=os
-            )
-            print(anchors.device, anchors_fm_ctr.device)
+            ).to(self.device)
+            # print(anchors.device, anchors_fm_ctr.device)
             anchors = torch.cat((anchors, anchors_fm_ctr), dim=0)
         
         anchors = anchors.unsqueeze(dim=0).to(self.device)
