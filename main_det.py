@@ -56,8 +56,8 @@ def init_model(path = "") -> SingleShotDetector:
 def predict_image(model: SingleShotDetector, image):
     
     with torch.no_grad():
-        image = np.array(image)
-        orig_h, orig_w = image.shape[0], image.shape[1]
+        # image = np.array(image)
+        # orig_h, orig_w = image.shape[0], image.shape[1]
         
         image = img_transforms(image)
         image = image.unsqueeze(0)
@@ -74,7 +74,7 @@ def predict_image(model: SingleShotDetector, image):
         image.to(device)
 
         if (torch.cuda.is_available() and mixed_precision_training):
-            print('Using Autocast')
+            print('Using AutocastCUDA')
             with torch.cuda.amp.autocast(enabled=True):
                 img = image.cuda()
                 prediction = model(img)

@@ -168,8 +168,6 @@ def distributed_worker(i, main, opts, kwargs):
 
 def main_worker(**kwargs):
     opts = get_training_arguments()
-    # print(opts)
-    # device set-up
     opts = device_setup(opts)
 
     dataset_type = getattr(opts, "eky.dataset")
@@ -177,24 +175,19 @@ def main_worker(**kwargs):
 
     if system_type == 'mac':
         setattr(opts, "eky.path", '/Users/eky/Documents/_SKRIPSI')
-        setattr(opts, 'scheduler.max_epochs', 1)
+        setattr(opts, 'scheduler.max_epochs', 10)
         setattr(opts, 'dataset.train_batch_size0', 2)
         setattr(opts, 'dataset.val_batch_size0', 2)
-        setattr(opts, "model.classification.pretrained", 'parcnet/pretrained_models/classification/checkpoint_last_93.pt')
-        setattr(opts, "model.detection.pretrained", 'parcnet/pretrained_models/detection/unbalance/checkpoint_last_run19.pt')
+        # setattr(opts, "model.classification.pretrained", 'parcnet/pretrained_models/classification/checkpoint_last_93.pt')
+        # setattr(opts, "model.detection.pretrained", 'parcnet/pretrained_models/detection/unbalance/checkpoint_last_run19.pt')
     elif system_type == 'colab':
         setattr(opts, "eky.path", '/content/drive/MyDrive/skripsi')
     elif system_type == 'kaggle':
         setattr(opts, "eky.path", '/kaggle/working')
     elif system_type == 'labai':
         setattr(opts, "eky.path", '')
-        # setattr(opts, 'scheduler.max_epochs', 10000)
-        # setattr(opts, 'dataset.train_batch_size0', 128)
-        # setattr(opts, 'dataset.val_batch_size0', 128)
         setattr(opts, "dataset.root_train", 'dataset')
         setattr(opts, "dataset.root_val", 'dataset')
-        # setattr(opts, "model.classification.pretrained", 'checkpoints/checkpoint_cls_last.pt')
-        # setattr(opts, "model.detection.pretrained", 'checkpoints/checkpoint_coco_modif.pt')
     else:
         setattr(opts, "eky.path", None)
 
@@ -214,16 +207,16 @@ def main_worker(**kwargs):
         exp_dir = '{}/{}'.format(root+'/results', run_label)
         setattr(opts, "common.exp_loc", exp_dir)
         create_directories(dir_path=exp_dir, is_master_node=is_master_node)
-    elif (system_type != 'kaggle'): 
+    elif (system_type == 'kaggle'): 
+        exp_dir = getattr(opts, "eky.path") + '/' + getattr(opts, "common.results_loc", "results")
+        setattr(opts, "common.exp_loc", exp_dir)
+        create_directories(dir_path=exp_dir, is_master_node=is_master_node)
+    else:
         save_dir = getattr(opts, "eky.path") + '/' + getattr(opts, "common.results_loc", "results")
         run_label = getattr(opts, "common.run_label", "run_1")
         is_imbalance = dataset_type == 'imbalance'
         save_dir = save_dir + '/imbalance' if is_imbalance else save_dir + '/balance'
         exp_dir = '{}/{}'.format(save_dir, run_label)
-        setattr(opts, "common.exp_loc", exp_dir)
-        create_directories(dir_path=exp_dir, is_master_node=is_master_node)
-    else:
-        exp_dir = getattr(opts, "eky.path") + '/' + getattr(opts, "common.results_loc", "results")
         setattr(opts, "common.exp_loc", exp_dir)
         create_directories(dir_path=exp_dir, is_master_node=is_master_node)
 

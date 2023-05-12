@@ -24,10 +24,10 @@ class SSDAnchorGenerator(torch.nn.Module):
         Anchor boxes can be generated for any image size
     """
     def __init__(self,
-                 output_strides: List,
-                 aspect_ratios: List,
-                 min_ratio: Optional[float] = 0.1,
-                 max_ratio: Optional[float] = 1.05,
+                 output_strides: List[int],
+                 aspect_ratios: List[List[int]],
+                 min_ratio: float = 0.1,
+                 max_ratio: float = 1.05,
                  no_clipping: bool = False
                  ):
         super(SSDAnchorGenerator, self).__init__()
@@ -96,15 +96,12 @@ class SSDAnchorGenerator(torch.nn.Module):
             cx = cx.unsqueeze(0)
             cy = cy.unsqueeze(0)
 
-            # small size box
             a = torch.cat([cx, cy, min_size_w, min_size_h], dim=0).unsqueeze(0)
             default_anchors_ctr = torch.cat((default_anchors_ctr, a), dim=0)
 
-            # big size box
             b = torch.cat([cx, cy, max_size_w, max_size_h], dim=0).unsqueeze(0)
             default_anchors_ctr = torch.cat((default_anchors_ctr, b), dim=0)
 
-            # change h/w ratio of the small sized box based on aspect ratios
             for ratio in aspect_ratio:
                 ratio = torch.sqrt(ratio)
 
