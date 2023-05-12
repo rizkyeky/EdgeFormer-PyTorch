@@ -71,9 +71,9 @@ model:
       use_pe: True
     activation:
       name: "swish"
-  # normalization:
-  #   name: "sync_batch_norm"
-  #   momentum: 0.1
+  normalization:
+    name: "sync_batch_norm"
+    momentum: 0.1
   activation:
     name: "relu" # If specific activation function is not specified, this one will be used as a default
     inplace: false

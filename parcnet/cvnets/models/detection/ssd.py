@@ -1,5 +1,5 @@
 import torch
-import torchvision
+# import torchvision
 from torch import nn, Tensor
 from utils import logger
 import argparse
@@ -193,27 +193,25 @@ class SingleShotDetector(BaseDetection):
         
         x = enc_end_points["out_l5"]
 
-        for i, ssd_head in enumerate(self.ssd_heads):
+        i = 0
+        for ssd_head in self.ssd_heads:
             os = self.output_strides[i]
-            if os == 8:
-                fm_h, fm_w = enc_end_points["out_l3"].shape[2:]
-                loc, pred = ssd_head(enc_end_points["out_l3"])
-            elif os == 16:
-                fm_h, fm_w = enc_end_points["out_l4"].shape[2:]
-                loc, pred = ssd_head(enc_end_points["out_l4"])
-            elif os == 32:
-                fm_h, fm_w = enc_end_points["out_l5"].shape[2:]
-                loc, pred = ssd_head(enc_end_points["out_l5"])
-            elif os == 64:
-                x = self.extra_layers["os_64"](x)
-                fm_h, fm_w = x.shape[2:]
-                loc, pred = ssd_head(x)
-            elif os == 128:
-                x = self.extra_layers["os_128"](x)
-                fm_h, fm_w = x.shape[2:]
-                loc, pred = ssd_head(x)
-            elif os == 256:
-                x = self.extra_layers["os_256"](x)
+            if os in (8, 16, 32):
+                if os == 8:
+                    point = enc_end_points["out_l3"]
+                elif os == 16:
+                    point = enc_end_points["out_l4"]
+                else:
+                    point = enc_end_points["out_l5"]
+                fm_h, fm_w = point.shape[2:]
+                loc, pred = ssd_head(point)
+            elif os in (64, 128, 256):
+                if os == 64:
+                    x = self.extra_layers["os_64"](x)
+                elif os == 128:
+                    x = self.extra_layers["os_128"](x)
+                else:
+                    x = self.extra_layers["os_256"](x)
                 fm_h, fm_w = x.shape[2:]
                 loc, pred = ssd_head(x)
             else:
@@ -231,6 +229,8 @@ class SingleShotDetector(BaseDetection):
             ).to(self.device)
             
             anchors = torch.cat((anchors, anchors_fm_ctr), dim=0)
+
+            i += 1
         
         anchors = anchors.unsqueeze(dim=0).to(self.device)
 

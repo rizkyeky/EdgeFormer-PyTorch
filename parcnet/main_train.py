@@ -238,7 +238,7 @@ def main_worker(**kwargs):
     n_cpus = multiprocessing.cpu_count()
     dataset_workers = getattr(opts, "dataset.workers", -1)
     
-    if system_type == 'mac':
+    if (not torch.cuda.is_available()) or system_type == 'mac':
         setattr(opts, "model.normalization.name", "batch_norm")
 
     norm_name = getattr(opts, "model.normalization.name", "batch_norm")

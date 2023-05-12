@@ -1,4 +1,5 @@
 
+import torch
 from .base_detection import BaseDetection
 import os
 import importlib
@@ -34,6 +35,8 @@ def register_detection_models(name):
 
 def build_detection_model(opts):
     seg_model_name = getattr(opts, "model.detection.name", None)
+    if (not torch.cuda.is_available()):
+        setattr(opts, "model.normalization.name", "batch_norm")
     model = None
     is_master_node = is_master(opts)
     if seg_model_name in DETECT_MODEL_REGISTRY:
