@@ -22,6 +22,7 @@ class BaseImageDataset(data.Dataset):
         if (system == 'labai'):
             self.root = root[1:]
         else:
+            root = root+'dataset/'
             self.root = root + 'imbalance' if self.is_imbalance else root + 'balance'
         self.is_training = is_training
         self.is_evaluation = is_evaluation
