@@ -74,6 +74,7 @@ def predict_image(model: SingleShotDetector, image):
         image.to(device)
 
         if (torch.cuda.is_available() and mixed_precision_training):
+            print('Using Autocast')
             with torch.cuda.amp.autocast(enabled=True):
                 img = image.cuda()
                 prediction = model(img)

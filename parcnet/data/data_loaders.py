@@ -78,8 +78,9 @@ def create_train_val_loader(opts):
                             )
 
     if is_master_node:
-        logger.info('Train dataset len: {}'.format(n_train_samples))
-        logger.info('Validation dataset len: {}'.format(n_valid_samples))
+        logger.info('Train dataset len: {} imgs'.format(n_train_samples))
+        logger.info('Validation dataset len: {} imgs'.format(n_valid_samples))
+        logger.info('Total dataset len: {} imgs'.format(n_train_samples+n_valid_samples))
 
     return train_loader, val_loader, train_sampler
 
