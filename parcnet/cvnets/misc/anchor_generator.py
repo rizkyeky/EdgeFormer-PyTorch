@@ -1,9 +1,6 @@
 
-from itertools import product
 import torch
-from math import sqrt
-import numpy as np
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Tuple
 
 @torch.jit.script
 class TorchStrDict(object):
@@ -34,18 +31,22 @@ class SSDAnchorGenerator(torch.nn.Module):
                  no_clipping: bool = False
                  ):
         super(SSDAnchorGenerator, self).__init__()
+        
         output_strides_aspect_ratio: Dict[int, torch.Tensor] = dict()
         for k, v in zip(output_strides, aspect_ratios):
             output_strides_aspect_ratio[k] = torch.tensor(v)
 
         self.anchors_dict = TorchStrDict()
+        
         scales = torch.linspace(min_ratio, max_ratio, len(output_strides) + 1)
-        self.sizes: Dict[int, Dict[str, torch.Tensor]] = dict()
+        
+        self.sizes: Dict[int, Tuple[torch.Tensor]] = dict()
         for i, s in enumerate(output_strides):
-            self.sizes[s] = {
-                "min": scales[i],
-                "max": torch.sqrt(scales[i] * scales[i+1])
-            }
+            self.sizes[s] = (
+                scales[i],
+                torch.sqrt(scales[i] * scales[i+1])
+            )
+        
         self.output_strides_aspect_ratio = self.process_aspect_ratio(output_strides_aspect_ratio)
 
         self.clip = not no_clipping
@@ -63,11 +64,11 @@ class SSDAnchorGenerator(torch.nn.Module):
 
     @torch.no_grad()
     def generate_anchors_center_form(self, height: int, width: int, output_stride: int):
-        min_size_h = self.sizes[output_stride]["min"]
-        min_size_w = self.sizes[output_stride]["min"]
+        min_size_h = self.sizes[output_stride][0]
+        min_size_w = self.sizes[output_stride][0]
 
-        max_size_h = self.sizes[output_stride]["max"]
-        max_size_w = self.sizes[output_stride]["max"]
+        max_size_h = self.sizes[output_stride][1]
+        max_size_w = self.sizes[output_stride][1]
 
         min_size_w = min_size_w.unsqueeze(0)
         min_size_h = min_size_h.unsqueeze(0)
@@ -76,7 +77,8 @@ class SSDAnchorGenerator(torch.nn.Module):
 
         aspect_ratio = self.output_strides_aspect_ratio[output_stride]
 
-        default_anchors_ctr = []
+        default_anchors_ctr = torch.empty(0, 4)
+
         scale_x = (1.0 / width)
         scale_y = (1.0 / height)
 
@@ -85,7 +87,7 @@ class SSDAnchorGenerator(torch.nn.Module):
         ls = torch.cartesian_prod(range_height, range_width)
 
         for res in ls:
-            # [x, y, w, h] format
+            
             x = res[1]
             y = res[0]
             cx = (x + 0.5) * scale_x
@@ -95,29 +97,27 @@ class SSDAnchorGenerator(torch.nn.Module):
             cy = cy.unsqueeze(0)
 
             # small size box
-            a = torch.cat([cx, cy, min_size_w, min_size_h], dim=0)
-            default_anchors_ctr.append(a)
+            a = torch.cat([cx, cy, min_size_w, min_size_h], dim=0).unsqueeze(0)
+            default_anchors_ctr = torch.cat((default_anchors_ctr, a), dim=0)
 
             # big size box
-            b = torch.cat([cx, cy, max_size_w, max_size_h], dim=0)
-            default_anchors_ctr.append(b)
+            b = torch.cat([cx, cy, max_size_w, max_size_h], dim=0).unsqueeze(0)
+            default_anchors_ctr = torch.cat((default_anchors_ctr, b), dim=0)
 
             # change h/w ratio of the small sized box based on aspect ratios
             for ratio in aspect_ratio:
                 ratio = torch.sqrt(ratio)
 
-                c = torch.cat([cx, cy, min_size_w * ratio, min_size_h / ratio], dim=0)
-                default_anchors_ctr.append(c)
+                c = torch.cat([cx, cy, min_size_w * ratio, min_size_h / ratio], dim=0).unsqueeze(0)
+                default_anchors_ctr = torch.cat((default_anchors_ctr, c), dim=0)
                 
-                d = torch.cat([cx, cy, min_size_w / ratio, min_size_h * ratio], dim=0)
-                default_anchors_ctr.append(d)
+                d = torch.cat([cx, cy, min_size_w / ratio, min_size_h * ratio], dim=0).unsqueeze(0)
+                default_anchors_ctr = torch.cat((default_anchors_ctr, d), dim=0)
 
-        default_anchors_ctr_tensor: torch.Tensor = torch.stack(default_anchors_ctr.copy())
-        default_anchors_ctr.clear()
         if self.clip:
-            default_anchors_ctr_tensor = torch.clamp(default_anchors_ctr_tensor, min=0.0, max=1.0)
+            default_anchors_ctr = torch.clamp(default_anchors_ctr, min=0.0, max=1.0)
 
-        return default_anchors_ctr_tensor
+        return default_anchors_ctr
 
     @torch.no_grad()
     def get_anchors(self, fm_height: int, fm_width: int, fm_output_stride: int) -> torch.Tensor:

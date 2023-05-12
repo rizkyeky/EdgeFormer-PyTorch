@@ -229,7 +229,7 @@ class SingleShotDetector(BaseDetection):
                 fm_width=fm_w,
                 fm_output_stride=os
             ).to(self.device)
-            # print(anchors.device, anchors_fm_ctr.device)
+            
             anchors = torch.cat((anchors, anchors_fm_ctr), dim=0)
         
         anchors = anchors.unsqueeze(dim=0).to(self.device)
@@ -237,13 +237,14 @@ class SingleShotDetector(BaseDetection):
         return confidences, locations, anchors
 
     def forward(self, x: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
-        bsz, _, __, ___ = x.shape
-        if self.is_training:
-            assert bsz != 1
-            return self.ssd_forward(x)  
-        else:
-            assert bsz == 1
-            return self.predict(x)
+        return self.ssd_forward(x)
+        # bsz, _, __, ___ = x.shape
+        # if self.is_training:
+        #     assert bsz != 1
+        #     return self.ssd_forward(x)  
+        # else:
+        #     assert bsz == 1
+        #     return self.predict(x)
 
     # @torch.no_grad()
     def predict(self, x: Tensor) -> Tuple[Tensor, Tensor, Tensor]:

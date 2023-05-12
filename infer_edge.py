@@ -6,8 +6,8 @@ import time
 
 def start():
 
-    file = 'pretrained/edgeformer-det_new.pt'
-    # file = ''
+    # file = 'pretrained/edgeformer-det_new.pt'
+    file = ''
 
     cap = cv2.VideoCapture('images_test/video_test.mp4')
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
@@ -32,18 +32,18 @@ def start():
         if ret == True:
 
             orig = frame
-            boxes, scores, labels = main_det.predict_image(model, frame)
-            for idx, score, coords in zip(labels, scores, boxes):
-                idx = int(idx)
-                if score > 0.0:
-                    label = "{}: {:.2f}%".format(CLASSES[idx], score * 100)
-                    startX, startY, endX, endY = coords
-                    cv2.rectangle(orig,
-                        (startX, startY), (endX, endY),
-                        COLORS[idx], 3
-                    )
-                    y = startY - 15 if startY - 15 > 15 else startY + 15
-                    cv2.putText(orig, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 1, tuple(COLORS[idx]), 2)
+            main_det.predict_image(model, frame)
+            # for idx, score, coords in zip(labels, scores, boxes):
+            #     idx = int(idx)
+            #     if score > 0.0:
+            #         label = "{}: {:.2f}%".format(CLASSES[idx], score * 100)
+            #         startX, startY, endX, endY = coords
+            #         cv2.rectangle(orig,
+            #             (startX, startY), (endX, endY),
+            #             COLORS[idx], 3
+            #         )
+            #         y = startY - 15 if startY - 15 > 15 else startY + 15
+            #         cv2.putText(orig, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 1, tuple(COLORS[idx]), 2)
 
             frames_count += 1
             end_time = time.time()

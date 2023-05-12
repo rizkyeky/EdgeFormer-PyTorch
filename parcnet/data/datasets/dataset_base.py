@@ -22,7 +22,7 @@ class BaseImageDataset(data.Dataset):
         if (system == 'labai'):
             self.root = root[1:]
         else:
-            self.root = root + '/unbalance' if self.is_imbalance else root + '/balance'
+            self.root = root + 'unbalance' if self.is_imbalance else root + 'balance'
         self.is_training = is_training
         self.is_evaluation = is_evaluation
         self.sampler_name = getattr(opts, "sampler.name", None)

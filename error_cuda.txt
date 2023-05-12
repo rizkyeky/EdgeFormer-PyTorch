@@ -43,3 +43,55 @@ Traceback (most recent call last):
 RuntimeError: CUDA error: the launch timed out and was terminated
 CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
 For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+
+=========
+
+cuDNN error: CUDNN_STATUS_MAPPING_ERROR
+cuDNN error: CUDNN_STATUS_MAPPING_ERROR
+Traceback (most recent call last):
+  File "/home/labai/eky_edgeformer/parcnet/engine/training_engine.py", line 400, in run
+    raise e
+  File "/home/labai/eky_edgeformer/parcnet/engine/training_engine.py", line 285, in run
+    train_loss, train_ckpt_metric = self.train_epoch(epoch)
+  File "/home/labai/eky_edgeformer/parcnet/engine/training_engine.py", line 161, in train_epoch
+    pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/parcnet/cvnets/models/detection/ssd.py", line 243, in forward
+    return self.ssd_forward(x)  
+  File "/home/labai/eky_edgeformer/parcnet/cvnets/models/detection/ssd.py", line 188, in ssd_forward
+    enc_end_points = self.encoder.extract_end_points_all(x)
+  File "/home/labai/eky_edgeformer/parcnet/cvnets/models/classification/base_cls.py", line 53, in extract_end_points_all
+    x = self.conv_1(x)  # 112 x112
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/parcnet/cvnets/layers/conv_layer.py", line 118, in forward
+    return self.block(x)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/container.py", line 204, in forward
+    input = module(input)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 463, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 459, in _conv_forward
+    return F.conv2d(input, weight, bias, self.stride,
+RuntimeError: cuDNN error: CUDNN_STATUS_MAPPING_ERROR
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/labai/eky_edgeformer/main_train_det.py", line 12, in <module>
+    main_worker()
+  File "/home/labai/eky_edgeformer/parcnet/main_train.py", line 280, in main_worker
+    main(opts=opts, **kwargs)
+  File "/home/labai/eky_edgeformer/parcnet/main_train.py", line 151, in main
+    training_engine.run(train_sampler=train_sampler)
+  File "/home/labai/eky_edgeformer/parcnet/engine/training_engine.py", line 406, in run
+    torch.cuda.empty_cache()
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/cuda/memory.py", line 125, in empty_cache
+    torch._C._cuda_emptyCache()
+RuntimeError: CUDA error: unspecified launch failure
+CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.

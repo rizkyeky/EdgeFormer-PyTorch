@@ -44,7 +44,7 @@ def init_model(path = "") -> SingleShotDetector:
         return model
     else:
         print('From TorchScript File')
-        model = torch.jit.load(path)
+        model = torch.jit.load(path, map_location=device)
         model.to(device)
         model.eval()
 
@@ -80,18 +80,18 @@ def predict_image(model: SingleShotDetector, image):
         else:
             prediction = model(image)
         
-        boxes = prediction[0].cpu().numpy()
-        scores = prediction[1].cpu().numpy()
-        labels = prediction[2].cpu().numpy()
+        # boxes = prediction[0].cpu().numpy()
+        # scores = prediction[1].cpu().numpy()
+        # labels = prediction[2].cpu().numpy()
 
-        boxes[..., 0::2] = boxes[..., 0::2] * orig_w
-        boxes[..., 1::2] = boxes[..., 1::2] * orig_h
-        boxes[..., 0::2] = np.clip(a_min=0, a_max=orig_w, a=boxes[..., 0::2])
-        boxes[..., 1::2] = np.clip(a_min=0, a_max=orig_h, a=boxes[..., 1::2])
+        # boxes[..., 0::2] = boxes[..., 0::2] * orig_w
+        # boxes[..., 1::2] = boxes[..., 1::2] * orig_h
+        # boxes[..., 0::2] = np.clip(a_min=0, a_max=orig_w, a=boxes[..., 0::2])
+        # boxes[..., 1::2] = np.clip(a_min=0, a_max=orig_h, a=boxes[..., 1::2])
         
-        boxes = boxes.astype(np.int16)
+        # boxes = boxes.astype(np.int16)
         
-    return boxes, scores, labels
+    # return boxes, scores, labels
         
 # if __name__ == '__main__':
 
