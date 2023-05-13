@@ -55,7 +55,9 @@ model:
       center_variance: 0.1
       size_variance: 0.2
       iou_threshold: 0.5
-      nms_iou_threshold: 0.5
+      nms_iou_threshold: 0.75
+      conf_threshold: 0.05
+      num_objects_per_class: 10
     pretrained: "results/run10000/checkpoint_last.pt"
     n_classes: 4
   classification:

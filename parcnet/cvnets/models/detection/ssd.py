@@ -184,7 +184,6 @@ class SingleShotDetector(BaseDetection):
         return parser
 
     def ssd_forward(self, x: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
-        # print("****************************************************************************************ssd_forward ****")
         enc_end_points = self.encoder.extract_end_points_all(x)
 
         locations = torch.empty(0).to(self.device)
@@ -246,10 +245,17 @@ class SingleShotDetector(BaseDetection):
         #     assert bsz == 1
         #     return self.predict(x)
 
-    # @torch.no_grad()
-    def predict(self, x: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
+    @staticmethod
+    def predict(tensors: Tuple[Tensor, Tensor, Tensor],
+                n_classes: int = 4,
+                size_variance: float = 0.2,
+                center_variance: float = 0.1,
+                conf_threshold: float = 0.5,
+                top_k: int = 200,
+                nms_threshold: float = 0.45,
+                ) -> Tuple[Tensor, Tensor, Tensor]:
         with torch.no_grad():
-            confidences, locations, anchors = self.ssd_forward(x)
+            confidences, locations, anchors = tensors
             scores = torch.nn.functional.softmax(confidences, dim=-1)
         # convert boxes in center form [c_x, c_y]
         # boxes = box_utils.convert_locations_to_boxes(
@@ -258,13 +264,11 @@ class SingleShotDetector(BaseDetection):
         #     center_variance=self.center_variance,
         #     size_variance=self.size_variance,
         # )
-        pred_locations=locations
-        anchor_boxes=anchors
-        if anchor_boxes.dim() + 1 == pred_locations.dim():
-            anchor_boxes = anchor_boxes.unsqueeze(0)
+        if anchors.dim() + 1 == locations.dim():
+            anchors = anchors.unsqueeze(0)
 
-        pred_size = torch.exp(pred_locations[..., 2:] * self.size_variance) * anchor_boxes[..., 2:]
-        pred_center = (pred_locations[..., :2] * self.center_variance * anchor_boxes[..., 2:]) + anchor_boxes[..., :2]
+        pred_size = torch.exp(locations[..., 2:] * size_variance) * anchors[..., 2:]
+        pred_center = (locations[..., :2] * center_variance * anchors[..., 2:]) + anchors[..., :2]
 
         boxes = torch.cat((pred_center, pred_size), dim=-1)
 
@@ -282,9 +286,9 @@ class SingleShotDetector(BaseDetection):
         object_scores = torch.empty(0)
         object_labels = torch.empty(0)
 
-        for class_index in range(1, self.n_classes):
+        for class_index in range(1, n_classes):
             probs = scores[:, class_index]
-            mask = probs > self.conf_threshold
+            mask = probs > conf_threshold
             probs = probs[mask]
             masked_boxes = boxes[mask, :]
 
@@ -295,10 +299,8 @@ class SingleShotDetector(BaseDetection):
             #     top_k=self.top_k
             # )
             reshape_probs = probs.reshape(-1)
-            keep = torch.ops.torchvision.nms(masked_boxes, reshape_probs, self.nms_threshold)
-            if self.top_k > 0:
-                keep = keep[:self.top_k]
-            
+            keep = torch.ops.torchvision.nms(masked_boxes, reshape_probs, nms_threshold)
+            if top_k > 0: keep = keep[:top_k]            
             filtered_boxes, filtered_scores = masked_boxes[keep], reshape_probs[keep]
 
             filtered_labels = torch.full_like(filtered_scores, fill_value=class_index, dtype=torch.int8,)

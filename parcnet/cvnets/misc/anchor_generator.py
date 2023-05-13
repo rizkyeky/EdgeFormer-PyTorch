@@ -85,7 +85,31 @@ class SSDAnchorGenerator(torch.nn.Module):
         range_height = torch.arange(start=0, end=height)
         range_width = torch.arange(start=0, end=width)
         ls = torch.cartesian_prod(range_height, range_width)
+            
+        # x = ls[:,1]
+        # y = ls[:,0]
+        # cx = (x + 0.5) * scale_x
+        # cy = (y + 0.5) * scale_y
 
+        # min_size_w_r = min_size_w.repeat(cx.shape[0])
+        # min_size_h_r = min_size_h.repeat(cx.shape[0])
+        
+        # a = torch.stack((cx, cy, min_size_w_r, min_size_h_r), dim=1)
+
+        # max_size_w_r = max_size_w.repeat(cx.shape[0])
+        # max_size_h_r = max_size_h.repeat(cx.shape[0])
+
+        # b = torch.stack((cx, cy, max_size_w_r, max_size_h_r), dim=1)
+
+        # for ratio in aspect_ratio:
+        #     ratio = torch.sqrt(ratio)
+
+        #     c = torch.cat([cx, cy, min_size_w * ratio, min_size_h / ratio], dim=0).unsqueeze(0)
+        #     default_anchors_ctr = torch.cat((default_anchors_ctr, c), dim=0)
+            
+        #     d = torch.cat([cx, cy, min_size_w / ratio, min_size_h * ratio], dim=0).unsqueeze(0)
+        #     default_anchors_ctr = torch.cat((default_anchors_ctr, d), dim=0)
+        
         for res in ls:
             
             x = res[1]
