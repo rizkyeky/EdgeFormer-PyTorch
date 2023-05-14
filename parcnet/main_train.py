@@ -54,6 +54,7 @@ def main(opts, **kwargs):
         max_epochs = getattr(opts, "scheduler.max_epochs", DEFAULT_EPOCHS)
         if is_master_node:
             logger.log('Max. epochs for training: {}'.format(max_epochs))
+    
     # set-up the model
     model = get_model(opts)
     system_type = getattr(opts, "eky.system", 'labai')

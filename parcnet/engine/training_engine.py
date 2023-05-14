@@ -93,12 +93,12 @@ class Trainer(object):
         if SummaryWriter is not None and self.is_master_node:
             self.setup_log_writer()
 
-        if self.is_master_node:
-            print_summary(opts=self.opts,
-                          model=self.model,
-                          criteria=self.criteria,
-                          optimizer=self.optimizer,
-                          scheduler=self.scheduler)
+        # if self.is_master_node:
+        #     print_summary(opts=self.opts,
+        #                   model=self.model,
+        #                   criteria=self.criteria,
+        #                   optimizer=self.optimizer,
+        #                   scheduler=self.scheduler)
 
         self.adjust_norm_mom = None
         if getattr(opts, "adjust_bn_momentum.enable", True):
