@@ -386,6 +386,8 @@ class Trainer(object):
                 logger.log('Keyboard interruption. Exiting from early training')
         except Exception as e:
             if self.is_master_node:
+                with open('error_train.txt', 'w') as f:
+                    f.write(e.__str__())
                 if 'out of memory' in str(e):
                     logger.log('OOM exception occured')
                     n_gpus = getattr(self.opts, "dev.num_gpus", 1)
@@ -395,6 +397,9 @@ class Trainer(object):
                         logger.log('Memory summary for device id: {}'.format(dev_id))
                         print(mem_summary)
                 else:
+                    mem_summary = torch.cuda.memory_summary(device=torch.device('cuda:0'),
+                                                                abbreviated=True)
+                    print(mem_summary)
                     logger.log('Exception occurred that interrupted the training. {}'.format(str(e)))
                     print(e)
                     raise e
@@ -420,21 +425,6 @@ class Trainer(object):
                 minutes, seconds = divmod(rem, 60)
                 epoch_time_str = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
                 logger.log('Avg Epoch time took {}'.format(epoch_time_str))
-
-                # plt.plot(self.history['train_avg_loss'], label='Training Loss')
-                # plt.plot(self.history['val_avg_loss'], label='Validation Loss')
-                # plt.xlabel('Epoch')
-                # plt.ylabel('Loss')
-                # plt.legend()
-
-                # plt.savefig(save_dir+'/loss_plot.jpg')
-            
-                # self.history.update({
-                #     'epoch_times': self.epoch_times
-                # })
-                # json_object = json.dumps(self.history, indent=4)
-                # with open(save_dir+"/history.json", "w") as outfile:
-                #     outfile.write(json_object)
 
             try:
                 exit(0)
