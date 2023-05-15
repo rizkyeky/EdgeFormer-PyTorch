@@ -348,7 +348,7 @@ class KRSBIDetection(BaseImageDataset):
                 print(ann_img)
                 i += 1
 
-        assert len(ann_imgs) == len(folder_imgs)
+        assert len(ann_imgs) == len(folder_imgs) 
 
         setattr(opts, "model.detection.n_classes", self.num_classes)
 
