@@ -332,12 +332,23 @@ class KRSBIDetection(BaseImageDataset):
         self.contiguous_id_to_coco_id = {v: k for k, v in self.coco_id_to_contiguous_id.items()}
         self.num_classes = len(KRSBI_CLASS_LIST)
 
+        if split == 'train': print("==== TRAIN ====")
+        elif split == 'val': print("==== VAL ====")
+
         ann_imgs = [img['file_name'] for img in self.coco.imgs.values()]
+        print('Len images in annotations:', len(ann_imgs))
         file_list = sorted(os.listdir(self.img_dir))
         folder_imgs = [file for file in file_list if file.endswith('.jpg')]
+        print('Len images in folder:', len(folder_imgs))
+        print('Missing:', len(ann_imgs)-len(folder_imgs))
+        i = 0
         for ann_img in ann_imgs:
-            if ann_img not in folder_imgs:
+            if i == 10: break
+            elif ann_img not in folder_imgs:
                 print(ann_img)
+                i += 1
+
+        assert len(ann_imgs) == len(folder_imgs)
 
         setattr(opts, "model.detection.n_classes", self.num_classes)
 
