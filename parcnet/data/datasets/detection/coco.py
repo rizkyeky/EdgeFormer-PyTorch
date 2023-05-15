@@ -392,8 +392,7 @@ class KRSBIDetection(BaseImageDataset):
             "box_coordinates": boxes
         }
 
-        if transform_fn is not None:
-            data = transform_fn(data)
+        data = transform_fn(data)
 
         new_data = {
             "image": data["image"],
@@ -401,16 +400,14 @@ class KRSBIDetection(BaseImageDataset):
                 "box_labels": data["box_labels"],
                 "box_coordinates": data["box_coordinates"],
                 "image_id": image_id
-            }
+            },
+            "file_name": img_name,
+            # "im_width": im_width,
+            # "im_height": im_height
         }
 
         del data
         
-        if self.is_evaluation:
-            new_data["file_name"] = img_name
-            new_data["im_width"] = im_width
-            new_data["im_height"] = im_height
-
         return new_data
 
     def __len__(self):
