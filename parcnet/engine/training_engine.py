@@ -398,7 +398,7 @@ class Trainer(object):
                     f.write('\n')
                     f.write(traceback.format_exc())
                     f.write('\n')
-                    f.write(self.curr_files.join(' '))
+                    f.write(' '.join(self.curr_files))
                     f.write('\n')
                 if 'out of memory' in str(e):
                     logger.log('OOM exception occured')
