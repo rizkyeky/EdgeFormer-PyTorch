@@ -30,7 +30,7 @@ def collect_env_info():
     data.append(("Python", sys.version.replace("\n", "")))
     data.append(("Numpy", np.__version__))
 
-    data.append(get_env_module())
+    # data.append(get_env_module())
     data.append(("PyTorch", torch.__version__))
     data.append(("PyTorch Debug Build", torch.version.debug))
     try:
