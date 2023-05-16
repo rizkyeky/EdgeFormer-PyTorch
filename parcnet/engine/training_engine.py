@@ -223,7 +223,7 @@ class Trainer(object):
             lr = self.scheduler.retrieve_lr(self.optimizer)
             for batch_id, batch in enumerate(self.val_loader):
                 input_img, target_label = batch['image'], batch['label']
-                print(batch['file_name'], batch['im_width'], batch['im_height'])
+                # print(batch['file_name'], batch['im_width'], batch['im_height'])
 
                 # move data to device
                 input_img = input_img.to(self.device)
