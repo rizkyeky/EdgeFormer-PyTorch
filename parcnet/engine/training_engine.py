@@ -1,16 +1,17 @@
+import traceback
 import numpy as np
 import torch
 from torch import Tensor
 import gc
 from torch.cuda.amp import autocast
-from parcnet.cvnets.models.detection.base_detection import DetectionPredTuple
+# from parcnet.cvnets.models.detection.base_detection import DetectionPredTuple
 from utils import logger
 from utils.common_utils import create_directories
 import time
 import shutil
 from typing import Dict
-from matplotlib import pyplot as plt
-import json
+# from matplotlib import pyplot as plt
+# import json
 
 from engine.utils import print_summary
 from utils.ddp_utils import is_master
@@ -64,6 +65,8 @@ class Trainer(object):
 
         self.history = history
         self.epoch_times = []
+
+        self.curr_files = []
 
         self.is_master_node = is_master(opts)
         self.max_iterations_reached = False
@@ -134,6 +137,7 @@ class Trainer(object):
 
             batch_load_toc = time.time() - batch_load_start
             input_img, target_label = batch['image'], batch['label']
+            self.curr_files = batch['file_name']
             # move data to device
             
             input_img = input_img.to(self.device)
@@ -144,7 +148,7 @@ class Trainer(object):
                 target_label = target_label.to(self.device)
                 
             batch_size = input_img.shape[0]
-
+            
             # update the learning rate
             self.optimizer = self.scheduler.update_lr(optimizer=self.optimizer, epoch=epoch,
                                                       curr_iter=self.train_iterations)
@@ -219,6 +223,7 @@ class Trainer(object):
             lr = self.scheduler.retrieve_lr(self.optimizer)
             for batch_id, batch in enumerate(self.val_loader):
                 input_img, target_label = batch['image'], batch['label']
+                print(batch['file_name'], batch['im_width'], batch['im_height'])
 
                 # move data to device
                 input_img = input_img.to(self.device)
@@ -386,8 +391,13 @@ class Trainer(object):
                 logger.log('Keyboard interruption. Exiting from early training')
         except Exception as e:
             if self.is_master_node:
-                with open('error_train.txt', 'w') as f:
+                with open('error_train_lab.txt', 'w') as f:
                     f.write(e.__str__())
+                    f.write('\n')
+                    f.write(traceback.format_exc())
+                    f.write('\n')
+                    f.write(self.curr_files.join(' '))
+                    f.write('\n')
                 if 'out of memory' in str(e):
                     logger.log('OOM exception occured')
                     n_gpus = getattr(self.opts, "dev.num_gpus", 1)
@@ -397,9 +407,10 @@ class Trainer(object):
                         logger.log('Memory summary for device id: {}'.format(dev_id))
                         print(mem_summary)
                 else:
-                    mem_summary = torch.cuda.memory_summary(device=torch.device('cuda:0'),
-                                                                abbreviated=True)
-                    print(mem_summary)
+                    if torch.cuda.is_available():
+                        mem_summary = torch.cuda.memory_summary(device=torch.device('cuda:0'),
+                                                                    abbreviated=True)
+                        print(mem_summary)
                     logger.log('Exception occurred that interrupted the training. {}'.format(str(e)))
                     print(e)
                     raise e

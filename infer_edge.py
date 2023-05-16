@@ -6,8 +6,8 @@ import time
 
 def start():
 
-    file = 'pretrained/edgeformer-det_raw.pt'
-    # file = ''
+    # file = 'pretrained/edgeformer-det_raw.pt'
+    file = ''
 
     cap = cv2.VideoCapture('images_test/video_test.mp4')
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)

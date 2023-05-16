@@ -370,45 +370,46 @@ class KRSBIDetection(BaseImageDataset):
         return tf.Compose(opts=self.opts, img_transforms=aug_list)
 
     def __getitem__(self, batch_indexes_tup: Tuple) -> Dict:
-        crop_size_h, crop_size_w, img_index = batch_indexes_tup
+        # crop_size_h, crop_size_w, img_index = batch_indexes_tup
 
-        if self.is_training:
-            transform_fn = self.training_transforms(size=(crop_size_h, crop_size_w))
-        elif self.is_evaluation:
-            transform_fn = self.evaluation_transforms(size=(crop_size_h, crop_size_w))
-        else: # same for validation and evaluation
-            transform_fn = self.validation_transforms(size=(crop_size_h, crop_size_w))
+        # if self.is_training:
+        #     transform_fn = self.training_transforms(size=(crop_size_h, crop_size_w))
+        # elif self.is_evaluation:
+        #     transform_fn = self.evaluation_transforms(size=(crop_size_h, crop_size_w))
+        # else: # same for validation and evaluation
+        #     transform_fn = self.validation_transforms(size=(crop_size_h, crop_size_w))
 
-        image_id = self.ids[img_index]
+        # image_id = self.ids[img_index]
 
-        image, img_name = self._get_image(image_id=image_id)
-        boxes, labels = self._get_annotation(image_id=image_id)
+        # image, img_name = self._get_image(image_id=image_id)
+        # boxes, labels = self._get_annotation(image_id=image_id)
 
-        im_height, im_width = image.shape[:2]
+        # im_height, im_width = image.shape[:2]
 
-        data = {
-            "image": image,
-            "box_labels": labels,
-            "box_coordinates": boxes
-        }
+        # data = {
+        #     "image": image,
+        #     "box_labels": labels,
+        #     "box_coordinates": boxes
+        # }
 
-        data = transform_fn(data)
+        # data = transform_fn(data)
 
-        new_data = {
-            "image": data["image"],
-            "label": {
-                "box_labels": data["box_labels"],
-                "box_coordinates": data["box_coordinates"],
-                "image_id": image_id
-            },
-            "file_name": img_name,
-            # "im_width": im_width,
-            # "im_height": im_height
-        }
+        # new_data = {
+        #     "image": data["image"],
+        #     "label": {
+        #         "box_labels": data["box_labels"],
+        #         "box_coordinates": data["box_coordinates"],
+        #         "image_id": image_id
+        #     },
+        #     "file_name": img_name,
+        #     # "im_width": im_width,
+        #     # "im_height": im_height
+        # }
 
-        del data
+        # del data
         
-        return new_data
+        # return new_data
+        raise NotImplementedError
 
     def __len__(self):
         return len(self.ids)
@@ -484,9 +485,9 @@ class KRSBIDetectionSSD(KRSBIDetection):
     def training_transforms(self, size: tuple):
         aug_list = [
             #tf.RandomZoomOut(opts=self.opts),
-            tf.SSDCroping(opts=self.opts),
-            tf.PhotometricDistort(opts=self.opts),
-            tf.RandomHorizontalFlip(opts=self.opts),
+            # tf.SSDCroping(opts=self.opts),
+            # tf.PhotometricDistort(opts=self.opts),
+            # tf.RandomHorizontalFlip(opts=self.opts),
             tf.BoxPercentCoords(opts=self.opts),
             tf.Resize(opts=self.opts, size=size),
             tf.NumpyToTensor(opts=self.opts)
@@ -536,6 +537,8 @@ class KRSBIDetectionSSD(KRSBIDetection):
         image, img_fname = self._get_image(image_id=image_id)
         boxes, labels = self._get_annotation(image_id=image_id)
 
+        im_height, im_width = image.shape[:2]
+
         data = {
             "image": image,
             "box_labels": labels,
@@ -557,7 +560,10 @@ class KRSBIDetectionSSD(KRSBIDetection):
             "label": {
                 "box_labels": gt_labels,
                 "box_coordinates": gt_coordinates
-            }
+            },
+            "file_name": img_fname,
+            "im_width": im_width,
+            "im_height": im_height
         }
 
     def __repr__(self):
