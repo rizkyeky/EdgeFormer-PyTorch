@@ -265,6 +265,8 @@ class Trainer(object):
         if train_sampler is None and self.is_master_node:
             logger.error("Train sampler cannot be None")
 
+        torch.cuda.empty_cache()
+
         copy_at_epoch = getattr(self.opts, "ema.copy_at_epoch", -1)
         train_start_time = time.time()
         save_dir = getattr(self.opts, "common.exp_loc", "results")

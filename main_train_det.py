@@ -2,6 +2,7 @@ import sys
 import os
 import platform
 
+os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 sys.argv.extend(['--common.config-file', 'config/parcnet_det_train.yaml'])
 
 sys.path.append('parcnet')
