@@ -23,7 +23,6 @@ def collect_torch_env():
 
         return get_pretty_env_info()
 
-
 def collect_env_info():
     data = []
     data.append(("sys.platform", sys.platform))
