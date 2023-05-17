@@ -1,68 +1,107 @@
 import cv2
 import numpy as np
+import skimage.feature as skim
+import time
 
-def triangle_stir(image):
-    padding = 10
-    poly = np.array([(padding, 240), (320-60, padding), (320+60, padding), (640-padding, 240)])
+def polygon_stier(image):
+    # image_mask = image.copy()
+    height, width = image.shape[:2]
+    padding = 0
+    vpadding = 80
+    hpadding = 125
+    alpha = 0.5
+    poly = np.array([(padding, height), (320-hpadding, vpadding), (320+hpadding, vpadding), (width-padding, height)])
+    # layer = np.zeros((height, width, 3), dtype=np.uint8)
+    # # layer = cv2.fillPoly(layer, [poly], (0,0,255))    
     image = cv2.fillPoly(image, [poly], (0,0,0))
+    # image_mask = cv2.addWeighted(layer, alpha, image_mask, 1-alpha, 0)
+
     return image
+
+def line_len(line):
+    x1, y1, x2, y2 = line[0]
+    point1 = np.array([x1, y1])
+    point2 = np.array([x2, y2])
+    distance = np.linalg.norm(point2 - point1)
+    return distance
+
+def count_nearest_neigbors(lines: list[np.array], line: np.array, k=5):
+    
+    x1, y1, x2, y2 = line[0]
+    main_line_center = np.array([(x1+x2)/2, (y1+y2)/2])
+    
+    count_neigbor = 0
+    for neigbor in lines:
+        x1, y1, x2, y2 = neigbor[0]
+        neigbor_center1 = np.array([(x1+x2)*1/4, (y1+y2)*1/4])
+        neigbor_center2 = np.array([(x1+x2)*2/4, (y1+y2)*2/4])
+        neigbor_center3 = np.array([(x1+x2)*3/4, (y1+y2)*3/4])
+        distance1 = np.linalg.norm(neigbor_center1 - main_line_center)
+        distance2 = np.linalg.norm(neigbor_center2 - main_line_center)
+        distance3 = np.linalg.norm(neigbor_center3 - main_line_center)
+        if distance1 <= k or distance2 <= k or distance3 <= k:
+            count_neigbor += 1
+    
+    # print(line[0], count_neigbor)
+    return count_neigbor
 
 if __name__ == '__main__':
 
-    # cap = cv2.VideoCapture(0)
-    # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
-    # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     # cap.set(cv2.CAP_PROP_FPS, 12)
     
-    max_line = 10
-    
-    # while cap.isOpened():
-    #     ret, frame = cap.read()
-    frame = cv2.imread('test.png')
-    frame = cv2.resize(frame, (640, 480))
-        # if ret:
-    cropped = frame[240:, :]
-    
-    cropped1 = cropped[:, :320]
-    cropped2 = cropped[:, 320:]
+    max_line = 20
 
-    cropped = triangle_stir(cropped)
+    frames_count = 0
+    start_time = time.time()
     
-    gray1 = cv2.cvtColor(cropped1, cv2.COLOR_BGR2GRAY)
-    gray2 = cv2.cvtColor(cropped2, cv2.COLOR_BGR2GRAY)
-    
-    hist1 = cv2.equalizeHist(gray1)
-    hist2 = cv2.equalizeHist(gray2)
+    while cap.isOpened():
+        ret, frame = cap.read()
+    # frame = cv2.imread('test.png')
+    # frame = cv2.resize(frame, (640, 480))
+        if ret:
 
-    blur1 = cv2.GaussianBlur(hist1, (13,13), 0)
-    blur2 = cv2.GaussianBlur(hist2, (13,13), 0)
+            cropped = frame[230:, :]
 
-    edges1 = cv2.Canny(blur1, 50, 200)
-    edges2 = cv2.Canny(blur2, 50, 200)
+            stier = polygon_stier(cropped)
+            
+            gray1 = cv2.cvtColor(stier, cv2.COLOR_BGR2GRAY)
+            
+            hist1 = cv2.equalizeHist(gray1)
+            
+            # edges1 = cv2.Canny(hist1, 300, 300)
+            edges1 = skim.canny(hist1, sigma=3)*255
+            edges1 = edges1.astype(np.uint8)
+            
+            # blur1 = cv2.GaussianBlur(edges1, (9,9), 0)
+            
+            lines1 = cv2.HoughLinesP(edges1, 1, np.pi/180, 20, maxLineGap=25, minLineLength=10)
+            
+            if lines1 is not None:
+                # filtered_lines = list(filter(lambda x: count_nearest_neigbors(lines1, x, 15) <= 2, lines1))
+                # filtered_lines = sorted(filtered_lines, key=lambda x: line_len(x), reverse=True)
+                mx = min(max_line, len(lines1)) if len(lines1) > max_line else len(lines1)
+                for line in lines1[:mx]:
+                    x1, y1, x2, y2 = line[0]
+                    cv2.line(cropped, (x1,y1), (x2,y2), (255,0,0), 2)
 
-    lines1 = cv2.HoughLinesP(edges1, 1, np.pi/180, 35, maxLineGap=200, minLineLength=100)
-    lines2 = cv2.HoughLinesP(edges2, 1, np.pi/180, 35, maxLineGap=200, minLineLength=100)
-    
-    if lines1 is not None:
-        # lines1 = sorted(lines1, key=lambda x: np.gradient([x[0][1], x[0][2]], [x[0][0], x[0][3]]))
-        mx = max_line if len(lines1) > max_line else len(lines1)
-        for line in lines1[:mx]:
-            x1, y1, x2, y2 = line[0]
-            cv2.line(cropped1, (x1,y1), (x2,y2), (0,255,0), 3)
-    
-    if lines2 is not None:
-        # lines2 = sorted(lines2, key=lambda x: np.gradient([x[0][1], x[0][2]], [x[0][0], x[0][3]]))
-        mx = max_line if len(lines2) > max_line else len(lines2)
-        for line in lines2[:mx]:
-            x1, y1, x2, y2 = line[0]
-            cv2.line(cropped2, (x1,y1), (x2,y2), (0,255,0), 3)
-    
-    cv2.imshow('frame1', cropped)
-    cv2.imshow('frame2', edges1)
-    cv2.imshow('frame3', edges2)
+            frames_count += 1
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            fps = frames_count / elapsed_time
+            
+            cv2.putText(cropped,'{:.2f}fps'.format(fps), (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
+
+            cv2.imshow('frame1', cropped)
+            # cv2.imshow('frame2', original2)
+            # cv2.imshow('frame3', original3)
+            # cv2.imshow('frame4', stier)
+            # cv2.imshow('frame5', mask)
         
-    cv2.waitKey(0) == ord('q')
-        # break
+            if cv2.waitKey(1) == ord('q'):
+                break
     
-    # cap.release()
+    cap.release()
     cv2.destroyAllWindows()

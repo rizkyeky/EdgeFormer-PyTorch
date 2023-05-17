@@ -67,6 +67,7 @@ class Trainer(object):
         self.epoch_times = []
 
         self.curr_files = []
+        self.istraining = None
 
         self.is_master_node = is_master(opts)
         self.max_iterations_reached = False
@@ -120,7 +121,7 @@ class Trainer(object):
     def train_epoch(self, epoch):
         time.sleep(2)  # To prevent possible deadlock during epoch transition
         train_stats = Statistics(metric_names=self.metric_names, is_master_node=self.is_master_node)
-
+        self.istraining = True
         self.model.train()
         accum_freq = self.accum_freq if epoch > self.accum_after_epoch else 1
         max_norm = getattr(self.opts, "common.grad_clip", None)
@@ -210,7 +211,7 @@ class Trainer(object):
     def val_epoch(self, epoch, model, extra_str=""):
         time.sleep(2)  # To prevent possible deadlock during epoch transition
         validation_stats = Statistics(metric_names=self.metric_names, is_master_node=self.is_master_node)
-
+        self.istraining = False
         model.eval()
         if model.training and self.is_master_node:
             logger.warning('Model is in training mode. Switching to evaluation mode')
@@ -223,8 +224,8 @@ class Trainer(object):
             lr = self.scheduler.retrieve_lr(self.optimizer)
             for batch_id, batch in enumerate(self.val_loader):
                 input_img, target_label = batch['image'], batch['label']
-                # print(batch['file_name'], batch['im_width'], batch['im_height'])
-
+                self.curr_files = batch['file_name']
+                
                 # move data to device
                 input_img = input_img.to(self.device)
 
@@ -238,7 +239,15 @@ class Trainer(object):
 
                 with autocast(enabled=self.mixed_precision_training):
                     # prediction
-                    pred_label: tuple[Tensor, Tensor, Tensor] = model(input_img)
+                    try:
+                        pred_label: tuple[Tensor, Tensor, Tensor] = model(input_img)
+                    except:
+                        print(batch['file_name'])
+                        print(input_img.shape)
+                        print(target_label.shape)
+                        print(input_img.dtype)
+                        print(target_label.dtype)
+                        raise Exception("Error in model")
                     # compute loss
                     loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
                     
@@ -397,6 +406,8 @@ class Trainer(object):
                     f.write(e.__str__())
                     f.write('\n')
                     f.write(traceback.format_exc())
+                    f.write('\n')
+                    f.write('When Training' if self.self.istraining else 'When Validating')
                     f.write('\n')
                     f.write(' '.join(self.curr_files))
                     f.write('\n')
