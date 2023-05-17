@@ -163,7 +163,15 @@ class Trainer(object):
             # results_det: list[DetectionPredTuple] = []
             with autocast(enabled=self.mixed_precision_training):
                 # prediction
-                pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+                try:
+                    pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+                except Exception as e:
+                    print('Batch file:', batch['file_name'])
+                    print('Batch width:', batch['im_width'])
+                    print('Batch heigth:', batch['im_height'])
+                    print(input_img.shape)
+                    print(target_label.shape)
+                    raise e
                 
                 # compute loss
                 loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
@@ -241,13 +249,13 @@ class Trainer(object):
                     # prediction
                     try:
                         pred_label: tuple[Tensor, Tensor, Tensor] = model(input_img)
-                    except:
-                        print(batch['file_name'])
+                    except Exception as e:
+                        print('Batch file:', batch['file_name'])
+                        print('Batch width:', batch['im_width'])
+                        print('Batch heigth:', batch['im_height'])
                         print(input_img.shape)
                         print(target_label.shape)
-                        print(input_img.dtype)
-                        print(target_label.dtype)
-                        raise Exception("Error in model")
+                        raise e
                     # compute loss
                     loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
                     
