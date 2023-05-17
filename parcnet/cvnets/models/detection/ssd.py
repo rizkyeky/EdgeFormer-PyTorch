@@ -254,8 +254,8 @@ class SingleShotDetector(BaseDetection):
                 top_k: int = 200,
                 nms_threshold: float = 0.45,
                 ) -> Tuple[Tensor, Tensor, Tensor]:
+        cpu = torch.device('cpu')
         with torch.no_grad():
-            cpu = torch.device('cpu')
             confidences, locations, anchors = tensors
             confidences, locations, anchors = confidences.to(cpu), locations.to(cpu), anchors.to(cpu)
             scores = torch.nn.functional.softmax(confidences, dim=-1)
