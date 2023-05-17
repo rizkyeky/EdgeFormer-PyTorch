@@ -341,6 +341,7 @@ class KRSBIDetection(BaseImageDataset):
         folder_imgs = [file for file in file_list if file.endswith('.jpg')]
         print('Len images in folder:', len(folder_imgs))
         print('Missing:', len(ann_imgs)-len(folder_imgs))
+        
         i = 0
         for ann_img in ann_imgs:
             if i == 10: break
@@ -348,10 +349,13 @@ class KRSBIDetection(BaseImageDataset):
                 print(ann_img)
                 i += 1
 
-        assert len(ann_imgs) == len(folder_imgs) 
+        assert len(ann_imgs) == len(folder_imgs)
+
+        trans_imgs = [file for file in folder_imgs if file.startswith('trans')]
+        print('Len aug/trans images in folder:', len(trans_imgs))
+        print('Len ori images in folder:', len(folder_imgs)-len(trans_imgs))
 
         setattr(opts, "model.detection.n_classes", self.num_classes)
-
         # assert len(self.contiguous_id_to_coco_id.keys()) + 1 == self.num_classes  # +1 for background
 
     def training_transforms(self, size: tuple, ignore_idx: Optional[int] = 255):
@@ -362,12 +366,13 @@ class KRSBIDetection(BaseImageDataset):
         raise NotImplementedError
 
     def evaluation_transforms(self, size: tuple, *args, **kwargs):
-        aug_list = []
-        if getattr(self.opts, "evaluation.detection.resize_input_images", False):
-            aug_list.append(tf.Resize(opts=self.opts, size=size))
+        # aug_list = []
+        # if getattr(self.opts, "evaluation.detection.resize_input_images", False):
+        #     aug_list.append(tf.Resize(opts=self.opts, size=size))
 
-        aug_list.append(tf.NumpyToTensor(opts=self.opts))
-        return tf.Compose(opts=self.opts, img_transforms=aug_list)
+        # aug_list.append(tf.NumpyToTensor(opts=self.opts))
+        # return tf.Compose(opts=self.opts, img_transforms=aug_list)
+        raise NotImplementedError
 
     def __getitem__(self, batch_indexes_tup: Tuple) -> Dict:
         # crop_size_h, crop_size_w, img_index = batch_indexes_tup
