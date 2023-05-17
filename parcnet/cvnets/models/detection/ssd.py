@@ -7,7 +7,7 @@ from typing import Optional, Tuple
 from torchvision.ops import nms as torch_nms
 
 from . import register_detection_models
-from .base_detection import BaseDetection, DetectionPredTuple
+from .base_detection import BaseDetection
 from ...layers import ConvLayer, SeparableConv, AdaptiveAvgPool2d
 from ...modules import SSDHead
 from ...models.classification import BaseEncoder
@@ -255,7 +255,9 @@ class SingleShotDetector(BaseDetection):
                 nms_threshold: float = 0.45,
                 ) -> Tuple[Tensor, Tensor, Tensor]:
         with torch.no_grad():
+            cpu = torch.device('cpu')
             confidences, locations, anchors = tensors
+            confidences, locations, anchors = confidences.to(cpu), locations.to(cpu), anchors.to(cpu)
             scores = torch.nn.functional.softmax(confidences, dim=-1)
         # convert boxes in center form [c_x, c_y]
         # boxes = box_utils.convert_locations_to_boxes(
@@ -282,9 +284,9 @@ class SingleShotDetector(BaseDetection):
         boxes = boxes[0]
         scores = scores[0]
 
-        object_boxes = torch.empty(0)
-        object_scores = torch.empty(0)
-        object_labels = torch.empty(0)
+        object_boxes = torch.empty(0).to(cpu)
+        object_scores = torch.empty(0).to(cpu)
+        object_labels = torch.empty(0).to(cpu)
 
         for class_index in range(1, n_classes):
             probs = scores[:, class_index]
