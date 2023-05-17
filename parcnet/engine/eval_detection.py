@@ -16,7 +16,7 @@ from torch import Tensor, nn
 from common import SUPPORTED_IMAGE_EXTNS
 from options.opts import get_detection_eval_arguments
 from cvnets import get_model
-from cvnets.models.detection.ssd import DetectionPredTuple
+# from cvnets.models.detection.ssd import DetectionPredTuple
 from data import create_eval_loader, create_test_loader
 from data.datasets.dataset_base import BaseImageDataset
 from data.datasets.detection.coco import COCO_CLASS_LIST as object_names
@@ -71,7 +71,7 @@ def predict_and_save(opts,
 
     with autocast(enabled=mixed_precision_training):
         # prediction
-        prediction: DetectionPredTuple = model.predict(input_tensor, is_scaling=False)
+        prediction = model.predict(input_tensor, is_scaling=False)
 
     # convert tensors to boxes
     boxes = prediction.boxes.cpu().numpy()

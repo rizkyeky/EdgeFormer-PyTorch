@@ -9,7 +9,7 @@ from parcnet.cvnets.models.classification.edgeformer import *
 from parcnet.options.opts import get_eval_arguments
 from parcnet.utils.common_utils import device_setup
 from parcnet.cvnets.models import get_model
-from parcnet.engine.eval_detection import *
+# from parcnet.engine.eval_detection import *
 from parcnet.utils.tensor_utils import tensor_size_from_opts
 
 import torch
