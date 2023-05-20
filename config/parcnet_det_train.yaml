@@ -1,5 +1,5 @@
 common:
-  run_label: "run10000_new"
+  run_label: "run10000_3000"
   accum_freq: 1
   accum_after_epoch: -1
   log_freq: 500
