@@ -150,3 +150,81 @@ RuntimeError: CUDA error: unspecified launch failure
 CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
 For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
 
+=== 19 May 2023
+
+Traceback (most recent call last):
+  File "/home/labai/eky_edgeformer/parcnet/engine/training_engine.py", line 167, in train_epoch
+    pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/parcnet/cvnets/models/detection/ssd.py", line 239, in forward
+    return self.ssd_forward(x)
+  File "/home/labai/eky_edgeformer/parcnet/cvnets/models/detection/ssd.py", line 187, in ssd_forward
+    enc_end_points = self.encoder.extract_end_points_all(x)
+  File "/home/labai/eky_edgeformer/parcnet/cvnets/models/classification/base_cls.py", line 57, in extract_end_points_all
+    x = self.layer_2(x)  # 56 x 56
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/container.py", line 204, in forward
+    input = module(input)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/parcnet/cvnets/modules/mobilenetv2.py", line 129, in forward
+    return x + self.block(x)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/container.py", line 204, in forward
+    input = module(input)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/parcnet/cvnets/layers/conv_layer.py", line 118, in forward
+    return self.block(x)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/container.py", line 204, in forward
+    input = module(input)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/batchnorm.py", line 171, in forward
+    return F.batch_norm(
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/functional.py", line 2450, in batch_norm
+    return torch.batch_norm(
+RuntimeError: cuDNN error: CUDNN_STATUS_MAPPING_ERROR
+
+During handling of the above exception, another exception occurred:
+
+Batch file: ['trans4_Sha0769_0_color.jpg', 'trans3_Cha000563_0_color.jpg', 'Cha000517.jpg', 
+'trans4_frame_1677468682_0_color.jpg', 'trans4_Sha0704_0_color.jpg', 'Sha1119.jpg', 
+'trans3_Finframe_1677468926_0_color.jpg', 'trans3_Sha1255_0.jpg', 'trans3_Cha000429_0_color.jpg', 
+'trans_goal1_Sha0816_0.jpg', 'trans3_Cha001021_0.jpg', 'trans4_Cha000769_0.jpg', 'Cha000536.jpg', 
+'trans4_Cha000489_0.jpg', 'trans2_Cha000692.jpg', 'trans3_Cha000884_0_color.jpg', 
+'trans3_Cha000856_0.jpg', 'trans3_Eky000068_0.jpg', 'trans_goal1_Cha000094_0_color.jpg', 
+'trans_goal1_Sha0272_0.jpg', 'trans4_Eky000006_0_color.jpg', 'trans4_Sha1435_0_color.jpg', 
+'trans3_Cha000882_0_color.jpg', 'trans_goal1_Sha1097_0_color.jpg', 'trans4_Cha000974_0_color.jpg', 
+'trans_goal1_Cha000073_0_color.jpg', 'trans4_Sha1296_0_color.jpg', 'trans_Cha000033.jpg', 
+'Sha0507.jpg', 'trans_goal1_Cha000205_0.jpg', 'trans_goal1_Sha1202_0_color.jpg', 
+'trans4_Sha1002_0.jpg', 'trans_goal1_Cha000071_0.jpg', 'trans3_Cha000978_0.jpg', 
+'trans_Sha0758.jpg', 'Sha1204.jpg', 'trans4_frame_1677469113_0.jpg', 'trans_robot1_Sha0637_0.jpg', 
+'Cha000672.jpg', 'Cha000446.jpg', 'trans3_Sha1230_0.jpg', 'trans3_Sha1010_0_color.jpg', 
+'trans3_Sha0439_0_color.jpg', 'trans4_Cha000571_0_color.jpg', 'trans2_frame_1677469126.jpg', 
+'trans4_Cha000419_0_color.jpg', 'trans_goal1_Cha000355_0.jpg', 'Cha000270.jpg', 
+'trans4_Eky000072_0_color.jpg', 'Cha000734.jpg', 'trans4_Eky000107_0.jpg', 
+'trans3_frame_1677469084_0.jpg', 'Sha0446.jpg', 'trans4_Cha000836_0.jpg', 
+'trans3_frame_1677468680_0_color.jpg', 'trans_goal1_Cha000609_0_color.jpg', 
+'trans4_Cha000905_0_color.jpg', 'trans2_Cha000831.jpg', 'trans_goal1_Sha0463_0.jpg', 
+'trans3_Cha000735_0_color.jpg', 'trans_goal1_Sha0434_0.jpg', 'trans3_Sha0460_0.jpg', 
+'trans4_Sha0543_0.jpg', 'trans3_Cha000703_0.jpg']
+Batch width: tensor([ 249,  171,  672,  258, 1800, 1280,  159,  186,  150,  771,  150,  150,
+         672,  150,  213,  150,  150, 1212,  291,  318,  297,  180,  150,  849,
+         162,  621,  300,  585,  472,  453,  720,  189,  609,  174,  807, 1280,
+         150,  900,  672,  672,  240,  285,  150,  150,  972,  150,  801,  672,
+        1035,  672,  285,  150,  509,  150,  159,  444,  150,  204,  192,  150,
+         462,  180,  165,  168])
+Batch heigth: tensor([ 249,  171,  376,  258, 1800,  720,  159,  186,  150,  771,  150,  150,
+         376,  150,  213,  150,  150, 1212,  291,  318,  297,  180,  150,  849,
+         162,  621,  300,  585,  340,  453,  720,  189,  609,  174,  807,  720,
+         150,  900,  376,  376,  240,  285,  150,  150,  972,  150,  801,  376,
+        1035,  376,  285,  150,  411,  150,  159,  444,  150,  204,  192,  150,
+         462,  180,  165,  168])
+torch.Size([64, 3, 224, 224])
+

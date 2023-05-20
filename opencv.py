@@ -72,8 +72,10 @@ if __name__ == '__main__':
             hist1 = cv2.equalizeHist(gray1)
             
             # edges1 = cv2.Canny(hist1, 300, 300)
-            edges1 = skim.canny(hist1, sigma=3)*255
-            edges1 = edges1.astype(np.uint8)
+            edges1 = cv2.Sobel(hist1, cv2.CV_64F, 1, 0, ksize=5)
+            edges1 = cv2.Laplacian(hist1, cv2.CV_64F)
+            # edges1 = skim.canny(hist1, sigma=3)*255
+            # edges1 = edges1.astype(np.uint8)
             
             # blur1 = cv2.GaussianBlur(edges1, (9,9), 0)
             

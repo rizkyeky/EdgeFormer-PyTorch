@@ -184,6 +184,7 @@ class SingleShotDetector(BaseDetection):
         return parser
 
     def ssd_forward(self, x: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
+        
         enc_end_points = self.encoder.extract_end_points_all(x)
 
         locations = torch.empty(0).to(self.device)

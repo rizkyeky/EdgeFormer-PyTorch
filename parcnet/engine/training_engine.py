@@ -1,3 +1,4 @@
+import json
 import traceback
 import numpy as np
 import torch
@@ -67,6 +68,8 @@ class Trainer(object):
         self.epoch_times = []
 
         self.curr_files = []
+        self.curr_widths = torch.empty(0)
+        self.curr_heights = torch.empty(0)
         self.istraining = None
 
         self.is_master_node = is_master(opts)
@@ -139,6 +142,8 @@ class Trainer(object):
             batch_load_toc = time.time() - batch_load_start
             input_img, target_label = batch['image'], batch['label']
             self.curr_files = batch['file_name']
+            self.curr_widths = batch['im_width']
+            self.curr_heights = batch['im_height']
             # move data to device
             
             input_img = input_img.to(self.device)
@@ -160,17 +165,12 @@ class Trainer(object):
                                                      epoch=epoch,
                                                      iteration=self.train_iterations)
 
-            # results_det: list[DetectionPredTuple] = []
             with autocast(enabled=self.mixed_precision_training):
                 # prediction
                 try:
                     pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
                 except Exception as e:
-                    print('Batch file:', batch['file_name'])
-                    print('Batch width:', batch['im_width'])
-                    print('Batch heigth:', batch['im_height'])
-                    print(input_img.shape)
-                    print(target_label.shape)
+                    print('Error in model when training')
                     raise e
                 
                 # compute loss
@@ -233,6 +233,8 @@ class Trainer(object):
             for batch_id, batch in enumerate(self.val_loader):
                 input_img, target_label = batch['image'], batch['label']
                 self.curr_files = batch['file_name']
+                self.curr_widths = batch['im_width']
+                self.curr_heights = batch['im_height']
                 
                 # move data to device
                 input_img = input_img.to(self.device)
@@ -250,11 +252,7 @@ class Trainer(object):
                     try:
                         pred_label: tuple[Tensor, Tensor, Tensor] = model(input_img)
                     except Exception as e:
-                        print('Batch file:', batch['file_name'])
-                        print('Batch width:', batch['im_width'])
-                        print('Batch heigth:', batch['im_height'])
-                        print(input_img.shape)
-                        print(target_label.shape)
+                        print('Error in model when validating')
                         raise e
                     # compute loss
                     loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
@@ -415,7 +413,7 @@ class Trainer(object):
                     f.write('\n')
                     f.write(traceback.format_exc())
                     f.write('\n')
-                    f.write('When Training' if self.self.istraining else 'When Validating')
+                    f.write('When Training' if self.istraining else 'When Validating')
                     f.write('\n')
                     f.write(' '.join(self.curr_files))
                     f.write('\n')
@@ -464,3 +462,12 @@ class Trainer(object):
                 pass
             finally:
                 pass
+    def export_error(self):
+        err = {}
+        curr_widths = self.curr_widths.tolist()
+        curr_heights = self.curr_heights.tolist()
+        for img, width, height in zip(self.curr_files, curr_widths, curr_heights):
+            err[img] = {'name': img, 'width': width, 'height': height}
+        
+        with open('error_train_lab.json', 'w') as f:
+            json.dump(err, f, indent=4, sort_keys=True)
