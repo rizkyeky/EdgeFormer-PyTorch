@@ -17,6 +17,7 @@ images_test/
 test_results/
 pretrained/
 results/
+kompor/
 
 parcnet/pretrained_models/detection/checkpoint_ema_avg_modif.pt
 parcnet/pretrained_models/detection/checkpoint_ema_avg.pt
