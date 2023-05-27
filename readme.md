@@ -12,6 +12,8 @@ pip install pyyaml
 
 ## Dataset
 
+Create dataset folder and follow the sturcture folder like this
+
 ```        
 ├── dataset
 │   ├── images
