@@ -105,41 +105,4 @@ def predict_image(model: SingleShotDetector, image: np.array) -> tuple[np.array,
         boxes = boxes.astype(np.int16)
         
     return boxes, scores, labels
-        
-# if __name__ == '__main__':
-
-    # with open('labels/ms_coco_81_classes.json') as f:
-    #     CLASSES = json.load(f)
-
-    # model = init_model()
-
-    # torch.onnx.export(model, torch.randn(1, 3, 224, 224), "parcnet.onnx")
-    
-    # CLASSES = ['_', 'robot', 'ball', 'goal']
-    
-    # COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
-    # COLORS = COLORS.astype(np.uint8)
-
-    # img_path = 'images_test/krsbi1.jpg'
-    # image = Image.open(img_path)
-    # orig = image.copy()
-    # draw = ImageDraw.Draw(orig)
-    
-    # labels, scores, boxes = predict_image(image)
-
-    # for idx, score, coords in zip(labels, scores, boxes):
-    #     if score > 0.2:
-    #         label = "{}: {:.2f}%".format(CLASSES[idx], score * 100)
-    #         startX, startY, endX, endY = coords
-    #         # print('label:', label)
-    #         # print('coords:', (startX, startY, endX, endY))
-    #         draw.rectangle(
-    #             [(startX, startY), (endX, endY)],
-    #             outline=tuple(COLORS[idx]),
-    #             width=3
-    #         )
-    #         y = startY - 15 if startY - 15 > 15 else startY + 15
-    #         draw.text((startX, y), label, tuple(COLORS[idx]))
-
-    # orig.show()
     
