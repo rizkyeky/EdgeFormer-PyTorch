@@ -12,6 +12,10 @@ pip install pyyaml
 
 ## Dataset
 
+Download dataset:
+3000+ objs: https://drive.google.com/file/d/18cl7RCaEyG4JsIEmbkhczD26D9YG2Afk/view?usp=share_link
+6000+ objs: https://drive.google.com/file/d/1D33lX4rWgO2kIgSjthqR75vo4dN6fwf6/view?usp=share_link
+
 Create dataset folder and follow the sturcture folder like this
 
 ```        
