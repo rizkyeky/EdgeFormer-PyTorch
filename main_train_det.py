@@ -2,7 +2,7 @@ import sys
 import os
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
-sys.argv.extend(['--common.config-file', 'config/parcnet_det_train.yaml'])
+sys.argv.extend(['--common.config-file', 'config/edgeformer_det_train.yaml'])
 
 sys.path.append('parcnet')
 from parcnet.data import *

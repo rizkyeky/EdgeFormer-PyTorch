@@ -1,21 +1,20 @@
 common:
-  run_label: "run_1_balance_eval"
+  run_label: "run_1_infer"
   accum_freq: 1
   accum_after_epoch: -1
   log_freq: 500
   auto_resume: true
   mixed_precision: true
-  results_loc: "/Users/eky/Documents/_SKRIPSI/code/result/detection_krsbi/edgeformer-s"
+  # results_loc: ""
 dataset:
-  root_train: "/Users/eky/Documents/_SKRIPSI/_dataset/_balance"
-  root_val: "/Users/eky/Documents/_SKRIPSI/_dataset/_balance"
-  root_test: "/Users/eky/Documents/_SKRIPSI/_dataset/_balance"
-  name: "krsbi"
+  # root_train: ""
+  # root_val: ""
+  name: "krsbi_ssd"
   category: "detection"
   train_batch_size0: 32
   val_batch_size0: 32
   eval_batch_size0: 1
-  workers: 8
+  workers: 2
   persistent_workers: false
   pin_memory: true
 sampler:
@@ -39,7 +38,7 @@ optim:
 scheduler:
   name: "cosine"
   is_iteration_based: false
-  max_epochs: 100
+  max_epochs: 20
   warmup_iterations: 500
   warmup_init_lr: 0.00009
   cosine:
@@ -48,6 +47,7 @@ scheduler:
 model:
   detection:
     name: "ssd"
+    is_training: false
     ssd:
       anchors_aspect_ratio: [ [ 2, 3 ], [ 2, 3 ], [ 2, 3 ], [ 2, 3 ], [ 2, 3 ], [2] ]
       output_strides: [ 16, 32, 64, 128, 256, -1 ]
@@ -55,13 +55,15 @@ model:
       center_variance: 0.1
       size_variance: 0.2
       iou_threshold: 0.5
-      nms_iou_threshold: 0.5
-    pretrained: "parcnet/pretrained_models/detection/checkpoint_ema_best_balance_4_run1.pt"
+      nms_iou_threshold: 0.75
+      conf_threshold: 0.05
+      num_objects_per_class: 10
+    pretrained: "results/run10000_aug3000_zero/checkpoint_last.pt"
     n_classes: 4
   classification:
     name: "edgeformer"
     classifier_dropout: 0.2
-    pretrained: "parcnet/pretrained_models/classification/checkpoint_ema_avg.pt"
+    # pretrained: "checkpoints/checkpoint_last_93.pt"
     edge:
       scale: "scale_s"
       mode: "outer_frame_v1"
@@ -71,9 +73,9 @@ model:
       use_pe: True
     activation:
       name: "swish"
-  # normalization:
-  #   name: "sync_batch_norm"
-  #   momentum: 0.1
+  normalization:
+    name: "sync_batch_norm"
+    momentum: 0.1
   activation:
     name: "relu" # If specific activation function is not specified, this one will be used as a default
     inplace: false
@@ -94,12 +96,3 @@ stats:
   name: [ "loss" ]
   checkpoint_metric: "loss"
   checkpoint_metric_max: false
-image_augmentation:
-  random_horizontal_flip: 
-    enable: True
-  random_gauss_noise:
-    enable: True
-# evaluation:
-#   detection:
-#     mode: "image_folder"
-#     path: "/content/drive/MyDrive/skripsi/imgs_det/balance/images/test"

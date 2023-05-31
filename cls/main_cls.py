@@ -2,7 +2,7 @@ import json
 import sys
 import time
 
-sys.argv.extend(['--common.config-file', 'config/parcnet_cls_train.yaml'])
+sys.argv.extend(['--common.config-file', 'config/edgeformer_cls_train.yaml'])
 
 sys.path.append('parcnet')
 from parcnet.cvnets.models.classification.edgeformer import *

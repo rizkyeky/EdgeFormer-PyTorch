@@ -57,84 +57,84 @@ if __name__ == '__main__':
     CLASSES = ['_', 'robot', 'ball', 'goal']
     COLORS = [(0,0,0), (0, 0, 255), (0, 255, 0), (255, 0, 0)]
 
-    _dir = '/Users/eky/Documents/_SKRIPSI/dataset'
+    _dir = '/Users/eky/Documents/_SKRIPSI/_dataset/_ori'
     
-    file_list = sorted(os.listdir(_dir))
+    file_list = os.listdir(_dir)
     image_list = [file for file in file_list if file.endswith('.jpg')]
-    random.shuffle(image_list)
-    random.shuffle(image_list)
+    # random.shuffle(image_list)
+    # random.shuffle(image_list)
 
     model = main_det.init_model()
     
     metric = MeanAveragePrecision()
 
     infertimes = []
-
-    with torch.no_grad():
         
-        for i, file in enumerate(image_list[:10]):
-            print(i, file)
-            target_boxes, target_scores, target_labels = extract_xml(file, _dir)
-            target_robot += target_labels.count(1) 
-            target_ball += target_labels.count(2) 
-            target_goal += target_labels.count(3) 
+    for i, file in enumerate(image_list):
+        # print(i, file, end=', ')
+        target_boxes, target_scores, target_labels = extract_xml(file, _dir)
+        target_robot += target_labels.count(1) 
+        target_ball += target_labels.count(2) 
+        target_goal += target_labels.count(3) 
 
-            target_boxes = np.array(target_boxes, dtype=np.int16)
-            target_scores = np.array(target_scores)
-            target_labels = np.array(target_labels)
-            
-            targets.append({
-                'boxes': torch.from_numpy(target_boxes).to(torch.int16),
-                'scores': torch.from_numpy(target_scores).to(torch.float16),
-                'labels': torch.from_numpy(target_labels).to(torch.int16),
-            })
+        target_boxes = np.array(target_boxes, dtype=np.int16)
+        target_scores = np.array(target_scores)
+        target_labels = np.array(target_labels)
+        
+        targets.append({
+            'boxes': torch.from_numpy(target_boxes).to(torch.int16),
+            'scores': torch.from_numpy(target_scores).to(torch.float16),
+            'labels': torch.from_numpy(target_labels).to(torch.int16),
+        })
 
-            now = time.time()
-            img = cv2.imread(_dir + '/' + file)
-            pred_labels, pred_scores, pred_boxes = main_det.predict_image(model, img)
-            infertimes.append(time.time() - now)
-            pred_robot += list(pred_labels).count(1) 
-            pred_ball += list(pred_labels).count(2) 
-            pred_goal += list(pred_labels).count(3) 
+        now = time.time()
+        img = cv2.imread(_dir + '/' + file)
+        pred_boxes, pred_labels, pred_scores = main_det.predict_image(model, img)
+        infertimes.append(time.time() - now)
+        
+        pred_robot += list(pred_labels).count(1) 
+        pred_ball += list(pred_labels).count(2) 
+        pred_goal += list(pred_labels).count(3) 
 
-            pred_boxes = np.array(pred_boxes, dtype=np.int16)
-            pred_scores = np.array(pred_scores)
-            pred_labels = np.array(pred_labels)
+        pred_boxes = np.array(pred_boxes, dtype=np.int16)
+        pred_scores = np.array(pred_scores)
+        pred_labels = np.array(pred_labels)
 
-            preds.append({
-                'boxes': torch.from_numpy(pred_boxes).to(torch.int16),
-                'scores': torch.from_numpy(pred_scores).to(torch.float16),
-                'labels': torch.from_numpy(pred_labels).to(torch.int16),
-            })
+        preds.append({
+            'boxes': torch.from_numpy(pred_boxes).to(torch.int16),
+            'scores': torch.from_numpy(pred_scores).to(torch.float16),
+            'labels': torch.from_numpy(pred_labels).to(torch.int16),
+        })
 
-            # pprint(targets[i])
-            # pprint(preds[i])
+        # pprint(targets[i])
+        # pprint(preds[i])
 
-            for i, (idx, score, coords) in enumerate(zip(target_labels, target_scores, target_boxes)):
-                if score > 0.2:
-                    label = "{} target".format(CLASSES[idx])
-                    startX, startY, endX, endY = coords
-                    cv2.rectangle(img,
-                        (startX, startY), (endX, endY),
-                        (0,0,255), 2
-                    )
-                    y = startY - 15
-                    cv2.putText(img, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 1)
+        # for i, (idx, score, coords) in enumerate(zip(target_labels, target_scores, target_boxes)):
+        #     if score > 0.2:
+        #         label = "{} target".format(CLASSES[idx])
+        #         startX, startY, endX, endY = coords
+        #         cv2.rectangle(img,
+        #             (startX, startY), (endX, endY),
+        #             (0,0,255), 2
+        #         )
+        #         y = startY - 15
+        #         cv2.putText(img, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 1)
 
-            for i, (idx, score, coords) in enumerate(zip(pred_labels, pred_scores, pred_boxes)):
-                if score > 0.2:
-                    label = "{} pred".format(CLASSES[idx])
-                    startX, startY, endX, endY = coords
-                    cv2.rectangle(img,
-                        (startX, startY), (endX, endY),
-                        (255,0,0), 2
-                    )
-                    y = startY - 15
-                    cv2.putText(img, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,0,0), 1)
-            
-            cv2.imwrite('test_results/' + file, img)
-            # cv2.imshow('Frame', img)
-            # cv2.waitKey(0)
+        # for i, (idx, score, coords) in enumerate(zip(pred_labels, pred_scores, pred_boxes)):
+        #     if score > 0.2:
+        #         label = "{} pred".format(CLASSES[idx])
+        #         startX, startY, endX, endY = coords
+        #         cv2.rectangle(img,
+        #             (startX, startY), (endX, endY),
+        #             (255,0,0), 2
+        #         )
+        #         y = startY - 15
+        #         cv2.putText(img, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,0,0), 1)
+        
+        # cv2.imwrite('test_results/' + file, img)
+        # cv2.imshow('Frame', img)
+        # cv2.waitKey(0)
+    print('\n')
 
     metric.update(preds, targets)
     result = metric.compute()

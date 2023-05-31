@@ -1,7 +1,7 @@
 import sys
 import time
 
-sys.argv.extend(['--common.config-file', 'config/parcnet_det_infer.yaml'])
+sys.argv.extend(['--common.config-file', 'config/edgeformer_det_infer.yaml'])
 
 sys.path.append('parcnet')
 from parcnet.cvnets.models.detection.ssd import *
@@ -105,4 +105,3 @@ def predict_image(model: SingleShotDetector, image: np.array) -> tuple[np.array,
         boxes = boxes.astype(np.int16)
         
     return boxes, scores, labels
-    
