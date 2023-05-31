@@ -55,7 +55,7 @@ model:
       size_variance: 0.2
       iou_threshold: 0.5
       nms_iou_threshold: 0.5
-    # pretrained: "/content/drive/MyDrive/skripsi/result/checkpoint/unbalance/checkpoint_last_run19.pt"
+    pretrained: "/home/labai/eky_edgeformer/checkpoints/checkpoint_coco_modif.pt"
     n_classes: 4
   classification:
     name: "edgeformer"
