@@ -71,6 +71,8 @@ class Trainer(object):
         self.curr_widths = torch.empty(0)
         self.curr_heights = torch.empty(0)
         self.istraining = None
+        
+        self.with_pretrained = getattr(self.opts, "model.detection.pretrained", None)
 
         self.is_master_node = is_master(opts)
         self.max_iterations_reached = False
@@ -414,6 +416,7 @@ class Trainer(object):
                     f.write(traceback.format_exc())
                     f.write('\n')
                     f.write('When Training' if self.istraining else 'When Validating')
+                    f.write(self.with_pretrained if self.with_pretrained != None else 'No Pretrained')
                     f.write('\n')
                     f.write(' '.join(self.curr_files))
                     f.write('\n')
@@ -455,6 +458,11 @@ class Trainer(object):
                 minutes, seconds = divmod(rem, 60)
                 epoch_time_str = "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
                 logger.log('Avg Epoch time took {}'.format(epoch_time_str))
+
+                pretrained_path = getattr(self.opts, "model.detection.pretrained", None)
+                run_label = getattr(self.opts, "common.run_label", None)
+                max_epochs = getattr(self.opts, "scheduler.max_epochs", DEFAULT_EPOCHS)
+                logger.log('label:{} \npretrained:{} \nepoch:{}'.format(run_label, pretrained_path, max_epochs))
 
             try:
                 exit(0)
