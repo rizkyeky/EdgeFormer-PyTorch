@@ -50,15 +50,15 @@ class Trainer(object):
 
         self.opts = opts
 
-        # self.model = model
+        self.model = model
         self.model_ema = model_ema
         self.criteria = criterion
-        # self.optimizer = optimizer
+        self.optimizer = optimizer
         self.scheduler = scheduler
         self.gradient_scalar = gradient_scalar
 
         self.val_loader = validation_loader
-        # self.train_loader = training_loader
+        self.train_loader = training_loader
 
         self.accelerator = accelerator
 
@@ -77,7 +77,7 @@ class Trainer(object):
         self.curr_heights = torch.empty(0)
         self.istraining = None
 
-        self.model, self.optimizer, self.train_loader = self.accelerator.prepare(model, optimizer, training_loader)
+        # self.model, self.optimizer, self.train_loader = self.accelerator.prepare(model, optimizer, training_loader)
         
         self.with_pretrained = getattr(self.opts, "model.detection.pretrained", None)
 
@@ -185,29 +185,28 @@ class Trainer(object):
                 # compute loss
                 loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
             
-            self.accelerator.backward(loss)
             # perform the backward pass with gradient accumulation [Optional]
-            # self.gradient_scalar.scale(loss).backward()
+            self.gradient_scalar.scale(loss).backward()
+            
+            # self.accelerator.backward(loss)
+            # self.optimizer.step()
+            # self.optimizer.zero_grad()
 
-            self.optimizer.step()
+            if (batch_id + 1) % accum_freq == 0:
+                if max_norm is not None:
+                    # For gradient clipping, unscale the gradients and then clip them
+                    self.gradient_scalar.unscale_(self.optimizer)
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=max_norm)
 
-            self.optimizer.zero_grad()
+                # optimizer step
+                self.gradient_scalar.step(optimizer=self.optimizer)
+                # update the scale for next batch
+                self.gradient_scalar.update()
+                # set grads to zero
+                self.optimizer.zero_grad()
 
-            # if (batch_id + 1) % accum_freq == 0:
-            #     if max_norm is not None:
-            #         # For gradient clipping, unscale the gradients and then clip them
-            #         self.gradient_scalar.unscale_(self.optimizer)
-            #         torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=max_norm)
-
-            #     # optimizer step
-            #     self.gradient_scalar.step(optimizer=self.optimizer)
-            #     # update the scale for next batch
-            #     self.gradient_scalar.update()
-            #     # set grads to zero
-            #     self.optimizer.zero_grad()
-
-            #     if self.model_ema is not None:
-            #         self.model_ema.update_parameters(self.model)
+                if self.model_ema is not None:
+                    self.model_ema.update_parameters(self.model)
 
             metrics = metric_monitor(pred_label=pred_label, target_label=target_label, loss=loss,
                                      use_distributed=self.use_distributed, metric_names=self.metric_names)

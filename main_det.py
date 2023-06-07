@@ -16,11 +16,14 @@ import torch
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 import numpy as np
+from accelerate import Accelerator
 
 opts = get_eval_arguments()
 opts = device_setup(opts)
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# device = torch.device("cpu")
+accelerator = Accelerator(cpu=True, mixed_precision='fp16')
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
+# device = accelerator.device
 
 mixed_precision = getattr(opts, "common.mixed_precision", False)
 n_classes: int = getattr(opts, "model.detection.n_classes", 4)
@@ -75,10 +78,13 @@ def predict_image(model: SingleShotDetector, image: np.array) -> tuple[np.array,
         if new_h != curr_height or new_w != curr_width:
             image = F.interpolate(input=image, size=(new_h, new_w), mode="bilinear", align_corners=False)
 
+        
         image.to(device)
+        # print(image.device)
+        # print(model.device)
 
-        if (torch.cuda.is_available() and mixed_precision):
-            print('Using AutocastCUDA')
+        if (torch.cuda.is_available()):
+            # print('Using AutocastCUDA')
             with torch.cuda.amp.autocast(enabled=True):
                 img = image.cuda()
                 tensor = model(img)

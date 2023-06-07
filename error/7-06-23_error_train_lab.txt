@@ -1,0 +1,27 @@
+cuDNN error: CUDNN_STATUS_EXECUTION_FAILED
+Traceback (most recent call last):
+  File "/home/labai/eky_edgeformer/parcnet/engine/training_engine.py", line 321, in run
+    train_loss, train_ckpt_metric = self.train_epoch(epoch)
+  File "/home/labai/eky_edgeformer/parcnet/engine/training_engine.py", line 188, in train_epoch
+    self.accelerator.backward(loss)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/accelerate/accelerator.py", line 1745, in backward
+    loss.backward(**kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/_tensor.py", line 488, in backward
+    torch.autograd.backward(
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/autograd/__init__.py", line 197, in backward
+    Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+RuntimeError: cuDNN error: CUDNN_STATUS_EXECUTION_FAILED
+
+When Training/home/labai/eky_edgeformer/checkpoints/checkpoint_coco_modif.pt
+
+Cha000770.jpg Cha000088.jpg Sha1284.jpg trans_robot1_Cha000692_0.jpg trans2_Cha000673.jpg trans3_Cha000442_0.jpg 
+trans4_Cha000698_0.jpg trans2_Cha000692.jpg trans_goal1_Sha0340_0.jpg trans3_Sha1209_0.jpg trans3_Sha0406_0.jpg trans2_Sha0182.jpg 
+trans2_Sha1165.jpg trans_goal1_Sha0189_0_color.jpg trans_goal1_Sha0410_0_color.jpg trans3_Cha000603_0.jpg trans3_Cha000471_0.jpg 
+trans_goal1_Cha000321_0_color.jpg Sha0385.jpg trans_goal1_Sha1232_0.jpg trans_goal1_Sha0153_0_color.jpg trans_goal1_Sha1325_0.jpg 
+trans2_Cha000002.jpg frame_1677468671.jpg Sha0550.jpg trans4_Cha000957_0.jpg Sha0830.jpg trans2_Sha1436.jpg trans4_Cha000832_0.jpg 
+trans_goal1_Sha1183_0.jpg Eky000083.jpg trans_goal1_Cha000015_0_color.jpg trans_goal1_Cha000295_0_color.jpg Sha1160.jpg trans3_Cha000108_0.jpg 
+trans_goal1_Sha1446_0_color.jpg trans3_Cha000798_0.jpg Sha0081.jpg trans4_Cha000946_0.jpg trans_goal1_Sha1317_0.jpg trans_goal1_Cha000097_0_color.jpg 
+trans4_Dago000008_0.jpg trans3_Cha000621_0.jpg trans3_Cha000571_0.jpg trans_goal1_Sha1145_0_color.jpg trans2_Cha000024.jpg trans_robot1_Eky000097_0.jpg 
+Cha000627.jpg trans3_Sha0864_0.jpg Eky000117.jpg trans_robot1_Sha0569_0.jpg Sha0721.jpg Sha1289.jpg trans3_Cha000965_0.jpg trans_goal1_Eky000010_0.jpg 
+Sha1161.jpg trans_goal1_Sha1190_0_color.jpg trans2_Sha1136.jpg trans2_Cha000726.jpg trans_robot1_Eky000110_0.jpg Sha0846.jpg trans2_Sha1050.jpg 
+trans_goal1_Sha1206_0.jpg trans_goal1_Sha0616_0.jpg

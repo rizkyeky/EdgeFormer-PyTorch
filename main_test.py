@@ -61,8 +61,8 @@ if __name__ == '__main__':
     
     file_list = os.listdir(_dir)
     image_list = [file for file in file_list if file.endswith('.jpg')]
-    # random.shuffle(image_list)
-    # random.shuffle(image_list)
+    random.shuffle(image_list)
+    random.shuffle(image_list)
 
     model = main_det.init_model()
     
@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
     infertimes = []
         
-    for i, file in enumerate(image_list):
+    for i, file in enumerate(image_list[:10]):
         # print(i, file, end=', ')
         target_boxes, target_scores, target_labels = extract_xml(file, _dir)
         target_robot += target_labels.count(1) 
@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
         target_boxes = np.array(target_boxes, dtype=np.int16)
         target_scores = np.array(target_scores)
-        target_labels = np.array(target_labels)
+        target_labels = np.array(target_labels, dtype=np.int16)
         
         targets.append({
             'boxes': torch.from_numpy(target_boxes).to(torch.int16),
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
         now = time.time()
         img = cv2.imread(_dir + '/' + file)
-        pred_boxes, pred_labels, pred_scores = main_det.predict_image(model, img)
+        pred_boxes, pred_scores, pred_labels = main_det.predict_image(model, img)
         infertimes.append(time.time() - now)
         
         pred_robot += list(pred_labels).count(1) 
@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
         pred_boxes = np.array(pred_boxes, dtype=np.int16)
         pred_scores = np.array(pred_scores)
-        pred_labels = np.array(pred_labels)
+        pred_labels = np.array(pred_labels, dtype=np.int16)
 
         preds.append({
             'boxes': torch.from_numpy(pred_boxes).to(torch.int16),
@@ -109,16 +109,16 @@ if __name__ == '__main__':
         # pprint(targets[i])
         # pprint(preds[i])
 
-        # for i, (idx, score, coords) in enumerate(zip(target_labels, target_scores, target_boxes)):
-        #     if score > 0.2:
-        #         label = "{} target".format(CLASSES[idx])
-        #         startX, startY, endX, endY = coords
-        #         cv2.rectangle(img,
-        #             (startX, startY), (endX, endY),
-        #             (0,0,255), 2
-        #         )
-        #         y = startY - 15
-        #         cv2.putText(img, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 1)
+        for i, (idx, score, coords) in enumerate(zip(target_labels, target_scores, target_boxes)):
+            if score > 0.2:
+                label = "{} target".format(CLASSES[idx])
+                startX, startY, endX, endY = coords
+                cv2.rectangle(img,
+                    (startX, startY), (endX, endY),
+                    COLORS[idx], 3
+                )
+                # y = startY - 15
+                # cv2.putText(img, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, tuple(COLORS[idx]), 1)
 
         # for i, (idx, score, coords) in enumerate(zip(pred_labels, pred_scores, pred_boxes)):
         #     if score > 0.2:
@@ -126,12 +126,12 @@ if __name__ == '__main__':
         #         startX, startY, endX, endY = coords
         #         cv2.rectangle(img,
         #             (startX, startY), (endX, endY),
-        #             (255,0,0), 2
+        #             COLORS[idx], 2
         #         )
         #         y = startY - 15
-        #         cv2.putText(img, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,0,0), 1)
+        #         cv2.putText(img, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, tuple(COLORS[idx]), 1)
         
-        # cv2.imwrite('test_results/' + file, img)
+        cv2.imwrite('test_results/' + file, img)
         # cv2.imshow('Frame', img)
         # cv2.waitKey(0)
     print('\n')
