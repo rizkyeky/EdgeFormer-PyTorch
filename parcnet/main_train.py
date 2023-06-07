@@ -24,7 +24,7 @@ def count_parameters(model):
 
 
 def main(opts, **kwargs):
-    accelerator = Accelerator()
+    accelerator = Accelerator(cpu=True)
     num_gpus = getattr(opts, "dev.num_gpus", 0) # defaults are for CPU
     dev_id = getattr(opts, "dev.device_id", torch.device('cpu'))
     # device = getattr(opts, "dev.device", torch.device('cpu'))
