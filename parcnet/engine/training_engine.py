@@ -11,6 +11,7 @@ from utils.common_utils import create_directories
 import time
 import shutil
 from typing import Dict
+from accelerate import Accelerator
 # from matplotlib import pyplot as plt
 # import json
 
@@ -38,6 +39,7 @@ class Trainer(object):
                  optimizer,
                  scheduler,
                  gradient_scalar,
+                 accelerator: Accelerator,
                  history: Dict[str, list],
                  start_epoch: int = 0,
                  start_iteration: int = 0,
@@ -48,17 +50,20 @@ class Trainer(object):
 
         self.opts = opts
 
-        self.model = model
+        # self.model = model
         self.model_ema = model_ema
         self.criteria = criterion
-        self.optimizer = optimizer
+        # self.optimizer = optimizer
         self.scheduler = scheduler
         self.gradient_scalar = gradient_scalar
 
         self.val_loader = validation_loader
-        self.train_loader = training_loader
+        # self.train_loader = training_loader
 
-        self.device = getattr(opts, "dev.device", torch.device("cpu"))
+        self.accelerator = accelerator
+
+        # self.device = getattr(opts, "dev.device", torch.device("cpu"))
+        self.device = accelerator.device
 
         self.start_epoch = start_epoch
         self.best_metric = best_metric
@@ -71,6 +76,8 @@ class Trainer(object):
         self.curr_widths = torch.empty(0)
         self.curr_heights = torch.empty(0)
         self.istraining = None
+
+        self.model, self.optimizer, self.train_loader = self.accelerator.prepare(model, optimizer, training_loader)
         
         self.with_pretrained = getattr(self.opts, "model.detection.pretrained", None)
 
@@ -178,24 +185,29 @@ class Trainer(object):
                 # compute loss
                 loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
             
+            self.accelerator.backward(loss)
             # perform the backward pass with gradient accumulation [Optional]
-            self.gradient_scalar.scale(loss).backward()
+            # self.gradient_scalar.scale(loss).backward()
 
-            if (batch_id + 1) % accum_freq == 0:
-                if max_norm is not None:
-                    # For gradient clipping, unscale the gradients and then clip them
-                    self.gradient_scalar.unscale_(self.optimizer)
-                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=max_norm)
+            self.optimizer.step()
 
-                # optimizer step
-                self.gradient_scalar.step(optimizer=self.optimizer)
-                # update the scale for next batch
-                self.gradient_scalar.update()
-                # set grads to zero
-                self.optimizer.zero_grad()
+            self.optimizer.zero_grad()
 
-                if self.model_ema is not None:
-                    self.model_ema.update_parameters(self.model)
+            # if (batch_id + 1) % accum_freq == 0:
+            #     if max_norm is not None:
+            #         # For gradient clipping, unscale the gradients and then clip them
+            #         self.gradient_scalar.unscale_(self.optimizer)
+            #         torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=max_norm)
+
+            #     # optimizer step
+            #     self.gradient_scalar.step(optimizer=self.optimizer)
+            #     # update the scale for next batch
+            #     self.gradient_scalar.update()
+            #     # set grads to zero
+            #     self.optimizer.zero_grad()
+
+            #     if self.model_ema is not None:
+            #         self.model_ema.update_parameters(self.model)
 
             metrics = metric_monitor(pred_label=pred_label, target_label=target_label, loss=loss,
                                      use_distributed=self.use_distributed, metric_names=self.metric_names)

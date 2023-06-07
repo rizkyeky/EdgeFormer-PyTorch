@@ -17,15 +17,18 @@ import math
 import os
 from torch.cuda.amp import GradScaler
 from common import DEFAULT_EPOCHS, DEFAULT_ITERATIONS, DEFAULT_MAX_ITERATIONS, DEFAULT_MAX_EPOCHS
+from accelerate import Accelerator
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
 def main(opts, **kwargs):
+    accelerator = Accelerator()
     num_gpus = getattr(opts, "dev.num_gpus", 0) # defaults are for CPU
     dev_id = getattr(opts, "dev.device_id", torch.device('cpu'))
-    device = getattr(opts, "dev.device", torch.device('cpu'))
+    # device = getattr(opts, "dev.device", torch.device('cpu'))
+    device = accelerator.device
     is_distributed = getattr(opts, "ddp.use_distributed", False)
 
     is_master_node = is_master(opts)
@@ -146,7 +149,8 @@ def main(opts, **kwargs):
                               best_metric=best_metric,
                               model_ema=model_ema,
                               history=history,
-                              gradient_scalar=gradient_scalar
+                              gradient_scalar=gradient_scalar,
+                              accelerator=accelerator,
                               )
 
     training_engine.run(train_sampler=train_sampler)

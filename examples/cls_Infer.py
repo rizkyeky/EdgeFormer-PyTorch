@@ -11,11 +11,13 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     # model = models.quantization.
-    # model = models.resnet18(weights="IMAGENET1K_V1")
+    model = models.mobilenet_v3_small(weights='IMAGENET1K_V1')
+
+    print(model)
 
     # model_scripted = torch.jit.script(model) # Export to TorchScript
     # model_scripted.save('model_scripted.pt') # Save
-    model = torch.jit.load('pretrained/edgeformer-cls_scripted.pt') # Load
+    # model = torch.jit.load('pretrained/edgeformer-cls_scripted.pt') # Load
     # model = torch.jit.load('pretrained/yolov8n-cls.torchscript') # Load
 
     model.to(device)
@@ -23,6 +25,7 @@ if __name__ == "__main__":
 
     data_transforms = transforms.Compose([
         transforms.Resize((224,224)),
+        transforms.Grayscale(num_output_channels=3),
         # transforms.CenterCrop(224),
         transforms.ToTensor(),
         # transforms.Normalize(

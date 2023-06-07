@@ -5,7 +5,7 @@ import numpy as np
 
 file = 'results/run10000/history.json'
 if len(sys.argv) > 1:
-    file = 'results/run10000/{}'.format(sys.argv[1])
+    file = 'results/{}'.format(sys.argv[1])
 
 with open(file, 'r') as f:
     history = json.load(f)
