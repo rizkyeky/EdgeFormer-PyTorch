@@ -2,6 +2,7 @@ import torch
 from torch.utils.mobile_optimizer import optimize_for_mobile
 import main_det
 import cv2
+import traceback
 
 if __name__ == '__main__':
 
@@ -18,8 +19,10 @@ if __name__ == '__main__':
     except Exception as e:
         # err = e.__str__().replace('\t', '')
         # err = err.split('\n')
-        with open('error_trace.txt', 'w') as f:
-            f.write(e.__str__())
+        # with open('error_trace.txt', 'w') as f:
+        #     f.write(e.__str__())
+        print(e.__str__())
+        print(traceback.format_exc())
         print('Error tracing model')
         # exit()
 
