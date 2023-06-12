@@ -6,9 +6,9 @@
 *.pt
 *.pth
 
-parcnet/pretrained_models/detection/balance/
-parcnet/pretrained_models/detection/unbalance/
-parcnet/pretrained_models/classification/
+edgeformer/pretrained_models/detection/balance/
+edgeformer/pretrained_models/detection/unbalance/
+edgeformer/pretrained_models/classification/
 
 env/
 env_test/
@@ -19,7 +19,7 @@ pretrained/
 results/
 kompor/
 
-parcnet/pretrained_models/detection/checkpoint_ema_avg_modif.pt
-parcnet/pretrained_models/detection/checkpoint_ema_avg.pt
-parcnet/pretrained_models/detection/checkpoint_last_krsbi_run1_81.pt
+edgeformer/pretrained_models/detection/checkpoint_ema_avg_modif.pt
+edgeformer/pretrained_models/detection/checkpoint_ema_avg.pt
+edgeformer/pretrained_models/detection/checkpoint_last_krsbi_run1_81.pt
 

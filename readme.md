@@ -1,6 +1,9 @@
 
 # EdgeFormer
 
+## Original Repo
+https://github.com/hkzhang91/ParC-Net
+
 ## Depedencies
 
 ```

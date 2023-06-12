@@ -57,7 +57,7 @@ model:
   classification:
     name: "edgeformer"
     classifier_dropout: 0.2
-    pretrained: parcnet/pretrained_models/classification/checkpoint_ema_avg.pt
+    pretrained: edgeformer/pretrained_models/classification/checkpoint_ema_avg.pt
     edge:
       scale: "scale_s"
       mode: "outer_frame_v1"

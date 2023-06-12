@@ -5,7 +5,7 @@ import torch
 from torch import Tensor
 import gc
 from torch.cuda.amp import autocast
-# from parcnet.cvnets.models.detection.base_detection import DetectionPredTuple
+# from edgeformer.cvnets.models.detection.base_detection import DetectionPredTuple
 from utils import logger
 from utils.common_utils import create_directories
 import time

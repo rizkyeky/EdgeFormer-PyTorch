@@ -3,14 +3,14 @@ import time
 
 sys.argv.extend(['--common.config-file', 'config/edgeformer_det_infer.yaml'])
 
-sys.path.append('parcnet')
-from parcnet.cvnets.models.detection.ssd import *
-from parcnet.cvnets.models.classification.edgeformer import *
-from parcnet.options.opts import get_eval_arguments
-from parcnet.utils.common_utils import device_setup
-from parcnet.cvnets.models import get_model
-# from parcnet.engine.eval_detection import *
-from parcnet.utils.tensor_utils import tensor_size_from_opts
+sys.path.append('edgeformer')
+from edgeformer.cvnets.models.detection.ssd import *
+from edgeformer.cvnets.models.classification.edgeformer import *
+from edgeformer.options.opts import get_eval_arguments
+from edgeformer.utils.common_utils import device_setup
+from edgeformer.cvnets.models import get_model
+# from edgeformer.engine.eval_detection import *
+from edgeformer.utils.tensor_utils import tensor_size_from_opts
 
 import torch
 import torch.nn.functional as F

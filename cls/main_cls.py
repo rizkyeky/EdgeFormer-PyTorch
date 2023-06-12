@@ -4,12 +4,12 @@ import time
 
 sys.argv.extend(['--common.config-file', 'config/edgeformer_cls_train.yaml'])
 
-sys.path.append('parcnet')
-from parcnet.cvnets.models.classification.edgeformer import *
-from parcnet.options.opts import get_eval_arguments
-from parcnet.utils.common_utils import device_setup
-from parcnet.cvnets.models import get_model
-from parcnet.utils.tensor_utils import tensor_size_from_opts
+sys.path.append('edgeformer')
+from edgeformer.cvnets.models.classification.edgeformer import *
+from edgeformer.options.opts import get_eval_arguments
+from edgeformer.utils.common_utils import device_setup
+from edgeformer.cvnets.models import get_model
+from edgeformer.utils.tensor_utils import tensor_size_from_opts
 
 import torch
 from torch.cuda.amp import autocast

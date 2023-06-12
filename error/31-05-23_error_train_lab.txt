@@ -1,9 +1,9 @@
 Traceback (most recent call last):
-  File "/home/labai/eky_edgeformer/parcnet/engine/training_engine.py", line 438, in run
+  File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 438, in run
     raise e
-  File "/home/labai/eky_edgeformer/parcnet/engine/training_engine.py", line 309, in run
+  File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 309, in run
     train_loss, train_ckpt_metric = self.train_epoch(epoch)
-  File "/home/labai/eky_edgeformer/parcnet/engine/training_engine.py", line 182, in train_epoch
+  File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 182, in train_epoch
     self.gradient_scalar.scale(loss).backward()
   File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/_tensor.py", line 488, in backward
     torch.autograd.backward(

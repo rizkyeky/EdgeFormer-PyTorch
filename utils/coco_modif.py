@@ -1,6 +1,6 @@
 import torch
 
-checkpoint_path = 'parcnet/pretrained_models/detection/checkpoint_ema_avg.pt'
+checkpoint_path = 'edgeformer/pretrained_models/detection/checkpoint_ema_avg.pt'
 
 layers = {
     'ssd_heads.0.loc_cls_layer.pw_conv.block.conv.weight': 48,

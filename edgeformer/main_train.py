@@ -183,8 +183,8 @@ def main_worker(**kwargs):
         setattr(opts, 'scheduler.max_epochs', 10)
         setattr(opts, 'dataset.train_batch_size0', 2)
         setattr(opts, 'dataset.val_batch_size0', 2)
-        # setattr(opts, "model.classification.pretrained", 'parcnet/pretrained_models/classification/checkpoint_last_93.pt')
-        # setattr(opts, "model.detection.pretrained", 'parcnet/pretrained_models/detection/unbalance/checkpoint_last_run19.pt')
+        # setattr(opts, "model.classification.pretrained", 'edgeformer/pretrained_models/classification/checkpoint_last_93.pt')
+        # setattr(opts, "model.detection.pretrained", 'edgeformer/pretrained_models/detection/unbalance/checkpoint_last_run19.pt')
     elif system_type == 'colab':
         setattr(opts, "eky.path", '/content/drive/MyDrive/skripsi')
     elif system_type == 'kaggle':
