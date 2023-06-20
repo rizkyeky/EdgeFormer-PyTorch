@@ -3,7 +3,7 @@ common:
   accum_freq: 1
   accum_after_epoch: -1
   log_freq: 500
-  auto_resume: true
+  auto_resume: false
   mixed_precision: false
   results_loc: "result"
 dataset:
@@ -15,7 +15,7 @@ dataset:
   val_batch_size0: 64
   workers: -1
   persistent_workers: true
-  pin_memory: true
+  pin_memory: false
 sampler:
   name: "batch_sampler"
   bs:
@@ -39,10 +39,10 @@ scheduler:
   is_iteration_based: false
   max_epochs: 10000
   warmup_iterations: 500
-  warmup_init_lr: 0.00009
+  warmup_init_lr: 0.00001
   cosine:
-    max_lr: 0.0009
-    min_lr: 0.000009 # 1.e-6 # 0.000001
+    max_lr: 0.0001
+    min_lr: 0.000001 # 1.e-6 # 0.000001
 model:
   detection:
     name: "ssd"
