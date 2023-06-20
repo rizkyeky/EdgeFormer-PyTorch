@@ -77,6 +77,8 @@ class Trainer(object):
         self.curr_heights = torch.empty(0)
         self.istraining = None
 
+        self.error_count = 1
+
         # self.model, self.optimizer, self.train_loader = self.accelerator.prepare(model, optimizer, training_loader)
         
         self.with_pretrained = getattr(self.opts, "model.detection.pretrained", None)
@@ -178,9 +180,25 @@ class Trainer(object):
                 # prediction
                 try:
                     pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+                    print(pred_label[0].shape, pred_label[1].shape, pred_label[2].shape)  
                 except Exception as e:
-                    print('Error in model when training')
-                    raise e
+                    print('*'*10, 'Error in model when training', 'epoch:{}'.format(epoch))
+                    with open('error_train_lab_{}.txt'.format(self.error_count), 'w') as f:
+                        f.write(e.__str__())
+                        f.write('\n')
+                        f.write(traceback.format_exc())
+                        f.write('\n')
+                        f.write('When Training')
+                        f.write(self.with_pretrained if self.with_pretrained != None else 'No Pretrained')
+                        f.write('\n')
+                        f.write(' '.join(self.curr_files))
+                        f.write('\n')
+                        f.write('Epoch:{}'.format(epoch))
+                        f.write('\n')
+                    
+                    pred_label: tuple[Tensor, Tensor, Tensor] = torch.rand((2, 1600, 4)), torch.rand((2, 1600, 4)), torch.rand((1, 1600, 4))
+                    self.error_count += 1
+                    # raise e
                 
                 # compute loss
                 loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
