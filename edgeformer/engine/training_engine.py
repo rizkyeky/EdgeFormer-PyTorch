@@ -180,7 +180,7 @@ class Trainer(object):
                 # prediction
                 try:
                     pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
-                    print(pred_label[0].shape, pred_label[1].shape, pred_label[2].shape)  
+                    # print(pred_label[0].shape, pred_label[1].shape, pred_label[2].shape)  
                 except Exception as e:
                     print('*'*10, 'Error in model when training', 'epoch:{}'.format(epoch))
                     with open('error_train_lab_{}.txt'.format(self.error_count), 'w') as f:
