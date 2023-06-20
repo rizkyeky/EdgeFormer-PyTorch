@@ -196,7 +196,7 @@ class Trainer(object):
                         f.write('Epoch:{}'.format(epoch))
                         f.write('\n')
                     
-                    pred_label: tuple[Tensor, Tensor, Tensor] = torch.rand((2, 1600, 4)), torch.rand((2, 1600, 4)), torch.rand((1, 1600, 4))
+                    pred_label: tuple[Tensor, Tensor, Tensor] = torch.rand((batch_size, 1600, 4)), torch.rand((batch_size, 1600, 4)), torch.rand((1, 1600, 4))
                     self.error_count += 1
                     # raise e
                 
