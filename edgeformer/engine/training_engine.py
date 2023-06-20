@@ -50,15 +50,12 @@ class Trainer(object):
 
         self.opts = opts
 
-        self.model = model
         self.model_ema = model_ema
         self.criteria = criterion
-        self.optimizer = optimizer
         self.scheduler = scheduler
         self.gradient_scalar = gradient_scalar
 
         self.val_loader = validation_loader
-        self.train_loader = training_loader
 
         self.accelerator = accelerator
 
@@ -79,7 +76,10 @@ class Trainer(object):
 
         self.error_count = 1
 
-        # self.model, self.optimizer, self.train_loader = self.accelerator.prepare(model, optimizer, training_loader)
+        # self.model = model
+        # self.optimizer = optimizer
+        # self.train_loader = training_loader
+        self.model, self.optimizer, self.train_loader = self.accelerator.prepare(model, optimizer, training_loader)
         
         self.with_pretrained = getattr(self.opts, "model.detection.pretrained", None)
 
