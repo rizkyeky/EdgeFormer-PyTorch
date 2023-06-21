@@ -23,11 +23,11 @@ def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 def main(opts, **kwargs):
-    accelerator = Accelerator()
+    # accelerator = Accelerator()
     num_gpus = getattr(opts, "dev.num_gpus", 0) # defaults are for CPU
     dev_id = getattr(opts, "dev.device_id", torch.device('cpu'))
-    # device = getattr(opts, "dev.device", torch.device('cpu'))
-    device = accelerator.device
+    device = getattr(opts, "dev.device", torch.device('cpu'))
+    # device = accelerator.device
     is_distributed = getattr(opts, "ddp.use_distributed", False)
 
     is_master_node = is_master(opts)
@@ -171,6 +171,8 @@ def distributed_worker(i, main, opts, kwargs):
 
 
 def main_worker(**kwargs):
+    torch.set_default_tensor_type(torch.float16)
+    
     opts = get_training_arguments()
     opts = device_setup(opts)
 

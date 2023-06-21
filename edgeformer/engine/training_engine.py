@@ -59,8 +59,8 @@ class Trainer(object):
 
         self.accelerator = accelerator
 
-        # self.device = getattr(opts, "dev.device", torch.device("cpu"))
-        self.device = accelerator.device
+        self.device = getattr(opts, "dev.device", torch.device("cpu"))
+        # self.device = accelerator.device
 
         self.start_epoch = start_epoch
         self.best_metric = best_metric
@@ -76,10 +76,10 @@ class Trainer(object):
 
         self.error_count = 1
 
-        # self.model = model
-        # self.optimizer = optimizer
-        # self.train_loader = training_loader
-        self.model, self.optimizer, self.train_loader = self.accelerator.prepare(model, optimizer, training_loader)
+        self.model = model
+        self.optimizer = optimizer
+        self.train_loader = training_loader
+        # self.model, self.optimizer, self.train_loader = self.accelerator.prepare(model, optimizer, training_loader)
         
         self.with_pretrained = getattr(self.opts, "model.detection.pretrained", None)
 
@@ -208,26 +208,26 @@ class Trainer(object):
             # perform the backward pass with gradient accumulation [Optional]
             # self.gradient_scalar.scale(loss).backward()
             
-            self.accelerator.backward(loss)
-            self.optimizer.step()
+            # self.accelerator.backward(loss)
+            # self.optimizer.step()
             
-            self.optimizer.zero_grad()
+            # self.optimizer.zero_grad()
 
-            # if (batch_id + 1) % accum_freq == 0:
-            #     if max_norm is not None:
-            #         # For gradient clipping, unscale the gradients and then clip them
-            #         self.gradient_scalar.unscale_(self.optimizer)
-            #         torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=max_norm)
+            if (batch_id + 1) % accum_freq == 0:
+                if max_norm is not None:
+                    # For gradient clipping, unscale the gradients and then clip them
+                    self.gradient_scalar.unscale_(self.optimizer)
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=max_norm)
 
-            #     # optimizer step
-            #     self.gradient_scalar.step(optimizer=self.optimizer)
-            #     # update the scale for next batch
-            #     self.gradient_scalar.update()
-            #     # set grads to zero
-            #     self.optimizer.zero_grad()
+                # optimizer step
+                self.gradient_scalar.step(optimizer=self.optimizer)
+                # update the scale for next batch
+                self.gradient_scalar.update()
+                # set grads to zero
+                self.optimizer.zero_grad()
 
-            #     if self.model_ema is not None:
-            #         self.model_ema.update_parameters(self.model)
+                if self.model_ema is not None:
+                    self.model_ema.update_parameters(self.model)
 
             metrics = metric_monitor(pred_label=pred_label, target_label=target_label, loss=loss,
                                      use_distributed=self.use_distributed, metric_names=self.metric_names)
@@ -292,13 +292,14 @@ class Trainer(object):
                         pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
                         # print(pred_label[0].shape, pred_label[1].shape, pred_label[2].shape)  
                     except Exception as e:
-                        print('*'*10, 'Error in model when training', 'epoch:{}'.format(epoch))
+                        print('*'*10, 'Error in model when validating', 'epoch:{}'.format(epoch))
                         with open('error_train_lab_{}.txt'.format(self.error_count), 'w') as f:
                             f.write(e.__str__())
                             f.write('\n')
                             f.write(traceback.format_exc())
                             f.write('\n')
                             f.write('When Validating')
+                            f.write('\n')
                             f.write(self.with_pretrained if self.with_pretrained != None else 'No Pretrained')
                             f.write('\n')
                             f.write(' '.join(self.curr_files))
@@ -306,7 +307,9 @@ class Trainer(object):
                             f.write('Epoch:{}'.format(epoch))
                             f.write('\n')
                         
-                        pred_label: tuple[Tensor, Tensor, Tensor] = torch.rand((batch_size, 1600, 4)), torch.rand((batch_size, 1600, 4)), torch.rand((1, 1600, 4))
+                        pred_label: tuple[Tensor, Tensor, Tensor] = torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
+                        torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
+                        torch.rand((1, 1600, 4), dtype=torch.float16, device=self.device)
                         self.error_count += 1
                         # raise e
 
@@ -470,9 +473,12 @@ class Trainer(object):
                     f.write(traceback.format_exc())
                     f.write('\n')
                     f.write('When Training' if self.istraining else 'When Validating')
+                    f.write('\n')
                     f.write(self.with_pretrained if self.with_pretrained != None else 'No Pretrained')
                     f.write('\n')
                     f.write(' '.join(self.curr_files))
+                    f.write('\n')
+                    f.write('Epoch:{}'.format(epoch))
                     f.write('\n')
                 if 'out of memory' in str(e):
                     logger.log('OOM exception occured')

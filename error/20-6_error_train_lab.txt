@@ -1,0 +1,20 @@
+numel: integer multiplication overflow
+Traceback (most recent call last):
+  File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 361, in run
+    train_loss, train_ckpt_metric = self.train_epoch(epoch)
+  File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 204, in train_epoch
+    loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/edgeformer/loss_fn/detection.py", line 41, in forward
+    return self.criteria(
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/edgeformer/loss_fn/detection_loss_fns/ssd_multibox_loss.py", line 73, in forward
+    mask = hard_negative_mining(loss, gt_labels, self.neg_pos_ratio)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/misc/third_party/ssd_utils.py", line 101, in hard_negative_mining
+    loss[pos_mask] = -math.inf
+RuntimeError: numel: integer multiplication overflow
+
+When Training/home/labai/eky_edgeformer/checkpoints/checkpoint_coco_modif.pt
+Sha1043.jpg trans_goal1_Sha0896_0_color.jpg trans2_Sha1197.jpg trans3_Sha1201_0.jpg trans4_Cha000956_0.jpg trans_goal1_Sha1295_0_color.jpg trans_goal1_Sha1410_0.jpg Cha000388.jpg trans4_Sha0203_0.jpg Sha0988.jpg Sha1316.jpg trans_goal1_Sha1141_0_color.jpg trans3_Sha1172_0.jpg trans_goal1_Sha1246_0.jpg trans3_Sha1191_0.jpg Sha1453.jpg trans4_Cha000875_0.jpg trans_goal1_Sha0873_0.jpg trans_robot1_Sha1028_0.jpg trans_goal1_Sha0715_0_color.jpg trans_goal1_Cha000704_0_color.jpg trans2_Sha0791.jpg Cha000407.jpg trans_goal1_Cha000794_0_color.jpg trans_goal1_Sha1224_0_color.jpg Cha000770.jpg trans3_Cha000816_0.jpg trans2_Sha0428.jpg trans2_frame_1677468700.jpg trans2_frame_1677468724.jpg trans3_Cha000625_0.jpg Cha000559.jpg trans2_Sha1432.jpg trans_robot1_Sha0193_0.jpg trans_frame_1677469093.jpg trans_goal1_Cha000372_0.jpg trans_goal1_Sha0775_0.jpg Cha000845.jpg trans2_Cha000710.jpg trans_Cha000052.jpg trans3_Cha000714_0.jpg trans_goal1_Sha1166_0.jpg trans_goal1_Sha0717_0.jpg trans3_Sha1170_0.jpg Sha0098.jpg trans_goal1_Cha000775_0_color.jpg trans_goal1_Sha1426_0_color.jpg frame_1677468726.jpg trans_goal1_Sha1290_0_color.jpg trans_goal1_Cha000130_0.jpg Eky000032.jpg trans4_Cha000742_0.jpg trans_goal1_Cha000332_0_color.jpg trans_goal1_Cha000584_0_color.jpg trans_goal1_Sha1439_0_color.jpg trans_goal1_Sha0129_0_color.jpg trans_goal1_Cha000820_0_color.jpg trans_Cha000276.jpg trans_goal1_Sha1047_0.jpg trans2_Cha000074.jpg Sha0688.jpg Sha0084.jpg trans_goal1_Cha000385_0.jpg Cha000412.jpg
