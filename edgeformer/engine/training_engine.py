@@ -176,31 +176,33 @@ class Trainer(object):
                                                      epoch=epoch,
                                                      iteration=self.train_iterations)
 
-            with autocast(enabled=False):
+            with autocast(enabled=self.mixed_precision_training):
                 # prediction
                 try:
                     pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
                     # print(pred_label[0].shape, pred_label[1].shape, pred_label[2].shape)  
                 except Exception as e:
-                    print('*'*10, 'Error in model when training', 'epoch:{}'.format(epoch))
-                    with open('error_train_lab_{}.txt'.format(self.error_count), 'w') as f:
-                        f.write(e.__str__())
-                        f.write('\n')
-                        f.write(traceback.format_exc())
-                        f.write('\n')
-                        f.write('When Training')
-                        f.write(self.with_pretrained if self.with_pretrained != None else 'No Pretrained')
-                        f.write('\n')
-                        f.write(' '.join(self.curr_files))
-                        f.write('\n')
-                        f.write('Epoch:{}'.format(epoch))
-                        f.write('\n')
-                    
-                    pred_label: tuple[Tensor, Tensor, Tensor] = torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
-                        torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
-                        torch.rand((1, 1600, 4), dtype=torch.float16, device=self.device)
-                    self.error_count += 1
-                    # raise e
+                    if not 'out of memory' in str(e):
+                        print('*'*10, 'Error in model when training', 'epoch:{}'.format(epoch))
+                        with open('error_train_lab_{}.txt'.format(self.error_count), 'w') as f:
+                            f.write(e.__str__())
+                            f.write('\n')
+                            f.write(traceback.format_exc())
+                            f.write('\n')
+                            f.write('When Training')
+                            f.write(self.with_pretrained if self.with_pretrained != None else 'No Pretrained')
+                            f.write('\n')
+                            f.write(' '.join(self.curr_files))
+                            f.write('\n')
+                            f.write('Epoch:{}'.format(epoch))
+                            f.write('\n')
+                        
+                        pred_label: tuple[Tensor, Tensor, Tensor] = torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
+                            torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
+                            torch.rand((1, 1600, 4), dtype=torch.float16, device=self.device)
+                        self.error_count += 1
+                    else:
+                        raise e
                 
                 # compute loss
                 loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
@@ -281,7 +283,7 @@ class Trainer(object):
 
                 batch_size = input_img.shape[0]
 
-                with autocast(enabled=False):
+                with autocast(enabled=self.mixed_precision_training):
                     # prediction
                     # try:
                     #     pred_label: tuple[Tensor, Tensor, Tensor] = model(input_img)
@@ -292,26 +294,28 @@ class Trainer(object):
                         pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
                         # print(pred_label[0].shape, pred_label[1].shape, pred_label[2].shape)  
                     except Exception as e:
-                        print('*'*10, 'Error in model when validating', 'epoch:{}'.format(epoch))
-                        with open('error_train_lab_{}.txt'.format(self.error_count), 'w') as f:
-                            f.write(e.__str__())
-                            f.write('\n')
-                            f.write(traceback.format_exc())
-                            f.write('\n')
-                            f.write('When Validating')
-                            f.write('\n')
-                            f.write(self.with_pretrained if self.with_pretrained != None else 'No Pretrained')
-                            f.write('\n')
-                            f.write(' '.join(self.curr_files))
-                            f.write('\n')
-                            f.write('Epoch:{}'.format(epoch))
-                            f.write('\n')
-                        
-                        pred_label: tuple[Tensor, Tensor, Tensor] = torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
-                        torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
-                        torch.rand((1, 1600, 4), dtype=torch.float16, device=self.device)
-                        self.error_count += 1
-                        # raise e
+                        if not 'out of memory' in str(e):
+                            print('*'*10, 'Error in model when validating', 'epoch:{}'.format(epoch))
+                            with open('error_train_lab_{}.txt'.format(self.error_count), 'w') as f:
+                                f.write(e.__str__())
+                                f.write('\n')
+                                f.write(traceback.format_exc())
+                                f.write('\n')
+                                f.write('When Validating')
+                                f.write('\n')
+                                f.write(self.with_pretrained if self.with_pretrained != None else 'No Pretrained')
+                                f.write('\n')
+                                f.write(' '.join(self.curr_files))
+                                f.write('\n')
+                                f.write('Epoch:{}'.format(epoch))
+                                f.write('\n')
+                            
+                            pred_label: tuple[Tensor, Tensor, Tensor] = torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
+                            torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
+                            torch.rand((1, 1600, 4), dtype=torch.float16, device=self.device)
+                            self.error_count += 1
+                        else:
+                            raise e
 
                     # compute loss
                     loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
