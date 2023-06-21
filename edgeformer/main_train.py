@@ -23,7 +23,7 @@ def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 def main(opts, **kwargs):
-    # accelerator = Accelerator()
+    accelerator = Accelerator()
     num_gpus = getattr(opts, "dev.num_gpus", 0) # defaults are for CPU
     dev_id = getattr(opts, "dev.device_id", torch.device('cpu'))
     device = getattr(opts, "dev.device", torch.device('cpu'))
