@@ -171,7 +171,7 @@ def distributed_worker(i, main, opts, kwargs):
 
 
 def main_worker(**kwargs):
-    torch.set_default_tensor_type(torch.float16)
+    # torch.set_default_tensor_type(torch.float16)
     
     opts = get_training_arguments()
     opts = device_setup(opts)
