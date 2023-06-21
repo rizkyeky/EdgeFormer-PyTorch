@@ -1,10 +1,10 @@
 common:
-  run_label: "run10000_3000_coco"
+  run_label: "run10000_6300_coco"
   accum_freq: 1
   accum_after_epoch: -1
   log_freq: 500
   auto_resume: false
-  mixed_precision: false
+  mixed_precision: true
   results_loc: "result"
 dataset:
   # root_train: "imgs_det"
