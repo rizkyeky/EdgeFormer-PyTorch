@@ -208,7 +208,7 @@ class Trainer(object):
                 loss = self.criteria(input_sample=input_img, prediction=pred_label, target=target_label)
             
             # perform the backward pass with gradient accumulation [Optional]
-            # self.gradient_scalar.scale(loss).backward()
+            self.gradient_scalar.scale(loss).backward()
             
             # self.accelerator.backward(loss)
             # self.optimizer.step()
