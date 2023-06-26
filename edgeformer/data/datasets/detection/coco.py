@@ -489,7 +489,7 @@ class KRSBIDetectionSSD(KRSBIDetection):
 
     def training_transforms(self, size: tuple):
         aug_list = [
-            #tf.RandomZoomOut(opts=self.opts),
+            # tf.RandomZoomOut(opts=self.opts),
             # tf.SSDCroping(opts=self.opts),
             # tf.PhotometricDistort(opts=self.opts),
             # tf.RandomHorizontalFlip(opts=self.opts),
