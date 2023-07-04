@@ -11,8 +11,8 @@ dataset:
   # root_val: "imgs_det"
   name: "krsbi_ssd"
   category: "detection"
-  train_batch_size0: 64
-  val_batch_size0: 64
+  train_batch_size0: 32
+  val_batch_size0: 32
   workers: -1
   persistent_workers: true
   pin_memory: false

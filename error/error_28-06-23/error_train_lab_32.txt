@@ -1,0 +1,32 @@
+cuDNN error: CUDNN_STATUS_MAPPING_ERROR
+Traceback (most recent call last):
+  File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 295, in val_epoch
+    pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/detection/ssd.py", line 240, in forward
+    return self.ssd_forward(x)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/detection/ssd.py", line 188, in ssd_forward
+    enc_end_points = self.encoder.extract_end_points_all(x)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/classification/base_cls.py", line 53, in extract_end_points_all
+    x = self.conv_1(x)  # 112 x112
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/layers/conv_layer.py", line 118, in forward
+    return self.block(x)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/container.py", line 204, in forward
+    input = module(input)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 463, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 459, in _conv_forward
+    return F.conv2d(input, weight, bias, self.stride,
+RuntimeError: cuDNN error: CUDNN_STATUS_MAPPING_ERROR
+
+When Validating
+/home/labai/eky_edgeformer/checkpoints/checkpoint_coco_modif.pt
+Cha000881.jpg Cha000884.jpg Cha000901.jpg Cha000917.jpg Cha000921.jpg Cha000923.jpg Cha000934.jpg Cha000936.jpg Cha000941.jpg Cha000944.jpg Cha000947.jpg Cha000957.jpg Cha000961.jpg Cha000964.jpg Cha000965.jpg Cha000972.jpg Cha000973.jpg Cha000974.jpg Cha000976.jpg Cha000981.jpg Cha000986.jpg Cha000997.jpg Cha001000.jpg Cha001007.jpg Cha001011.jpg Cha001013.jpg Cha001014.jpg Cha001026.jpg Eky000003.jpg Eky000005.jpg Eky000008.jpg Eky000010.jpg Eky000012.jpg Eky000017.jpg Eky000022.jpg Eky000028.jpg Eky000033.jpg Eky000034.jpg Eky000041.jpg Eky000042.jpg Eky000046.jpg Eky000048.jpg Eky000064.jpg Eky000075.jpg Eky000078.jpg Eky000081.jpg Eky000086.jpg Eky000096.jpg Eky000100.jpg Eky000109.jpg Sha0001.jpg Sha0021.jpg Sha0025.jpg Sha0029.jpg Sha0035.jpg Sha0038.jpg Sha0043.jpg Sha0046.jpg Sha0048.jpg Sha0049.jpg Sha0057.jpg Sha0058.jpg Sha0059.jpg Sha0064.jpg
+Epoch:19

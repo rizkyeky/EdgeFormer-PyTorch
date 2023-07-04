@@ -1,0 +1,39 @@
+Unable to find a valid cuDNN algorithm to run convolution
+Traceback (most recent call last):
+  File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 182, in train_epoch
+    pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/detection/ssd.py", line 240, in forward
+    return self.ssd_forward(x)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/detection/ssd.py", line 188, in ssd_forward
+    enc_end_points = self.encoder.extract_end_points_all(x)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/classification/base_cls.py", line 68, in extract_end_points_all
+    x = self.layer_5(x)  # 7 x 7
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/container.py", line 204, in forward
+    input = module(input)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/modules/edgeformer_block.py", line 962, in forward
+    x = self.local_global_fusion(torch.cat((x, res), dim=1))
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/layers/conv_layer.py", line 118, in forward
+    return self.block(x)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/container.py", line 204, in forward
+    input = module(input)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 463, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 459, in _conv_forward
+    return F.conv2d(input, weight, bias, self.stride,
+RuntimeError: Unable to find a valid cuDNN algorithm to run convolution
+
+When Training/home/labai/eky_edgeformer/checkpoints/checkpoint_coco_modif.pt
+trans3_Sha1429_0.jpg trans_goal1_Cha000143_0_color.jpg trans3_Cha000608_0_color.jpg trans_goal1_Sha0715_0.jpg trans_Cha000364.jpg trans_goal1_Cha000304_0.jpg Sha0550.jpg trans3_Cha000093_0.jpg trans4_Sha1033_0.jpg Cha000651.jpg trans3_Sha0460_0_color.jpg trans2_Sha1042.jpg trans4_Cha000946_0_color.jpg trans2_Sha1454.jpg trans_goal1_Eky000011_0.jpg Sha1311.jpg trans2_Sha1007.jpg trans4_frame_1677469091_0.jpg trans4_Cha000597_0_color.jpg trans_goal1_Sha0786_0_color.jpg trans_goal1_Sha0397_0_color.jpg Cha000731.jpg Cha000281.jpg trans_Sha0092.jpg trans2_Cha000611.jpg trans_goal1_Cha000805_0.jpg trans_goal1_frame_1677468668_0.jpg trans3_Cha000521_0.jpg trans4_Cha000667_0_color.jpg trans2_Sha1418.jpg trans4_Sha0406_0.jpg trans_Sha0855.jpg trans2_Eky000032.jpg trans3_Sha0761_0_color.jpg Sha0211.jpg trans4_frame_1677469092_0.jpg trans_goal1_Sha0732_0.jpg trans4_Sha1424_0_color.jpg trans_goal1_Sha1141_0_color.jpg trans4_Sha1090_0_color.jpg trans_robot1_Cha000644_0.jpg trans4_Cha000633_0_color.jpg trans_goal1_Cha000750_0.jpg trans3_Cha000354_0_color.jpg trans3_Sha0795_0.jpg trans3_Sha0301_0.jpg trans_goal1_Sha0986_0.jpg trans3_Cha000567_0.jpg trans3_Sha0983_0.jpg trans_goal1_Sha0173_0.jpg trans_goal1_Cha000130_0_color.jpg trans4_Sha1367_0.jpg trans4_Sha0164_0.jpg trans_goal1_Sha1420_0.jpg trans3_Sha1410_0.jpg trans3_frame_1677468662_0_color.jpg trans4_Cha000551_0_color.jpg trans3_Cha000387_0_color.jpg trans_robot1_Cha000650_0.jpg trans_goal1_Cha000762_0.jpg trans_Sha1337.jpg trans3_Sha0914_0.jpg trans_robot1_Sha0598_0.jpg trans_goal1_Cha000700_0.jpg
+Epoch:19

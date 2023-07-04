@@ -1,0 +1,31 @@
+cuDNN error: CUDNN_STATUS_MAPPING_ERROR
+Traceback (most recent call last):
+  File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 182, in train_epoch
+    pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/detection/ssd.py", line 240, in forward
+    return self.ssd_forward(x)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/detection/ssd.py", line 188, in ssd_forward
+    enc_end_points = self.encoder.extract_end_points_all(x)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/classification/base_cls.py", line 53, in extract_end_points_all
+    x = self.conv_1(x)  # 112 x112
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/layers/conv_layer.py", line 118, in forward
+    return self.block(x)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/container.py", line 204, in forward
+    input = module(input)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 463, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 459, in _conv_forward
+    return F.conv2d(input, weight, bias, self.stride,
+RuntimeError: cuDNN error: CUDNN_STATUS_MAPPING_ERROR
+
+When Training/home/labai/eky_edgeformer/checkpoints/checkpoint_coco_modif.pt
+trans3_Cha001005_0.jpg trans4_Finframe_1677468844_0.jpg Sha1316.jpg Cha000303.jpg trans2_Sha0830.jpg trans_goal1_Sha1362_0_color.jpg trans2_Sha1050.jpg Cha000645.jpg trans3_Sha0945_0_color.jpg Cha000789.jpg Cha000252.jpg Finframe_1677468909.jpg trans3_Sha1096_0.jpg trans_goal1_Sha0851_0_color.jpg trans_robot1_Sha0269_0.jpg trans_goal1_Cha000387_0_color.jpg trans2_Cha000746.jpg trans2_Sha0427.jpg trans4_Finframe_1677468931_0_color.jpg trans2_Cha000002.jpg trans3_Sha0474_0_color.jpg trans_goal1_Sha0728_0.jpg trans_Sha1334.jpg trans3_frame_1677469130_0_color.jpg frame_1677468722.jpg trans4_Cha000475_0_color.jpg trans_goal1_frame_1677469124_0.jpg trans3_Cha000474_0.jpg trans4_Cha000663_0.jpg trans3_Dago000001_0.jpg trans3_Sha1127_0_color.jpg trans3_Cha000717_0_color.jpg trans_goal1_Cha000140_0.jpg trans4_Sha0927_0_color.jpg trans_goal1_Sha0547_0_color.jpg trans3_Sha0308_0.jpg trans4_Cha000683_0_color.jpg trans3_Cha001006_0_color.jpg Cha000467.jpg trans3_Sha1439_0_color.jpg trans3_frame_1677469115_0_color.jpg Finframe_1677468916.jpg trans3_Eky000061_0_color.jpg trans3_Cha000433_0_color.jpg Sha0117.jpg trans_goal1_Sha0102_0_color.jpg trans_goal1_Cha000768_0_color.jpg trans4_Sha1150_0.jpg trans_goal1_Cha000769_0_color.jpg trans3_Sha0172_0_color.jpg trans3_Sha1077_0.jpg trans4_Sha0386_0.jpg trans_goal1_Cha000200_0_color.jpg trans4_Sha0320_0_color.jpg trans_goal1_Sha0724_0_color.jpg trans_goal1_Cha000415_0_color.jpg trans_goal1_Sha1084_0.jpg Cha000920.jpg trans3_Sha1131_0.jpg trans3_Sha0429_0.jpg trans_goal1_frame_1677468683_0_color.jpg trans_goal1_Cha000297_0.jpg trans_goal1_Sha1273_0.jpg Sha0858.jpg
+Epoch:19

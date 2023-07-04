@@ -1,0 +1,32 @@
+cuDNN error: CUDNN_STATUS_MAPPING_ERROR
+Traceback (most recent call last):
+  File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 295, in val_epoch
+    pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/detection/ssd.py", line 240, in forward
+    return self.ssd_forward(x)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/detection/ssd.py", line 188, in ssd_forward
+    enc_end_points = self.encoder.extract_end_points_all(x)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/classification/base_cls.py", line 53, in extract_end_points_all
+    x = self.conv_1(x)  # 112 x112
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/layers/conv_layer.py", line 118, in forward
+    return self.block(x)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/container.py", line 204, in forward
+    input = module(input)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 463, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 459, in _conv_forward
+    return F.conv2d(input, weight, bias, self.stride,
+RuntimeError: cuDNN error: CUDNN_STATUS_MAPPING_ERROR
+
+When Validating
+/home/labai/eky_edgeformer/checkpoints/checkpoint_coco_modif.pt
+trans3_Eky000090_0_color.jpg trans3_Eky000092_0_color.jpg trans3_Eky000094_0_color.jpg trans3_Eky000103_0_color.jpg trans3_Eky000104_0_color.jpg trans3_Eky000106_0_color.jpg trans3_Eky000112_0_color.jpg trans3_Eky000113_0_color.jpg trans3_Falcon_1677469472_0.jpg trans3_Falcon_1677469473_0_color.jpg trans3_Falcon_1677469476_0_color.jpg trans3_Falcon_1677469477_0_color.jpg trans3_Falcon_1677469478_0_color.jpg trans3_Falcon_1677469480_0_color.jpg trans3_Falcon_1677469481_0_color.jpg trans3_Falcon_1677469481_0.jpg trans3_Falcon_1677469482_0.jpg trans3_Falcon_1677469484_0_color.jpg trans3_Falcon_1677469484_0.jpg trans3_Falcon_1677469485_0_color.jpg trans3_Falcon_1677469485_0.jpg trans3_Falcon_1677469487_0.jpg trans3_Falcon_1677469488_0_color.jpg trans3_Finframe_1677468838_0_color.jpg trans3_Finframe_1677468843_0_color.jpg trans3_Finframe_1677468844_0_color.jpg trans3_Finframe_1677468845_0.jpg trans3_Finframe_1677468848_0_color.jpg trans3_Finframe_1677468904_0_color.jpg trans3_Finframe_1677468913_0_color.jpg trans3_Finframe_1677468919_0.jpg trans3_Finframe_1677468922_0_color.jpg trans3_Finframe_1677468923_0_color.jpg trans3_Finframe_1677468923_0.jpg trans3_Finframe_1677468937_0_color.jpg trans3_Finframe_1677468937_0.jpg trans3_frame_1677468651_0_color.jpg trans3_frame_1677468653_0.jpg trans3_frame_1677468655_0.jpg trans3_frame_1677468656_0.jpg trans3_frame_1677468659_0_color.jpg trans3_frame_1677468661_0_color.jpg trans3_frame_1677468670_0_color.jpg trans3_frame_1677468678_0_color.jpg trans3_frame_1677468681_0.jpg trans3_frame_1677468683_0_color.jpg trans3_frame_1677468686_0_color.jpg trans3_frame_1677468687_0.jpg trans3_frame_1677468693_0_color.jpg trans3_frame_1677468695_0_color.jpg trans3_frame_1677468695_0.jpg trans3_frame_1677468701_0.jpg trans3_frame_1677468707_0.jpg trans3_frame_1677468713_0_color.jpg trans3_frame_1677468715_0_color.jpg trans3_frame_1677468716_0_color.jpg trans3_frame_1677468717_0_color.jpg trans3_frame_1677469074_0_color.jpg trans3_frame_1677469075_0_color.jpg trans3_frame_1677469086_0.jpg trans3_frame_1677469098_0_color.jpg trans3_frame_1677469099_0.jpg trans3_frame_1677469103_0.jpg trans3_frame_1677469106_0_color.jpg
+Epoch:19

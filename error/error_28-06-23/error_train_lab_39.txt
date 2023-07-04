@@ -1,0 +1,32 @@
+cuDNN error: CUDNN_STATUS_MAPPING_ERROR
+Traceback (most recent call last):
+  File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 295, in val_epoch
+    pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/detection/ssd.py", line 240, in forward
+    return self.ssd_forward(x)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/detection/ssd.py", line 188, in ssd_forward
+    enc_end_points = self.encoder.extract_end_points_all(x)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/classification/base_cls.py", line 53, in extract_end_points_all
+    x = self.conv_1(x)  # 112 x112
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/edgeformer/cvnets/layers/conv_layer.py", line 118, in forward
+    return self.block(x)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/container.py", line 204, in forward
+    input = module(input)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 463, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 459, in _conv_forward
+    return F.conv2d(input, weight, bias, self.stride,
+RuntimeError: cuDNN error: CUDNN_STATUS_MAPPING_ERROR
+
+When Validating
+/home/labai/eky_edgeformer/checkpoints/checkpoint_coco_modif.pt
+trans_goal1_Cha000656_0.jpg trans_goal1_Cha000660_0_color.jpg trans_goal1_Cha000661_0_color.jpg trans_goal1_Cha000661_0.jpg trans_goal1_Cha000663_0_color.jpg trans_goal1_Cha000664_0_color.jpg trans_goal1_Cha000665_0_color.jpg trans_goal1_Cha000665_0.jpg trans_goal1_Cha000668_0_color.jpg trans_goal1_Cha000671_0_color.jpg trans_goal1_Cha000672_0_color.jpg trans_goal1_Cha000672_0.jpg trans_goal1_Cha000674_0_color.jpg trans_goal1_Cha000680_0_color.jpg trans_goal1_Cha000687_0_color.jpg trans_goal1_Cha000690_0_color.jpg trans_goal1_Cha000691_0.jpg trans_goal1_Cha000697_0.jpg trans_goal1_Cha000698_0_color.jpg trans_goal1_Cha000703_0.jpg trans_goal1_Cha000713_0_color.jpg trans_goal1_Cha000716_0_color.jpg trans_goal1_Cha000716_0.jpg trans_goal1_Cha000722_0.jpg trans_goal1_Cha000723_0_color.jpg trans_goal1_Cha000725_0_color.jpg trans_goal1_Cha000725_0.jpg trans_goal1_Cha000729_0_color.jpg trans_goal1_Cha000733_0.jpg trans_goal1_Cha000736_0.jpg trans_goal1_Cha000742_0_color.jpg trans_goal1_Cha000742_0.jpg trans_goal1_Cha000744_0_color.jpg trans_goal1_Cha000746_0_color.jpg trans_goal1_Cha000748_0_color.jpg trans_goal1_Cha000764_0_color.jpg trans_goal1_Cha000766_0.jpg trans_goal1_Cha000767_0.jpg trans_goal1_Cha000768_0.jpg trans_goal1_Cha000769_0.jpg trans_goal1_Cha000770_0.jpg trans_goal1_Cha000775_0.jpg trans_goal1_Cha000783_0.jpg trans_goal1_Cha000784_0_color.jpg trans_goal1_Cha000790_0_color.jpg trans_goal1_Cha000797_0_color.jpg trans_goal1_Cha000797_0.jpg trans_goal1_Cha000798_0_color.jpg trans_goal1_Cha000799_0.jpg trans_goal1_Cha000801_0_color.jpg trans_goal1_Cha000810_0_color.jpg trans_goal1_Cha000814_0.jpg trans_goal1_Cha000821_0_color.jpg trans_goal1_Cha000824_0.jpg trans_goal1_Cha000825_0_color.jpg trans_goal1_Cha000826_0_color.jpg trans_goal1_Cha000828_0_color.jpg trans_goal1_Cha000830_0.jpg trans_goal1_Dago000013_0.jpg trans_goal1_Dago000021_0_color.jpg trans_goal1_Dago000023_0_color.jpg trans_goal1_Dago000023_0.jpg trans_goal1_Eky000002_0.jpg trans_goal1_Eky000003_0_color.jpg
+Epoch:19

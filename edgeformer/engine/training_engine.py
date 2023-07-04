@@ -144,6 +144,8 @@ class Trainer(object):
 
         epoch_start_time = time.time()
         batch_load_start = time.time()
+
+        prev_pred_label = None
     
         for batch_id, batch in enumerate(self.train_loader):
             if self.train_iterations > self.max_iterations:
@@ -180,11 +182,12 @@ class Trainer(object):
                 # prediction
                 try:
                     pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+                    prev_pred_label = pred_label
                     # print(pred_label[0].shape, pred_label[1].shape, pred_label[2].shape)  
                 except Exception as e:
                     if not 'out of memory' in str(e):
                         print('*'*10, 'Error in model when training', 'epoch:{}'.format(epoch))
-                        with open('error_train_lab_{}.txt'.format(self.error_count), 'w') as f:
+                        with open('error_lab/error_train_lab_{}.txt'.format(self.error_count), 'w') as f:
                             f.write(e.__str__())
                             f.write('\n')
                             f.write(traceback.format_exc())
@@ -196,12 +199,16 @@ class Trainer(object):
                             f.write('\n')
                             f.write('Epoch:{}'.format(epoch))
                             f.write('\n')
+
+                        pred_label = prev_pred_label
                         
                         # pred_label: tuple[Tensor, Tensor, Tensor] = torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
                         #     torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
                         #     torch.rand((1, 1600, 4), dtype=torch.float16, device=self.device)
+                        
                         self.error_count += 1
-                        continue
+                        
+                        # continue
                     else:
                         raise e
                 
@@ -266,6 +273,7 @@ class Trainer(object):
             epoch_start_time = time.time()
             total_samples = len(self.val_loader)
             processed_samples = 0
+            prev_pred_label = None
             lr = self.scheduler.retrieve_lr(self.optimizer)
             for batch_id, batch in enumerate(self.val_loader):
                 input_img, target_label = batch['image'], batch['label']
@@ -293,11 +301,12 @@ class Trainer(object):
                     #     # prediction
                     try:
                         pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+                        prev_pred_label = pred_label
                         # print(pred_label[0].shape, pred_label[1].shape, pred_label[2].shape)  
                     except Exception as e:
                         if not 'out of memory' in str(e):
                             print('*'*10, 'Error in model when validating', 'epoch:{}'.format(epoch))
-                            with open('error_train_lab_{}.txt'.format(self.error_count), 'w') as f:
+                            with open('error_lab/error_train_lab_{}.txt'.format(self.error_count), 'w') as f:
                                 f.write(e.__str__())
                                 f.write('\n')
                                 f.write(traceback.format_exc())
@@ -310,12 +319,16 @@ class Trainer(object):
                                 f.write('\n')
                                 f.write('Epoch:{}'.format(epoch))
                                 f.write('\n')
+
+                            pred_label = prev_pred_label
                             
                             # pred_label: tuple[Tensor, Tensor, Tensor] = torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
                             # torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
                             # torch.rand((1, 1600, 4), dtype=torch.float16, device=self.device)                            
+                            
                             self.error_count += 1
-                            continue
+                            
+                            # continue
                         else:
                             raise e
 

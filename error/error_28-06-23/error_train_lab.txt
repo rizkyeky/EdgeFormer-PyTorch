@@ -1,0 +1,16 @@
+unsupported operand type(s) for *: 'NoneType' and 'float'
+Traceback (most recent call last):
+  File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 376, in run
+    val_loss, val_ckpt_metric = self.val_epoch(epoch=epoch, model=self.model)
+  File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 339, in val_epoch
+    validation_stats.epoch_summary(epoch=epoch, stage="validation" + extra_str)
+  File "/home/labai/eky_edgeformer/edgeformer/metrics/stats.py", line 137, in epoch_summary
+    metric_stats = self.avg_statistics_all(sep="=")
+  File "/home/labai/eky_edgeformer/edgeformer/metrics/stats.py", line 74, in avg_statistics_all
+    v_avg = (v * 1.0) / counter
+TypeError: unsupported operand type(s) for *: 'NoneType' and 'float'
+
+When Validating
+/home/labai/eky_edgeformer/checkpoints/checkpoint_coco_modif.pt
+trans4_Sha1398_0.jpg trans4_Sha1404_0.jpg trans4_Sha1405_0.jpg trans4_Sha1406_0_color.jpg trans4_Sha1409_0_color.jpg trans4_Sha1411_0.jpg trans4_Sha1414_0_color.jpg trans4_Sha1415_0.jpg trans4_Sha1416_0_color.jpg trans4_Sha1423_0.jpg trans4_Sha1428_0_color.jpg trans4_Sha1429_0_color.jpg trans4_Sha1434_0_color.jpg trans4_Sha1434_0.jpg trans4_Sha1437_0.jpg trans4_Sha1439_0.jpg trans4_Sha1440_0.jpg trans4_Sha1441_0_color.jpg trans4_Sha1443_0.jpg trans4_Sha1446_0.jpg trans4_Sha1448_0_color.jpg trans4_Sha1448_0.jpg trans4_Sha1450_0_color.jpg
+Epoch:19

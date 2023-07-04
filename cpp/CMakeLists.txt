@@ -30,7 +30,6 @@ else()
     link_libraries("${ONNXRUNTIME_DIR}/lib/libonnxruntime.dylib")
 endif()
 
-
 find_package(OpenCV REQUIRED)
 
 include_directories("${OpenCV_INCLUDE_DIRS}")
