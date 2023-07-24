@@ -54,7 +54,7 @@ Traceback (most recent call last):
   File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 285, in run
     train_loss, train_ckpt_metric = self.train_epoch(epoch)
   File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 161, in train_epoch
-    pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+    pred_label: Tuple[Tensor, Tensor, Tensor] = self.model(input_img)
   File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
     return forward_call(*input, **kwargs)
   File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/detection/ssd.py", line 243, in forward
@@ -106,7 +106,7 @@ Traceback (most recent call last):
   File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 285, in run
     train_loss, train_ckpt_metric = self.train_epoch(epoch)
   File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 161, in train_epoch
-    pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+    pred_label: Tuple[Tensor, Tensor, Tensor] = self.model(input_img)
   File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
     return forward_call(*input, **kwargs)
   File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/detection/ssd.py", line 239, in forward
@@ -154,7 +154,7 @@ For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
 
 Traceback (most recent call last):
   File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 167, in train_epoch
-    pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+    pred_label: Tuple[Tensor, Tensor, Tensor] = self.model(input_img)
   File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
     return forward_call(*input, **kwargs)
   File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/detection/ssd.py", line 239, in forward

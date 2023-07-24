@@ -977,7 +977,7 @@ class outer_frame_v1(BaseModule):
 
         return x
 
-    def profile_module(self, input: Tensor) -> tuple[Tensor, float, float]:
+    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
         params = macs = 0.0
         b, c, h, w = input.shape
 
@@ -1126,7 +1126,7 @@ class outer_frame_v2(BaseModule):
             x = self.local_rep_channel[i](x) + self.global_rep_channel[i](x)
         return x
 
-    def profile_module(self, input: Tensor) -> tuple[Tensor, float, float]:
+    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
         params = macs = 0.0
         b, c, h, w = input.shape
 

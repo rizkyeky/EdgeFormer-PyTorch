@@ -1,7 +1,7 @@
 cuDNN error: CUDNN_STATUS_MAPPING_ERROR
 Traceback (most recent call last):
   File "/home/labai/eky_edgeformer/edgeformer/engine/training_engine.py", line 182, in train_epoch
-    pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+    pred_label: Tuple[Tensor, Tensor, Tensor] = self.model(input_img)
   File "/home/labai/eky_edgeformer/env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1194, in _call_impl
     return forward_call(*input, **kwargs)
   File "/home/labai/eky_edgeformer/edgeformer/cvnets/models/detection/ssd.py", line 240, in forward

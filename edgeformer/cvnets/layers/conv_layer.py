@@ -1,6 +1,6 @@
 import torch
 from torch import nn, Tensor
-from typing import Optional
+from typing import Optional, Tuple
 import argparse
 
 from utils import logger
@@ -129,7 +129,7 @@ class ConvLayer(BaseLayer):
         repr_str += ', bias={})'.format(self.bias)
         return repr_str
 
-    def profile_module(self, input: Tensor) -> tuple[Tensor, float, float]:
+    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
         if input.dim() != 4:
             logger.error(
                 'Conv2d requires 4-dimensional input (BxCxHxW). Provided input has shape: {}'.format(input.size()))
@@ -261,7 +261,7 @@ class TransposeConvLayer(BaseLayer):
         repr_str += ')'
         return repr_str
 
-    def profile_module(self, input: Tensor) -> tuple[Tensor, float, float]:
+    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
         if input.dim() != 4:
             logger.error(
                 'Conv2d requires 4-dimensional input (BxCxHxW). Provided input has shape: {}'.format(input.size()))
@@ -324,7 +324,7 @@ class NormActLayer(BaseLayer):
     def forward(self, x: Tensor) -> Tensor:
         return self.block(x)
 
-    def profile_module(self, input: Tensor) -> tuple[Tensor, float, float]:
+    def profile_module(self, input: Tensor) -> Tuple[Tensor, float, float]:
         # compute parameters
         params = sum([p.numel() for p in self.parameters()])
         macs = 0.0

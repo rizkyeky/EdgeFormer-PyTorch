@@ -62,7 +62,7 @@ def init_model(path = "") -> SingleShotDetector:
         
         return model
 
-def predict_image(model: SingleShotDetector, image: np.array) -> tuple[np.array, np.array, np.array]:
+def predict_image(model: SingleShotDetector, image: np.array) -> Tuple[np.array, np.array, np.array]:
     
     with torch.no_grad():
         orig_h, orig_w = image.shape[0], image.shape[1]

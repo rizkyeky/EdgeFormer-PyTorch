@@ -11,6 +11,7 @@ edgeformer/pretrained_models/detection/unbalance/
 edgeformer/pretrained_models/classification/
 
 env/
+env2/
 env_test/
 checkpoints/
 images_test/

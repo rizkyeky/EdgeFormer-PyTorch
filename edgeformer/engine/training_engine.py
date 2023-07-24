@@ -10,8 +10,8 @@ from utils import logger
 from utils.common_utils import create_directories
 import time
 import shutil
-from typing import Dict
-from accelerate import Accelerator
+from typing import Dict, Tuple
+# from accelerate import Accelerator
 # from matplotlib import pyplot as plt
 # import json
 
@@ -39,7 +39,7 @@ class Trainer(object):
                  optimizer,
                  scheduler,
                  gradient_scalar,
-                 accelerator: Accelerator,
+                #  accelerator: Accelerator,
                  history: Dict[str, list],
                  start_epoch: int = 0,
                  start_iteration: int = 0,
@@ -57,7 +57,7 @@ class Trainer(object):
 
         self.val_loader = validation_loader
 
-        self.accelerator = accelerator
+        # self.accelerator = accelerator
 
         self.device = getattr(opts, "dev.device", torch.device("cpu"))
         # self.device = accelerator.device
@@ -181,7 +181,7 @@ class Trainer(object):
             with autocast(enabled=self.mixed_precision_training):
                 # prediction
                 try:
-                    pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+                    pred_label: Tuple[Tensor, Tensor, Tensor] = self.model(input_img)
                     prev_pred_label = pred_label
                     # print(pred_label[0].shape, pred_label[1].shape, pred_label[2].shape)  
                 except Exception as e:
@@ -202,7 +202,7 @@ class Trainer(object):
 
                         pred_label = prev_pred_label
                         
-                        # pred_label: tuple[Tensor, Tensor, Tensor] = torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
+                        # pred_label: Tuple[Tensor, Tensor, Tensor] = torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
                         #     torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
                         #     torch.rand((1, 1600, 4), dtype=torch.float16, device=self.device)
                         
@@ -295,12 +295,12 @@ class Trainer(object):
                 with autocast(enabled=self.mixed_precision_training):
                     # prediction
                     # try:
-                    #     pred_label: tuple[Tensor, Tensor, Tensor] = model(input_img)
+                    #     pred_label: Tuple[Tensor, Tensor, Tensor] = model(input_img)
                     # except Exception as e:
                     #     print('Error in model when validating')
                     #     # prediction
                     try:
-                        pred_label: tuple[Tensor, Tensor, Tensor] = self.model(input_img)
+                        pred_label: Tuple[Tensor, Tensor, Tensor] = self.model(input_img)
                         prev_pred_label = pred_label
                         # print(pred_label[0].shape, pred_label[1].shape, pred_label[2].shape)  
                     except Exception as e:
@@ -322,7 +322,7 @@ class Trainer(object):
 
                             pred_label = prev_pred_label
                             
-                            # pred_label: tuple[Tensor, Tensor, Tensor] = torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
+                            # pred_label: Tuple[Tensor, Tensor, Tensor] = torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
                             # torch.rand((batch_size, 1600, 4), dtype=torch.float16, device=self.device), \
                             # torch.rand((1, 1600, 4), dtype=torch.float16, device=self.device)                            
                             
