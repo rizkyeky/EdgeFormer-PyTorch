@@ -96,40 +96,40 @@ def testing(file, model):
         'labels': torch.from_numpy(pred_labels).to(torch.int16),
     }
 
-    _metric = MeanAveragePrecision()
+    # _metric = MeanAveragePrecision()
 
-    _metric.update([preds], [targets])
-    result = _metric.compute()
-    _map: torch.Tensor = result['map']
-    __map: float = _map.item()
+    # _metric.update([preds], [targets])
+    # result = _metric.compute()
+    # _map: torch.Tensor = result['map']
+    # __map: float = _map.item()
     
     # if (len(target_labels) != len(pred_labels)):
 
-    for i, (idx, score, coords) in enumerate(zip(target_labels, target_scores, target_boxes)):
-        # if score > 0.2:
-        label = "{} target".format(CLASSES[idx])
-        startX, startY, endX, endY = coords
-        cv2.rectangle(img,
-            (startX, startY), (endX, endY),
-            (0, 0, 255), # COLORS[idx], 
-            3
-        )
+    # for i, (idx, score, coords) in enumerate(zip(target_labels, target_scores, target_boxes)):
+    #     # if score > 0.2:
+    #     label = "{} target".format(CLASSES[idx])
+    #     startX, startY, endX, endY = coords
+    #     cv2.rectangle(img,
+    #         (startX, startY), (endX, endY),
+    #         (0, 0, 255), # COLORS[idx], 
+    #         3
+    #     )
             # y = startY - 15
             # cv2.putText(img, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, tuple(COLORS[idx]), 1)
 
-    for i, (idx, score, coords) in enumerate(zip(pred_labels, pred_scores, pred_boxes)):
-        # if score > 0.2:
-        label = "{} pred".format(CLASSES[idx])
-        startX, startY, endX, endY = coords
-        cv2.rectangle(img,
-            (startX, startY), (endX, endY),
-            (255, 0, 0), # COLORS[idx], 
-            3
-        )
+    # for i, (idx, score, coords) in enumerate(zip(pred_labels, pred_scores, pred_boxes)):
+    #     # if score > 0.2:
+    #     label = "{} pred".format(CLASSES[idx])
+    #     startX, startY, endX, endY = coords
+    #     cv2.rectangle(img,
+    #         (startX, startY), (endX, endY),
+    #         (255, 0, 0), # COLORS[idx], 
+    #         3
+    #     )
     #         y = startY - 15
     #         cv2.putText(img, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, tuple(COLORS[idx]), 1)
     # print(file, __map)
-    cv2.imwrite('test_results/' + str(__map) + '_' + file, img)
+    # cv2.imwrite('test_results/' + str(__map) + '_' + file, img)
 
     return targets, target_count, preds, pred_count, infertime
 
@@ -164,7 +164,7 @@ if __name__ == '__main__':
     
     pool = Pool(processes=4)
     partial_process = partial(testing, model=model)
-    results = pool.map(partial_process, image_list[:100])
+    results = pool.map(partial_process, image_list)
 
     for target, target_count, pred, pred_count, infertime in results:
         

@@ -58,7 +58,7 @@ model:
       nms_iou_threshold: 0.75
       conf_threshold: 0.05
       num_objects_per_class: 10
-    pretrained: "results/run10000_ori1500_coco/checkpoint_last.pt"
+    pretrained: "results/run10000_6300_coco/checkpoint_last.pt"
     n_classes: 4
   classification:
     name: "edgeformer"
