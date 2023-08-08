@@ -16,13 +16,13 @@ import torch
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 import numpy as np
-from accelerate import Accelerator
+# from accelerate import Accelerator
 
 opts = get_eval_arguments()
 opts = device_setup(opts)
-accelerator = Accelerator(cpu=True, mixed_precision='fp16')
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-device = torch.device("cpu")
+# accelerator = Accelerator(cpu=True, mixed_precision='fp16')
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = torch.device("cpu")
 # device = accelerator.device
 
 mixed_precision = getattr(opts, "common.mixed_precision", False)

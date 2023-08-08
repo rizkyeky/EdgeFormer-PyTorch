@@ -144,6 +144,6 @@ if __name__ == "__main__":
             lr = sch.get_lr(epoch=i, curr_iter=curr_iter)
         lrs.append(lr)
     print(lrs[-1])
-    import matplotlib.pyplot as plt
-    plt.plot(lrs)
-    plt.show()
+    # import matplotlib.pyplot as plt
+    # plt.plot(lrs)
+    # plt.show()
