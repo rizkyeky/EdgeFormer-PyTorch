@@ -25,8 +25,8 @@ def start():
     frames_count = 0
     start_time = time.time()
 
-    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-    out = cv2.VideoWriter('output.mp4', fourcc, 20.0, (1280,  720))
+    # fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+    # out = cv2.VideoWriter('output.mp4', fourcc, 20.0, (1280,  720))
 
     while (cap.isOpened()):
 
@@ -55,8 +55,8 @@ def start():
 
             cv2.putText(frame,'FPS: {:.2f}'.format(fps), (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 1)
 
-            # cv2.imshow('Frame', frame)
-            out.write(frame)
+            cv2.imshow('Frame', frame)
+            # out.write(frame)
             
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
@@ -65,7 +65,7 @@ def start():
             break
         
     cap.release()
-    out.release()
+    # out.release()
     cv2.destroyAllWindows()
     print('Averange fps: {:.2f}'.format(np.mean(fps_list)))
 

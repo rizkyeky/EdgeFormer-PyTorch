@@ -2,7 +2,7 @@
 import argparse
 from data.sampler import arguments_sampler
 from options.utils import load_config_file
-from data.datasets import arguments_dataset
+# from data.datasets import arguments_dataset
 from cvnets import arguments_model, arguments_nn_layers, arguments_ema
 from loss_fn import arguments_loss_fn
 from optim import arguments_optimizer
@@ -70,7 +70,7 @@ def get_training_arguments(parse_args: Optional[bool] = True):
     parser = arguments_sampler(parser=parser)
 
     # dataset related arguments
-    parser = arguments_dataset(parser=parser)
+    # parser = arguments_dataset(parser=parser)
 
     # transform related arguments
     parser = arguments_augmentation(parser=parser)
