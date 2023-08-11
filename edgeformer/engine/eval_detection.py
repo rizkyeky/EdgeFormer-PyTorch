@@ -7,7 +7,7 @@ import multiprocessing
 from torch.cuda.amp import autocast
 from torch.nn import functional as F
 import cv2
-from tqdm import tqdm
+# from tqdm import tqdm
 import glob
 from typing import Optional
 from torch import Tensor, nn

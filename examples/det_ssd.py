@@ -19,7 +19,7 @@ def start():
     if use_cuda:
         print('Using CUDA')
 
-    cap = cv2.VideoCapture('images_test/video_test2.mp4')
+    cap = cv2.VideoCapture('images_test/video_test.mp4')
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
 
     if (cap.isOpened() == False): 
@@ -48,6 +48,9 @@ def start():
 
     fps_list = []
     times_list = []
+
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+    out = cv2.VideoWriter('output1.mp4', fourcc, 20.0, (1280,  720))
 
     frames_count = 0
     start_time = time.time()
@@ -106,11 +109,14 @@ def start():
             end_time = time.time()
             elapsed_time = end_time - start_time
             fps = frames_count / elapsed_time
+            if fps > 10:
+                fps = 10
             fps_list.append(fps)
 
-            cv2.putText(orig,'FPS: {:.2f}'.format(fps), (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,0,0), 2)
+            cv2.putText(orig,'FPS: {:.2f}'.format(fps), (10,30), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 2)
 
-            cv2.imshow('Frame', orig)
+            # cv2.imshow('Frame', orig)
+            out.write(orig)
             
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break

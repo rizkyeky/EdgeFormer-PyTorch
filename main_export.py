@@ -28,4 +28,4 @@ if __name__ == '__main__':
 
     model_scripted = torch.jit.script(model)
     model_optimized = optimize_for_mobile(model_scripted)
-    model_optimized.save('pretrained/edgeformer_raw.pt')
+    model_optimized.save('pretrained/edgeformer_nms.pt')

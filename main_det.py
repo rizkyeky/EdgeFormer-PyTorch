@@ -77,31 +77,26 @@ def predict_image(model: SingleShotDetector, image: np.array) -> Tuple[np.array,
 
         if new_h != curr_height or new_w != curr_width:
             image = F.interpolate(input=image, size=(new_h, new_w), mode="bilinear", align_corners=False)
-
         
         image.to(device)
-        # print(image.device)
-        # print(model.device)
 
         if (torch.cuda.is_available()):
-            # print('Using AutocastCUDA')
             with torch.cuda.amp.autocast(enabled=True):
                 img = image.cuda()
                 tensor = model(img)
         else:
             tensor = model(image)
 
-        result = SingleShotDetector.predict(tensor, 
-                                            n_classes, 
-                                            size_variance, 
-                                            center_variance, 
-                                            conf_threshold, 
-                                            top_k, 
-                                            nms_threshold)
-        
-        boxes = result[0].cpu().numpy()
-        scores = result[1].cpu().numpy()
-        labels = result[2].cpu().numpy()
+        # result = SingleShotDetector.predict(tensor, 
+        #                                     n_classes, 
+        #                                     size_variance, 
+        #                                     center_variance, 
+        #                                     conf_threshold, 
+        #                                     top_k, 
+        #                                     nms_threshold)
+        boxes = tensor[0].cpu().numpy()
+        scores = tensor[1].cpu().numpy()
+        labels = tensor[2].cpu().numpy()
 
         boxes[..., 0::2] = boxes[..., 0::2] * orig_w
         boxes[..., 1::2] = boxes[..., 1::2] * orig_h

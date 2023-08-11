@@ -5,6 +5,7 @@
 *.jpg
 *.pt
 *.pth
+*.mp4
 
 edgeformer/pretrained_models/detection/balance/
 edgeformer/pretrained_models/detection/unbalance/

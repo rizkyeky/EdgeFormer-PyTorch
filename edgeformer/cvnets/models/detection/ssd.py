@@ -237,14 +237,21 @@ class SingleShotDetector(BaseDetection):
         return confidences, locations, anchors
 
     def forward(self, x: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
-        return self.ssd_forward(x)
+        result = self.ssd_forward(x)
         # bsz, _, __, ___ = x.shape
         # if self.is_training:
         #     assert bsz != 1
         #     return self.ssd_forward(x)  
         # else:
         #     assert bsz == 1
-        #     return self.predict(x)
+        return self.predict(result,
+                            n_classes=self.n_classes,
+                            size_variance=self.size_variance,
+                            center_variance=self.center_variance,
+                            conf_threshold=self.conf_threshold,
+                            top_k=self.top_k,
+                            nms_threshold=self.nms_threshold
+                            )
 
     @staticmethod
     def predict(tensors: Tuple[Tensor, Tensor, Tensor],
